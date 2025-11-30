@@ -1,0 +1,62 @@
+cmake_minimum_required(VERSION 3.15)
+project(PizzaLooper VERSION 1.0.0)
+
+# 🍏 Apple Silicon 向けビルド設定
+set(CMAKE_OSX_ARCHITECTURES "arm64")
+
+# JUCEの実体フォルダを指定（君の環境に合わせた！）
+set(JUCE_DIR "/Users/mtsh/JUCE")
+
+
+add_subdirectory(${JUCE_DIR} "${CMAKE_CURRENT_BINARY_DIR}/JUCE_build")
+
+# GUIアプリの定義
+
+juce_add_gui_app(PizzaLooper
+    COMPANY_NAME "BabyLeaf"
+    PRODUCT_NAME "PizzaLooper"
+    OUTPUT_NAME "PizzaLooper"
+    OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/PizzaLooperApp"
+)
+set_target_properties(PizzaLooper PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/PizzaLooperApp")
+
+
+# ソースファイル
+set(SOURCE_FILES
+    Source/Main.cpp
+    Source/MainComponent.cpp
+    Source/LooperAudio.cpp
+    Source/InputManager.cpp
+    Source/TransportPanel.cpp
+    Source/LooperTrackUi.cpp
+)
+
+set(HEADER_FILES
+    Source/PizzaColours.h
+    Source/DummyPizza.h
+    Source/Util.h
+    Source/TrackUtils.h
+    Source/InputManager.h
+    Source/InputTap.h
+    Source/LooperAudio.h
+    Source/LooperTrackUi.h
+    Source/TransportPanel.h
+    Source/TriggerEvent.h
+    Source/SmartGate.h
+    Source/MainComponent.h
+)
+
+target_sources(PizzaLooper PRIVATE ${SOURCE_FILES} ${HEADER_FILES})
+
+
+# 使用モジュール
+target_link_libraries(PizzaLooper PRIVATE
+    juce::juce_gui_basics
+    juce::juce_gui_extra
+    juce::juce_audio_basics
+    juce::juce_audio_utils
+    juce::juce_graphics
+    juce::juce_dsp
+    juce::juce_core
+    juce::juce_events
+)

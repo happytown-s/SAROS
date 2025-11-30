@@ -1,0 +1,14 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : [],
+		"files" : [],
+		"nodes" : []
+	},
+	"installers" : [],
+	"paths" : 
+	{
+		"build" : "JUCE_build/extras/Build",
+		"source" : "/Users/mtsh/JUCE/extras/Build"
+	}
+}

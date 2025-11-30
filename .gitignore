@@ -1,0 +1,9 @@
+# JUCE specific
+Builds/
+JuceLibraryCode/
+*.jucer
+!*.jucer
+
+# OS specific
+.DS_Store
+Thumbs.db

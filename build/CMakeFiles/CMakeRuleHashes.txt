@@ -1,0 +1,2 @@
+# Hashes of file build rules.
+fc19909a08239d4adba1889793ee3eed PizzaLooper_artefacts/JuceLibraryCode/PizzaLooper/PkgInfo
