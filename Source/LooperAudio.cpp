@@ -204,6 +204,15 @@ void LooperAudio::recordIntoTracks(const juce::AudioBuffer<float>& input)
 
         // --- 🔄 ラップアラウンド対応書き込みループ ---
         int samplesRemaining = numSamples;
+
+        // 【修正】マスター同期録音の場合は、ループ長を超えて録音しないように制限する
+        if (masterLoopLength > 0)
+        {
+            int maxRecordable = masterLoopLength - track.recordLength;
+            if (maxRecordable < 0) maxRecordable = 0;
+            samplesRemaining = juce::jmin(samplesRemaining, maxRecordable);
+        }
+
         int inputReadOffset = 0;
 
         while (samplesRemaining > 0)

@@ -2,6 +2,7 @@
 #include <juce_audio_basics/juce_audio_basics.h>
 #include "TriggerEvent.h"
 #include <map>
+#include <optional>
 #include "TrackUtils.h"
 
 
