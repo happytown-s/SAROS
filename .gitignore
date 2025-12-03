@@ -3,7 +3,7 @@ Builds/
 JuceLibraryCode/
 *.jucer
 !*.jucer
-
+*.py
 # OS specific
 .DS_Store
 Thumbs.db
