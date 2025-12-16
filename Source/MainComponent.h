@@ -56,10 +56,16 @@ public juce::Timer
 
 	// ===== デバイス管理 =====
 	juce::AudioDeviceManager deviceManager;
+	
+	// ===== 設定管理 =====
+	std::unique_ptr<juce::PropertiesFile> appProperties;
+	void saveAudioDeviceSettings();
+	void loadAudioDeviceSettings();
 
 	// ===== UI =====
 	TransportPanel transportPanel;
 	int selectedTrackId = 0;
+	std::atomic<bool> isStandbyMode { false };
 
 
 	std::vector<std::unique_ptr<LooperTrackUi>> trackUIs;

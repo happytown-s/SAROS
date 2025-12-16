@@ -6,7 +6,17 @@ MainComponent::MainComponent()
 		looper(44100, 44100 * 10),
 		transportPanel(looper)
 {
-	setAudioChannels(2, 2);
+	// 設定ファイルを初期化
+	juce::PropertiesFile::Options options;
+	options.applicationName = "PizzaLooper";
+	options.filenameSuffix = ".settings";
+	options.osxLibrarySubFolder = "Application Support";
+	options.folderName = "PizzaLooper";
+	
+	appProperties.reset(new juce::PropertiesFile(options));
+	
+	// 保存されたオーディオ設定を読み込み
+	loadAudioDeviceSettings();
 	deviceManager.addAudioCallback(&inputTap); // 入力だけTapする
 
 	startTimerHz(30);
@@ -29,11 +39,72 @@ MainComponent::MainComponent()
 
 	transportPanel.onAction = [this](const juce::String& action)
 	{
-		if      (action == "REC")    looper.startRecording(selectedTrackId);
-		else if (action == "PLAY")   looper.startPlaying(selectedTrackId);
-		else if (action == "STOP")   looper.stopPlaying(selectedTrackId);
+		if      (action == "REC")  {
+			// 録音開始前にスタンバイモードにする
+			isStandbyMode = true;
+			for (auto& t : trackUIs)
+			{
+				if (t->getIsSelected() &&
+					t->getState() == LooperTrackUi::TrackState::Idle)
+				{
+					t->setState(LooperTrackUi::TrackState::Standby);
+				}
+			}
+            updateStateVisual();
+		}
+		else if (action == "STOP_REC") {
+			// スタンバイ解除
+			isStandbyMode = false;
+            
+            if (looper.isAnyRecording())
+            {
+                int id = looper.getCurrentTrackId();
+                looper.stopRecording(id);
+                looper.startPlaying(id);
+            }
+
+			for (auto& t : trackUIs)
+			{
+				if (t->getState() == LooperTrackUi::TrackState::Standby)
+				{
+					t->setState(LooperTrackUi::TrackState::Idle);
+				}
+			}
+            updateStateVisual();
+		}
+		else if (action == "PLAY")
+        {
+             if (looper.isAnyRecording()) {
+                 looper.stopRecording(looper.getCurrentTrackId());
+             }
+             
+             const auto& tracks = looper.getTracks();
+             bool anyStarted = false;
+             for (const auto& [id, data] : tracks) {
+                 if (data.recordLength > 0) {
+                     looper.startPlaying(id);
+                     anyStarted = true;
+                 }
+             }
+             if (!anyStarted) DBG("⚠️ No tracks to play");
+        }
+		else if (action == "STOP")   looper.stopAllTracks();
 		else if (action == "UNDO")   looper.undoLastRecording();
-		else if (action == "CLEAR")   looper.allClear();
+		else if (action == "CLEAR") {
+		looper.allClear();
+		
+		// UI状態を完全にリセット
+		isStandbyMode = false;
+		selectedTrackId = 0;
+		
+		// 全トラックを初期状態に戻す
+		for (auto& t : trackUIs) {
+			t->setSelected(false);
+			t->setState(LooperTrackUi::TrackState::Idle);
+		}
+		
+		updateStateVisual();
+	}
 		else if (action == "SETUP")   showDeviceSettings();
 
 	};
@@ -54,6 +125,7 @@ MainComponent::MainComponent()
 
 MainComponent::~MainComponent()
 {
+	saveAudioDeviceSettings();
 	shutdownAudio();
 }
 
@@ -93,10 +165,12 @@ void MainComponent::getNextAudioBlock(const juce::AudioSourceChannelInfo& buffer
 	{
 		
 		bool anyRecording = false;
+		isStandbyMode = false; // 録音開始でスタンバイ解除)
+		
 		for (auto& t : trackUIs)
 		{
-			if (t->getIsSelected() &&
-				t->getState() == LooperTrackUi::TrackState::Recording)
+			if (t->getIsSelected() && 
+				t->getState() == LooperTrackUi::TrackState::Recording)  // ✅ Standbyを除外
 			{
 				anyRecording = true;
 				break;
@@ -246,6 +320,7 @@ void MainComponent::updateStateVisual()
 {
 	bool anyRecording = false;
 	bool anyPlaying = false;
+    bool anyStandby = false;
 	bool selectedDuringPlay = false;
 
 	for(auto& t : trackUIs)
@@ -257,6 +332,9 @@ void MainComponent::updateStateVisual()
 			case LooperTrackUi::TrackState::Playing:
 				anyPlaying = true;
 				break;
+            case LooperTrackUi::TrackState::Standby:
+                anyStandby = true;
+                break;
 			default:
 				break;
 		}
@@ -268,6 +346,10 @@ void MainComponent::updateStateVisual()
 	{
 		transportPanel.setState(TransportPanel::State::Recording);
 	}
+    else if (anyStandby)
+    {
+        transportPanel.setState(TransportPanel::State::Standby);
+    }
 	else if (anyPlaying && selectedDuringPlay)
 	{
 		transportPanel.setState(TransportPanel::State::Playing);
@@ -324,6 +406,13 @@ void MainComponent::timerCallback()
 		else if (data.isPlaying)
 			newState = LooperTrackUi::TrackState::Playing;
 		
+        // 🟡 Standby状態はLooper側にはないので、UI側で維持する
+        if (trackUI->getState() == LooperTrackUi::TrackState::Standby && newState == LooperTrackUi::TrackState::Idle)
+        {
+            // Standbyのまま
+            continue;
+        }
+
 		if (trackUI->getState() != newState)
 		{
 			trackUI->setState(newState);
@@ -331,6 +420,16 @@ void MainComponent::timerCallback()
 		}
 	}
 	
+    // Standby状態のトラックがあるか確認
+    bool anyStandby = false;
+    for (auto& t : trackUIs)
+    {
+        if (t->getState() == LooperTrackUi::TrackState::Standby)
+        {
+            anyStandby = true;
+            break;
+        }
+    }
 
 	//TransportPanelの状態更新
 	bool hasRecorded = looper.hasRecordedTracks(); // 🆕 録音済みトラックがあるか確認
@@ -341,6 +440,11 @@ void MainComponent::timerCallback()
 		// 🔴 録音中
 		transportPanel.setState(TransportPanel::State::Recording);
 	}
+    else if (anyStandby)
+    {
+        // 🟡 待機中
+        transportPanel.setState(TransportPanel::State::Standby);
+    }
 	else if (anyPlaying)
 	{
 		// ▶️ 再生中
@@ -378,13 +482,64 @@ void MainComponent::onRecordingStarted(int trackID)
 
 void MainComponent::onRecordingStopped(int trackID)
 {
-	//DBG("EVENT !!! Main : Track " << trackID << " finished recording!" );
+    // UIスレッドで安全に一括更新
+    util::safeUi([this, trackID]()
+    {
+        for (auto& t : trackUIs)
+        {
+            // 1. 録音が終わったトラックを再生状態にする
+            if (t->getTrackId() == trackID)
+                t->setState(LooperTrackUi::TrackState::Playing);
 
-	for (auto& t : trackUIs)
+            // 2. 🆕 全トラックの選択を解除！
+            t->setSelected(false);
+        }
+
+        // 3. 🆕 選択IDの記憶もリセット
+        selectedTrackId = 0; 
+        
+        // 4. トランスポートパネルなどの見た目を更新
+        updateStateVisual();
+        
+        DBG("⏹ Track " << trackID << " recording finished. Selection cleared.");
+    });
+}
+
+//==============================================================================
+// 設定保存・読み込み
+//==============================================================================
+
+void MainComponent::saveAudioDeviceSettings()
+{
+	if (appProperties != nullptr)
 	{
-		util::safeUi([this, &t, trackID]{
-			if (t->getTrackId() == trackID)
-				t->setState(LooperTrackUi::TrackState::Playing);
-		});
+		auto xml = deviceManager.createStateXml();
+		if (xml != nullptr)
+		{
+			appProperties->setValue("audioDeviceState", xml.get());
+			appProperties->saveIfNeeded();
+			DBG("🔧 Audio device settings saved");
+		}
+	}
+}
+
+void MainComponent::loadAudioDeviceSettings()
+{
+	// まず基本的な初期化（デフォルト設定）
+	setAudioChannels(2, 2);
+	
+	// 保存された設定があれば復元
+	if (appProperties != nullptr)
+	{
+		auto xmlState = appProperties->getXmlValue("audioDeviceState");
+		if (xmlState != nullptr)
+		{
+			deviceManager.initialise(2, 2, xmlState.get(), true);
+			DBG("✅ Audio device settings restored from file");
+		}
+		else
+		{
+			DBG("ℹ️ No saved audio settings found, using defaults");
+		}
 	}
 }

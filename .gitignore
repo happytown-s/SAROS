@@ -1,6 +1,7 @@
 # JUCE specific
 build/
 JUCE/
+Tests/
 *.jucer
 !*.jucer
 *.py

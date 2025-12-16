@@ -78,76 +78,35 @@ void TransportPanel::resized()
 //===========================================================
 void TransportPanel::buttonClicked(juce::Button* button)
 {
+	if (!onAction) return;
 
 	if(button == &recordButton)
 	{
-		if(!looper.isAnyRecording())
-			looper.startRecording(looper.getCurrentTrackId());
+		if (currentState == State::Recording || currentState == State::Standby)
+			onAction("STOP_REC");
 		else
-		{
-			DBG("TransportPanel: 🟥 録音停止");
-			looper.stopRecording(looper.getCurrentTrackId());
-			looper.startPlaying(looper.getCurrentTrackId());
-		}
+			onAction("REC");
 	}
 	else if (button == &playButton)
 	{
-		if (looper.isAnyRecording())
-		{
-			looper.stopRecording(looper.getCurrentTrackId());
-			DBG("🟥 録音停止");
-		}
-
-		if (!looper.isAnyPlaying())
-		{
-			const auto& tracks = looper.getTracks();
-			bool anyStarted = false;
-
-			for (const auto& [id, data] : tracks)
-			{
-				if (data.recordLength > 0)
-				{
-					looper.startPlaying(id);
-					anyStarted = true;
-				}
-			}
-
-			if (anyStarted)
-			{
-				playButton.setButtonText("STOP");
-				playButton.setColour(juce::TextButton::buttonColourId, PizzaColours::MushroomGray);
-				DBG("▶️ 全録音済みトラック再生開始！");
-			}
-			else
-			{
-				DBG("⚠️ 再生できるトラックがありません。");
-			}
-		}
+		if (currentState == State::Playing)
+			onAction("STOP");
 		else
-		{
-			looper.stopAllTracks();
-			playButton.setButtonText("PLAY");
-			playButton.setColour(juce::TextButton::buttonColourId, PizzaColours::BasilGreen);
-			DBG("⏹ 全トラック停止");
-		}
+			onAction("PLAY");
 	}
 	else if (button == &undoButton)
 	{
-		looper.undoLastRecording();
+		onAction("UNDO");
 	}
 	else if (button == &clearButton)
 	{
-		looper.allClear();
+		onAction("CLEAR");
 	}
 	else if (button == &settingButton)
 	{
 		DBG("⚙️ Device settings open requested");
 		onSettingsRequested();
 	}
-
-
-	
-
 }
 
 
@@ -176,6 +135,17 @@ void TransportPanel::setState(State newState)
 
 			undoButton.setColour(juce::TextButton::buttonColourId, PizzaColours::MushroomGray.withAlpha(0.5f)); // 押せない
 
+			break;
+
+		case State::Standby:
+			// 🟡 待機中
+			recordButton.setButtonText("WAIT...");
+			recordButton.setColour(juce::TextButton::buttonColourId, PizzaColours::CheeseYellow);
+			
+			playButton.setButtonText("PLAY");
+			playButton.setColour(juce::TextButton::buttonColourId, PizzaColours::MushroomGray);
+			
+			undoButton.setColour(juce::TextButton::buttonColourId, PizzaColours::MushroomGray.withAlpha(0.5f));
 			break;
 
 		case State::Recording:

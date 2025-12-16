@@ -22,7 +22,7 @@ class TransportPanel: public juce::Component,
 public:
 	TransportPanel(LooperAudio& looperRef);
 	~TransportPanel() override ;
-	enum class State {Idle, Recording, Playing, Stopped };
+	enum class State {Idle, Standby, Recording, Playing, Stopped };
 
 	std::function<void(const juce::String&)> onAction;
 	std::function<void()> onSettingsRequested;

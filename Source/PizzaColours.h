@@ -10,6 +10,7 @@
 
 #pragma once
 #include <juce_graphics/juce_graphics.h>
+#include <juce_gui_basics/juce_gui_basics.h>
 
 // =====================================================
 // 🍕 PizzaColours : ピザルーパー全体のテーマカラー

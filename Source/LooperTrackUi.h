@@ -16,7 +16,7 @@ class LooperTrackUi : public juce::Component,juce::Timer
 	public :
 
 	//トラックの状態
-	enum class TrackState{Idle,Recording,Playing,Stopped};
+	enum class TrackState{Idle,Standby,Recording,Playing,Stopped};
 
 	LooperTrackUi(int id, TrackState initState = TrackState::Idle)
 	: trackId(id),state(initState){}

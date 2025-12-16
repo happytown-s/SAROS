@@ -7,8 +7,10 @@
 
   ==============================================================================
 */
-#include "LooperTrackUi.h"
 
+#include <juce_gui_basics/juce_gui_basics.h>
+#include "PizzaColours.h"
+#include "LooperTrackUi.h"
 
 void LooperTrackUi::paint(juce::Graphics& g)
 {
@@ -34,6 +36,12 @@ void LooperTrackUi::paint(juce::Graphics& g)
 		g.drawRoundedRectangle(bounds, 10.0f, 4.0f);
 		drawGlowingBorder(g, juce::Colours::green);
 	}
+	else if (state == TrackState::Standby) {
+        // 🟡 待機中：チーズ色で点滅！
+        g.setColour(PizzaColours::CheeseYellow);
+        g.drawRoundedRectangle(bounds, 10.0f, 4.0f);
+        drawGlowingBorder(g, PizzaColours::CheeseYellow);
+    }
 
 }
 
@@ -99,11 +107,24 @@ void LooperTrackUi::setListener(Listener* listener) { this->listener = listener;
 
 void LooperTrackUi::setState(TrackState newState)
 {
-	if(state != newState)
-	{
-		state = newState;
-		repaint();
-	}
+	if (state != newState)
+    {
+        state = newState;
+        
+        // 🆕 動的な状態ならアニメーションタイマーを回す
+        if (state == TrackState::Recording || state == TrackState::Playing || state == TrackState::Standby)
+        {
+            if (!isTimerRunning()) {
+                flashProgress = 0.0f;
+                startTimerHz(60);
+            }
+        }
+        else
+        {
+            stopTimer();
+        }
+        repaint();
+    }
 }
 juce::String LooperTrackUi::getStateString()const {
 	switch (state) {
@@ -111,6 +132,7 @@ juce::String LooperTrackUi::getStateString()const {
 		case TrackState::Playing: return "Playing";
 		case TrackState::Stopped: return "Stopped";
 		case TrackState::Idle: return "Idle";
+		case TrackState::Standby: return "Standby";
 	}
 	return "Unknown";
 }
@@ -135,7 +157,8 @@ void LooperTrackUi::startFlash(){
 
 
 void LooperTrackUi::timerCallback(){
-	if(state == TrackState::Recording || state == TrackState::Playing){
+	if(state == TrackState::Recording || state == TrackState::Playing
+	   || state == TrackState::Standby){
 		flashProgress += 0.02f; //1周で50フレーム
 		if(flashProgress >= 1.0f){
 			flashProgress = 0.0f;
