@@ -105,48 +105,35 @@ public:
 		// すべてのアイコンをCreamDough色（ベージュ）に統一
 		g.setColour(PizzaColours::CreamDough);
 		
-		// Undoボタンの場合は90度回転
+		// UndoボタンのデザインをSVG描画に変更 (Drawableを使用して透過とスケールを完璧にする)
 		if (text == juce::String::fromUTF8("\xE2\x86\xB6"))  // ↶
 		{
-			// 回転の中心を円の中心に設定
-			juce::AffineTransform rotation = juce::AffineTransform::rotation(
-				juce::MathConstants<float>::halfPi,
-				centerX, 
-				centerY
-			);
-			
-			g.addTransform(rotation);
-			
-			// 矢印を描画（パスで描画）
-			juce::Path arrow;
-			// サイズを調整
-			float arrowSize = iconSize * 0.85f;
-			
-			// 円弧を描画（3/4周）
-			arrow.addArc(centerX - arrowSize/2, centerY - arrowSize/2, 
-						arrowSize, arrowSize, 
-						juce::MathConstants<float>::pi * 0.6f,  // 開始角度を調整
-						juce::MathConstants<float>::pi * 2.1f,  // 終了角度を調整
-						true);
-						
-			// ストロークを太く（0.2f -> 0.28f）
-			g.strokePath(arrow, juce::PathStrokeType(arrowSize * 0.28f));
-			
-			// 矢印の先端（より大きく、はっきりと）
-			juce::Path arrowHead;
-			float headSize = arrowSize * 0.5f;  // 0.4f -> 0.5f に拡大
-			float headWidth = arrowSize * 0.35f; // 幅も調整
-			
-			// 矢印ヘッドの位置を調整（円弧の終点）
-			float headCenterX = centerX - arrowSize/2;
-			float headCenterY = centerY;
-			
-			arrowHead.addTriangle(
-				headCenterX, headCenterY,
-				headCenterX + headSize, headCenterY - headWidth/2,
-				headCenterX + headSize, headCenterY + headWidth/2
-			);
-			g.fillPath(arrowHead);
+			// ユーザーから提供されたSVG (strokeを明示的に黒に設定)
+			juce::String svgText = 
+				"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#000000\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\">"
+				"  <path d=\"M20 5 A 8 8 0 0 1 4 5\" />"
+				"  <polyline points=\"1 8 4 5 7 8\" />"
+				"</svg>";
+
+			if (auto svgElem = juce::XmlDocument::parse(svgText))
+			{
+				if (auto drawable = juce::Drawable::createFromSVG(*svgElem))
+				{
+					// 黒色をCreamDough（ベージュ）に置き換え
+					drawable->replaceColour(juce::Colours::black, PizzaColours::CreamDough);
+					
+					// アイコンの描画サイズを調整 (少し大きめに)
+					float iconDrawSize = iconSize * 0.95f;
+					juce::Rectangle<float> iconArea(centerX - iconDrawSize * 0.5f,
+												  centerY - iconDrawSize * 0.5f,
+												  iconDrawSize, iconDrawSize);
+					
+					// SVGのデザインが中心より少し上にあるため、手動で垂直位置を微調整
+					iconArea.translate(0, iconDrawSize * 0.15f);
+					
+					drawable->drawWithin(g, iconArea, juce::RectanglePlacement::centred, 1.0f);
+				}
+			}
 		}
 		else if (text == juce::String::fromUTF8("\xE2\x8F\xBA"))  // ⏺ RECボタン
 		{

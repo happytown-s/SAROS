@@ -1,6 +1,5 @@
 CMakeFiles/PizzaLooper.dir/Source/LooperTrackUi.cpp.o: \
   /Users/mtsh/書類/code/JUCE/PizzaLooper/Source/LooperTrackUi.cpp \
-  /Users/mtsh/書類/code/JUCE/PizzaLooper/Source/LooperTrackUi.h \
   /Users/mtsh/JUCE/modules/juce_gui_basics/juce_gui_basics.h \
   /Users/mtsh/JUCE/modules/juce_graphics/juce_graphics.h \
   /Users/mtsh/JUCE/modules/juce_core/juce_core.h \
@@ -1222,6 +1221,8 @@ CMakeFiles/PizzaLooper.dir/Source/LooperTrackUi.cpp.o: \
   /Users/mtsh/JUCE/modules/juce_gui_basics/layout/juce_GridItem.h \
   /Users/mtsh/JUCE/modules/juce_gui_basics/layout/juce_Grid.h \
   /Users/mtsh/JUCE/modules/juce_gui_basics/native/juce_ScopedDPIAwarenessDisabler.h \
+  /Users/mtsh/書類/code/JUCE/PizzaLooper/Source/PizzaColours.h \
+  /Users/mtsh/書類/code/JUCE/PizzaLooper/Source/LooperTrackUi.h \
   /Users/mtsh/書類/code/JUCE/PizzaLooper/Source/LooperAudio.h \
   /Users/mtsh/JUCE/modules/juce_audio_basics/juce_audio_basics.h \
   /Users/mtsh/JUCE/modules/juce_audio_basics/buffers/juce_AudioDataConverters.h \
