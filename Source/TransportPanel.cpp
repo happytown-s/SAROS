@@ -94,10 +94,14 @@ void TransportPanel::buttonClicked(juce::Button* button)
 
 	if(button == &recordButton)
 	{
-		if (currentState == State::Recording || currentState == State::Standby)
+	if(button == &recordButton)
+	{
+		// 録音中のみ「停止」を送る。スタンバイ中はもう一度「REC」を送って強制開始させる。
+		if (currentState == State::Recording)
 			onAction("STOP_REC");
 		else
 			onAction("REC");
+	}
 	}
 	else if (button == &playButton)
 	{
