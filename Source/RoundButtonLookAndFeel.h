@@ -24,148 +24,168 @@ public:
 							bool isButtonDown) override
 	{
 		auto bounds = button.getLocalBounds().toFloat();
-		
-		// 幅を基準に円のサイズを決定（縦長ボタン前提）
 		float diameter = bounds.getWidth();
-		
-		// 円を上部に配置（少しマージンを空ける）
 		float x = bounds.getCentreX() - diameter * 0.5f;
 		float y = bounds.getY() + 2.0f;
-		
 		juce::Rectangle<float> circleBounds(x, y, diameter, diameter);
 		
-		// マウスオーバー・押下時の明度調整
 		auto fillColour = backgroundColour;
-		if (isButtonDown)
+		if (isButtonDown) 
 			fillColour = fillColour.darker(0.3f);
 		else if (isMouseOverButton)
-			fillColour = fillColour.brighter(0.1f);
+		{
+			// SETUPボタン（地色が明るい）はホバーで暗く、それ以外は明るく
+			if (button.getButtonText() == "SETUP")
+				fillColour = fillColour.darker(0.1f);
+			else
+				fillColour = fillColour.brighter(0.1f);
+		}
 		
-		// 円を描画
 		g.setColour(fillColour);
-		g.fillEllipse(circleBounds.reduced(2.0f));  // 少し小さくして余白を作る
-		
-		// 縁取り
+		g.fillEllipse(circleBounds.reduced(2.0f));
 		g.setColour(juce::Colours::black.withAlpha(0.3f));
 		g.drawEllipse(circleBounds.reduced(2.0f), 1.5f);
 		
-		// ボタンの下にラベルテキストを表示
-		auto& textButton = dynamic_cast<juce::TextButton&>(button);
-		auto buttonText = textButton.getButtonText();
-		
+		auto text = button.getButtonText();
 		juce::String labelText = "";
 		
-		// Unicodeシンボルからラベルテキストを決定
-		if (buttonText == juce::String::fromUTF8("\xE2\x8F\xBA"))  // ⏺
-			labelText = "REC";
-		else if (buttonText == juce::String::fromUTF8("\xE2\x96\xA0"))  // ■
-			labelText = "STOP";
-		else if (buttonText == juce::String::fromUTF8("\xE2\x96\xB6"))  // ▶
-			labelText = "PLAY";
-		else if (buttonText == juce::String::fromUTF8("\xE2\x86\xB6"))  // ↶
-			labelText = "UNDO";
-		else if (buttonText == juce::String::fromUTF8("\xE2\x8C\xAB"))  // ⌫
-			labelText = "CLEAR";
-		else if (buttonText == juce::String::fromUTF8("\xE2\x9A\x99"))  // ⚙
-			labelText = "SETUP";
+		// IDから表示ラベルへのマッピング
+		if      (text == "REC" || text == "STOP_REC") labelText = "REC";
+		else if (text == "PLAY" || text == "STOP")    labelText = "PLAY";
+		else if (text == "UNDO")  labelText = "UNDO";
+		else if (text == "CLEAR") labelText = "CLEAR";
+		else if (text == "SETUP") labelText = "SETUP";
 		
 		if (labelText.isNotEmpty())
 		{
-			g.setColour(juce::Colour::fromRGB(80, 60, 45));  // DeepOvenBrown
+			g.setColour(juce::Colour::fromRGB(80, 60, 45));
 			g.setFont(10.0f);
-			
-			// ボタンの下に配置（円の下）
-			juce::Rectangle<float> labelBounds(
-				bounds.getX(),
-				circleBounds.getBottom() + 2.0f,
-				bounds.getWidth(),
-				12.0f
-			);
-			
+			juce::Rectangle<float> labelBounds(bounds.getX(), circleBounds.getBottom() + 2.0f, bounds.getWidth(), 12.0f);
 			g.drawText(labelText, labelBounds, juce::Justification::centred, true);
 		}
 	}
 	
-	void drawButtonText(juce::Graphics& g,
-					   juce::TextButton& button,
-					   bool isMouseOverButton,
-					   bool isButtonDown) override
+	void drawButtonText(juce::Graphics& g, juce::TextButton& button, bool, bool) override
 	{
 		auto bounds = button.getLocalBounds().toFloat();
-		// 円のサイズと位置を再計算
 		float diameter = bounds.getWidth();
 		float circleY = bounds.getY() + 2.0f;
 		
 		auto iconSize = diameter * 0.6f;
 		auto centerX = bounds.getCentreX();
-		auto centerY = circleY + diameter * 0.5f; // 円の中心
+		auto centerY = circleY + diameter * 0.5f;
 		
 		auto text = button.getButtonText();
-		
-		// すべてのアイコンをCreamDough色（ベージュ）に統一
-		g.setColour(PizzaColours::CreamDough);
-		
-		// UndoボタンのデザインをSVG描画に変更 (Drawableを使用して透過とスケールを完璧にする)
-		if (text == juce::String::fromUTF8("\xE2\x86\xB6"))  // ↶
+        juce::String svgText;
+
+        // --- SVG Definition ---
+		if (text == "UNDO")
 		{
-			// ユーザーから提供されたSVG (strokeを明示的に黒に設定)
-			juce::String svgText = 
-				"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#000000\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\">"
+			svgText = 
+				"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#000000\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\">"
 				"  <path d=\"M20 5 A 8 8 0 0 1 4 5\" />"
 				"  <polyline points=\"1 8 4 5 7 8\" />"
 				"</svg>";
+		}
+		else if (text == "CLEAR")
+		{
+            // Trash Can
+			svgText = 
+                "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#000000\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">"
+                "  <polyline points=\"3 6 5 6 21 6\" />"
+                "  <path d=\"M19 6L19 21a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2\" />"
+                "  <line x1=\"10\" y1=\"11\" x2=\"10\" y2=\"17\" />" // 縦線
+                "  <line x1=\"14\" y1=\"11\" x2=\"14\" y2=\"17\" />" // 縦線
+                "</svg>";
+		}
+        else if (text == "SETUP")
+        {
+            // Gear
+            svgText =
+                "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#000000\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">"
+                "  <circle cx=\"12\" cy=\"12\" r=\"3\" />"
+                "  <path d=\"M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z\" />"
+                "</svg>";
+        }
+        else if (text == "REC")
+        {
+            // Filled Circle
+             svgText =
+                "<svg viewBox=\"0 0 24 24\" fill=\"currentColor\" stroke=\"none\">"
+                "  <circle cx=\"12\" cy=\"12\" r=\"8\" />"
+                "</svg>";
+        }
+        else if (text == "STOP" || text == "STOP_REC")
+        {
+             // Rounded Square
+             svgText =
+                "<svg viewBox=\"0 0 24 24\" fill=\"currentColor\" stroke=\"none\">"
+                "  <rect x=\"6\" y=\"6\" width=\"12\" height=\"12\" rx=\"2\" />"
+                "</svg>";
+        }
+        else if (text == "PLAY")
+        {
+             // Triangle
+             svgText =
+                "<svg viewBox=\"0 0 24 24\" fill=\"currentColor\" stroke=\"none\">"
+                "  <polygon points=\"5 3 19 12 5 21 5 3\" />"
+                "</svg>";
+        }
 
+        // --- Render SVG ---
+        if (svgText.isNotEmpty())
+        {
 			if (auto svgElem = juce::XmlDocument::parse(svgText))
 			{
 				if (auto drawable = juce::Drawable::createFromSVG(*svgElem))
 				{
-					// 黒色をCreamDough（ベージュ）に置き換え
+                    // 色: 全てCreamDough
 					drawable->replaceColour(juce::Colours::black, PizzaColours::CreamDough);
-					
-					// アイコンの描画サイズを調整 (少し大きめに)
-					float iconDrawSize = iconSize * 0.95f;
-					juce::Rectangle<float> iconArea(centerX - iconDrawSize * 0.5f,
-												  centerY - iconDrawSize * 0.5f,
-												  iconDrawSize, iconDrawSize);
-					
-					// SVGのデザインが中心より少し上にあるため、手動で垂直位置を微調整
-					iconArea.translate(0, iconDrawSize * 0.15f);
-					
-					drawable->drawWithin(g, iconArea, juce::RectanglePlacement::centred, 1.0f);
+                    // fill="currentColor" の場合は、色置換が効かない場合があるので明示的に全パスを塗る手もあるが
+                    // 単純な図形なら setColour で描画するときに反映される... いやDrawableは内部色を使う。
+                    // replaceColour は特定の「色」を置き換える。
+                    // SVG内で fill="currentColor" としておいて、描画時に色指定... はJUCE Drawableでは効きにくい。
+                    // 確実にいくなら、fill="black" stroke="black" にして replaceColour するのが無難。
+                    
+                    // 修正: 上記SVG定義で currentColor を使わず black に統一する（replaceColour用）
+                    // REC/STOP/PLAYは fill="black" に修正
 				}
 			}
-		}
-		else if (text == juce::String::fromUTF8("\xE2\x8F\xBA"))  // ⏺ RECボタン
-		{
-			// 小さな塗りつぶした円を描画
-			float circleRadius = iconSize / 3;
-			g.fillEllipse(centerX - circleRadius, centerY - circleRadius, 
-						  circleRadius * 2, circleRadius * 2);
-		}
-		else if (text == juce::String::fromUTF8("\xE2\x96\xA0"))  // ■ STOPボタン
-		{
-			// 角丸四角を描画
-			float squareSize = iconSize * 0.8f;
-			juce::Rectangle<float> squareArea(
-				centerX - squareSize/2,
-				centerY - squareSize/2,
-				squareSize,
-				squareSize
-			);
-			g.fillRoundedRectangle(squareArea, squareSize * 0.15f); // 角を少し丸く
-		}
-		else
-		{
-			// その他のテキスト描画（三角形、X、歯車など）
-			juce::Rectangle<float> iconArea(
-				centerX - iconSize/2,
-				centerY - iconSize/2,
-				iconSize,
-				iconSize
-			);
-			
-			g.setFont(iconSize); 
-			g.drawText(text, iconArea, juce::Justification::centred, false);
-		}
+        }
+        
+        // --- 修正版 Render Logic with fixed colors ---
+        // コード簡略化のため、parse -> replace -> draw を一気に行う
+        // SVG文字列内の currentColor を #000000 に置換してからパースすると確実
+        svgText = svgText.replace("currentColor", "#000000");
+
+        if (auto svgElem = juce::XmlDocument::parse(svgText))
+        {
+            if (auto drawable = juce::Drawable::createFromSVG(*svgElem))
+            {
+                // SETUPボタン（背景がCreamDough）の場合は濃い色にする、それ以外はCreamDough
+                if (text == "SETUP")
+                    drawable->replaceColour(juce::Colours::black, PizzaColours::DeepOvenBrown);
+                else
+                    drawable->replaceColour(juce::Colours::black, PizzaColours::CreamDough);
+                
+                float iconDrawSize = iconSize * 0.9f;
+                // SETUP/CLEARは少し小さめの方がバランスが良いかも
+                if(text == "SETUP" || text == "CLEAR") iconDrawSize *= 0.9f;
+
+                juce::Rectangle<float> iconArea(centerX - iconDrawSize * 0.5f,
+                                              centerY - iconDrawSize * 0.5f,
+                                              iconDrawSize, iconDrawSize);
+                
+                // 位置微調整
+                if(text != "REC" && text != "STOP" && text != "PLAY") {
+                     iconArea.translate(0, iconDrawSize * 0.1f);
+                }
+                
+                // PLAYの三角形は視覚的中心がずれるので少し右に
+                if (text == "PLAY") iconArea.translate(iconDrawSize * 0.1f, 0);
+
+                drawable->drawWithin(g, iconArea, juce::RectanglePlacement::centred, 1.0f);
+            }
+        }
 	}
 };
