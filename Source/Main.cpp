@@ -10,13 +10,13 @@
 #include "MainComponent.h"
 
 //==============================================================================
-class PizzaLooperApplication  : public juce::JUCEApplication
+class LooperApplication  : public juce::JUCEApplication
 {
 public:
     //==============================================================================
-    PizzaLooperApplication() {}
+    LooperApplication() {}
 
-    const juce::String getApplicationName() override       { return "PizzaLooper"; }
+    const juce::String getApplicationName() override       { return "Looper"; }
     const juce::String getApplicationVersion() override { return JUCE_STRINGIFY(PROJECT_VERSION); }
 
     bool moreThanOneInstanceAllowed() override             { return true; }
@@ -103,4 +103,4 @@ private:
 
 //==============================================================================
 // This macro generates the main() routine that launches the app.
-START_JUCE_APPLICATION (PizzaLooperApplication)
+START_JUCE_APPLICATION (LooperApplication)

@@ -39,12 +39,12 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/Users/mtsh/書類/code/JUCE/PizzaLooper/build/JUCE_build/tools/extras/Build/juceaide/cmake_install.cmake")
+  include("/Users/mtsh/書類/code/JUCE/Looper/build/JUCE_build/tools/extras/Build/juceaide/cmake_install.cmake")
 endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
 if(CMAKE_INSTALL_LOCAL_ONLY)
-  file(WRITE "/Users/mtsh/書類/code/JUCE/PizzaLooper/build/JUCE_build/tools/extras/Build/install_local_manifest.txt"
+  file(WRITE "/Users/mtsh/書類/code/JUCE/Looper/build/JUCE_build/tools/extras/Build/install_local_manifest.txt"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
 endif()

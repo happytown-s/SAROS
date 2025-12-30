@@ -16,14 +16,14 @@ set(CMAKE_MAKEFILE_DEPENDS
   "/Users/mtsh/JUCE/extras/Build/CMakeLists.txt"
   "/Users/mtsh/JUCE/extras/Build/juceaide/CMakeLists.txt"
   "/Users/mtsh/JUCE/modules/CMakeLists.txt"
-  "/Users/mtsh/書類/code/JUCE/PizzaLooper/CMakeLists.txt"
+  "/Users/mtsh/書類/code/JUCE/Looper/CMakeLists.txt"
   "CMakeFiles/4.1.1/CMakeCCompiler.cmake"
   "CMakeFiles/4.1.1/CMakeCXXCompiler.cmake"
   "CMakeFiles/4.1.1/CMakeSystem.cmake"
   "CMakeFiles/VerifyGlobs.cmake"
   "CMakeFiles/cmake.verify_globs"
   "JUCE_build/tools/JUCEToolsExport.cmake"
-  "PizzaLooper_artefacts/JuceLibraryCode/PizzaLooper/Info.plist"
+  "Looper_artefacts/JuceLibraryCode/Looper/Info.plist"
   "/opt/homebrew/share/cmake/Modules/BasicConfigVersion-ExactVersion.cmake.in"
   "/opt/homebrew/share/cmake/Modules/CMakeCInformation.cmake"
   "/opt/homebrew/share/cmake/Modules/CMakeCXXInformation.cmake"
@@ -68,10 +68,10 @@ set(CMAKE_MAKEFILE_OUTPUTS
 
 # Byproducts of CMake generate step:
 set(CMAKE_MAKEFILE_PRODUCTS
-  "PizzaLooper_artefacts/JuceLibraryCode/Debug/Defs.txt"
-  "PizzaLooperApp/PizzaLooper.app/Contents/MacOS"
-  "PizzaLooperApp/PizzaLooper.app/Contents/Info.plist"
-  "PizzaLooperApp/PizzaLooper.app/Contents/Info.plist"
+  "Looper_artefacts/JuceLibraryCode/Debug/Defs.txt"
+  "LooperApp/Looper.app/Contents/MacOS"
+  "LooperApp/Looper.app/Contents/Info.plist"
+  "LooperApp/Looper.app/Contents/Info.plist"
   "CMakeFiles/CMakeDirectoryInformation.cmake"
   "JUCE_build/JUCEConfigVersion.cmake"
   "JUCE_build/JUCEConfig.cmake"
@@ -84,5 +84,5 @@ set(CMAKE_MAKEFILE_PRODUCTS
 
 # Dependency information for all targets:
 set(CMAKE_DEPEND_INFO_FILES
-  "CMakeFiles/PizzaLooper.dir/DependInfo.cmake"
+  "CMakeFiles/Looper.dir/DependInfo.cmake"
   )

@@ -57,10 +57,10 @@ RM = /opt/homebrew/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /Users/mtsh/書類/code/JUCE/PizzaLooper
+CMAKE_SOURCE_DIR = /Users/mtsh/書類/code/JUCE/Looper
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /Users/mtsh/書類/code/JUCE/PizzaLooper/build
+CMAKE_BINARY_DIR = /Users/mtsh/書類/code/JUCE/Looper/build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -132,9 +132,9 @@ install/strip/fast: preinstall/fast
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/mtsh/書類/code/JUCE/PizzaLooper/build/CMakeFiles /Users/mtsh/書類/code/JUCE/PizzaLooper/build//CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/mtsh/書類/code/JUCE/Looper/build/CMakeFiles /Users/mtsh/書類/code/JUCE/Looper/build//CMakeFiles/progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/mtsh/書類/code/JUCE/PizzaLooper/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/mtsh/書類/code/JUCE/Looper/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -158,29 +158,29 @@ preinstall/fast:
 
 # clear depends
 depend:
-	$(CMAKE_COMMAND) -P /Users/mtsh/書類/code/JUCE/PizzaLooper/build/CMakeFiles/VerifyGlobs.cmake
+	$(CMAKE_COMMAND) -P /Users/mtsh/書類/code/JUCE/Looper/build/CMakeFiles/VerifyGlobs.cmake
 	$(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named PizzaLooper
+# Target rules for targets named Looper
 
 # Build rule for target.
-PizzaLooper: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 PizzaLooper
-.PHONY : PizzaLooper
+Looper: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 Looper
+.PHONY : Looper
 
 # fast build rule for target.
-PizzaLooper/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/build
-.PHONY : PizzaLooper/fast
+Looper/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/build
+.PHONY : Looper/fast
 
 Source/InputManager.o: Source/InputManager.cpp.o
 .PHONY : Source/InputManager.o
 
 # target to build an object file
 Source/InputManager.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Source/InputManager.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Source/InputManager.cpp.o
 .PHONY : Source/InputManager.cpp.o
 
 Source/InputManager.i: Source/InputManager.cpp.i
@@ -188,7 +188,7 @@ Source/InputManager.i: Source/InputManager.cpp.i
 
 # target to preprocess a source file
 Source/InputManager.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Source/InputManager.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Source/InputManager.cpp.i
 .PHONY : Source/InputManager.cpp.i
 
 Source/InputManager.s: Source/InputManager.cpp.s
@@ -196,7 +196,7 @@ Source/InputManager.s: Source/InputManager.cpp.s
 
 # target to generate assembly for a file
 Source/InputManager.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Source/InputManager.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Source/InputManager.cpp.s
 .PHONY : Source/InputManager.cpp.s
 
 Source/LooperAudio.o: Source/LooperAudio.cpp.o
@@ -204,7 +204,7 @@ Source/LooperAudio.o: Source/LooperAudio.cpp.o
 
 # target to build an object file
 Source/LooperAudio.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Source/LooperAudio.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Source/LooperAudio.cpp.o
 .PHONY : Source/LooperAudio.cpp.o
 
 Source/LooperAudio.i: Source/LooperAudio.cpp.i
@@ -212,7 +212,7 @@ Source/LooperAudio.i: Source/LooperAudio.cpp.i
 
 # target to preprocess a source file
 Source/LooperAudio.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Source/LooperAudio.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Source/LooperAudio.cpp.i
 .PHONY : Source/LooperAudio.cpp.i
 
 Source/LooperAudio.s: Source/LooperAudio.cpp.s
@@ -220,7 +220,7 @@ Source/LooperAudio.s: Source/LooperAudio.cpp.s
 
 # target to generate assembly for a file
 Source/LooperAudio.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Source/LooperAudio.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Source/LooperAudio.cpp.s
 .PHONY : Source/LooperAudio.cpp.s
 
 Source/LooperTrackUi.o: Source/LooperTrackUi.cpp.o
@@ -228,7 +228,7 @@ Source/LooperTrackUi.o: Source/LooperTrackUi.cpp.o
 
 # target to build an object file
 Source/LooperTrackUi.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Source/LooperTrackUi.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Source/LooperTrackUi.cpp.o
 .PHONY : Source/LooperTrackUi.cpp.o
 
 Source/LooperTrackUi.i: Source/LooperTrackUi.cpp.i
@@ -236,7 +236,7 @@ Source/LooperTrackUi.i: Source/LooperTrackUi.cpp.i
 
 # target to preprocess a source file
 Source/LooperTrackUi.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Source/LooperTrackUi.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Source/LooperTrackUi.cpp.i
 .PHONY : Source/LooperTrackUi.cpp.i
 
 Source/LooperTrackUi.s: Source/LooperTrackUi.cpp.s
@@ -244,7 +244,7 @@ Source/LooperTrackUi.s: Source/LooperTrackUi.cpp.s
 
 # target to generate assembly for a file
 Source/LooperTrackUi.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Source/LooperTrackUi.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Source/LooperTrackUi.cpp.s
 .PHONY : Source/LooperTrackUi.cpp.s
 
 Source/Main.o: Source/Main.cpp.o
@@ -252,7 +252,7 @@ Source/Main.o: Source/Main.cpp.o
 
 # target to build an object file
 Source/Main.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Source/Main.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Source/Main.cpp.o
 .PHONY : Source/Main.cpp.o
 
 Source/Main.i: Source/Main.cpp.i
@@ -260,7 +260,7 @@ Source/Main.i: Source/Main.cpp.i
 
 # target to preprocess a source file
 Source/Main.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Source/Main.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Source/Main.cpp.i
 .PHONY : Source/Main.cpp.i
 
 Source/Main.s: Source/Main.cpp.s
@@ -268,7 +268,7 @@ Source/Main.s: Source/Main.cpp.s
 
 # target to generate assembly for a file
 Source/Main.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Source/Main.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Source/Main.cpp.s
 .PHONY : Source/Main.cpp.s
 
 Source/MainComponent.o: Source/MainComponent.cpp.o
@@ -276,7 +276,7 @@ Source/MainComponent.o: Source/MainComponent.cpp.o
 
 # target to build an object file
 Source/MainComponent.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Source/MainComponent.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Source/MainComponent.cpp.o
 .PHONY : Source/MainComponent.cpp.o
 
 Source/MainComponent.i: Source/MainComponent.cpp.i
@@ -284,7 +284,7 @@ Source/MainComponent.i: Source/MainComponent.cpp.i
 
 # target to preprocess a source file
 Source/MainComponent.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Source/MainComponent.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Source/MainComponent.cpp.i
 .PHONY : Source/MainComponent.cpp.i
 
 Source/MainComponent.s: Source/MainComponent.cpp.s
@@ -292,7 +292,7 @@ Source/MainComponent.s: Source/MainComponent.cpp.s
 
 # target to generate assembly for a file
 Source/MainComponent.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Source/MainComponent.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Source/MainComponent.cpp.s
 .PHONY : Source/MainComponent.cpp.s
 
 Source/TransportPanel.o: Source/TransportPanel.cpp.o
@@ -300,7 +300,7 @@ Source/TransportPanel.o: Source/TransportPanel.cpp.o
 
 # target to build an object file
 Source/TransportPanel.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Source/TransportPanel.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Source/TransportPanel.cpp.o
 .PHONY : Source/TransportPanel.cpp.o
 
 Source/TransportPanel.i: Source/TransportPanel.cpp.i
@@ -308,7 +308,7 @@ Source/TransportPanel.i: Source/TransportPanel.cpp.i
 
 # target to preprocess a source file
 Source/TransportPanel.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Source/TransportPanel.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Source/TransportPanel.cpp.i
 .PHONY : Source/TransportPanel.cpp.i
 
 Source/TransportPanel.s: Source/TransportPanel.cpp.s
@@ -316,7 +316,7 @@ Source/TransportPanel.s: Source/TransportPanel.cpp.s
 
 # target to generate assembly for a file
 Source/TransportPanel.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Source/TransportPanel.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Source/TransportPanel.cpp.s
 .PHONY : Source/TransportPanel.cpp.s
 
 Users/mtsh/JUCE/modules/juce_audio_basics/juce_audio_basics.o: Users/mtsh/JUCE/modules/juce_audio_basics/juce_audio_basics.mm.o
@@ -324,7 +324,7 @@ Users/mtsh/JUCE/modules/juce_audio_basics/juce_audio_basics.o: Users/mtsh/JUCE/m
 
 # target to build an object file
 Users/mtsh/JUCE/modules/juce_audio_basics/juce_audio_basics.mm.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Users/mtsh/JUCE/modules/juce_audio_basics/juce_audio_basics.mm.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Users/mtsh/JUCE/modules/juce_audio_basics/juce_audio_basics.mm.o
 .PHONY : Users/mtsh/JUCE/modules/juce_audio_basics/juce_audio_basics.mm.o
 
 Users/mtsh/JUCE/modules/juce_audio_basics/juce_audio_basics.i: Users/mtsh/JUCE/modules/juce_audio_basics/juce_audio_basics.mm.i
@@ -332,7 +332,7 @@ Users/mtsh/JUCE/modules/juce_audio_basics/juce_audio_basics.i: Users/mtsh/JUCE/m
 
 # target to preprocess a source file
 Users/mtsh/JUCE/modules/juce_audio_basics/juce_audio_basics.mm.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Users/mtsh/JUCE/modules/juce_audio_basics/juce_audio_basics.mm.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Users/mtsh/JUCE/modules/juce_audio_basics/juce_audio_basics.mm.i
 .PHONY : Users/mtsh/JUCE/modules/juce_audio_basics/juce_audio_basics.mm.i
 
 Users/mtsh/JUCE/modules/juce_audio_basics/juce_audio_basics.s: Users/mtsh/JUCE/modules/juce_audio_basics/juce_audio_basics.mm.s
@@ -340,7 +340,7 @@ Users/mtsh/JUCE/modules/juce_audio_basics/juce_audio_basics.s: Users/mtsh/JUCE/m
 
 # target to generate assembly for a file
 Users/mtsh/JUCE/modules/juce_audio_basics/juce_audio_basics.mm.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Users/mtsh/JUCE/modules/juce_audio_basics/juce_audio_basics.mm.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Users/mtsh/JUCE/modules/juce_audio_basics/juce_audio_basics.mm.s
 .PHONY : Users/mtsh/JUCE/modules/juce_audio_basics/juce_audio_basics.mm.s
 
 Users/mtsh/JUCE/modules/juce_audio_devices/juce_audio_devices.o: Users/mtsh/JUCE/modules/juce_audio_devices/juce_audio_devices.mm.o
@@ -348,7 +348,7 @@ Users/mtsh/JUCE/modules/juce_audio_devices/juce_audio_devices.o: Users/mtsh/JUCE
 
 # target to build an object file
 Users/mtsh/JUCE/modules/juce_audio_devices/juce_audio_devices.mm.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Users/mtsh/JUCE/modules/juce_audio_devices/juce_audio_devices.mm.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Users/mtsh/JUCE/modules/juce_audio_devices/juce_audio_devices.mm.o
 .PHONY : Users/mtsh/JUCE/modules/juce_audio_devices/juce_audio_devices.mm.o
 
 Users/mtsh/JUCE/modules/juce_audio_devices/juce_audio_devices.i: Users/mtsh/JUCE/modules/juce_audio_devices/juce_audio_devices.mm.i
@@ -356,7 +356,7 @@ Users/mtsh/JUCE/modules/juce_audio_devices/juce_audio_devices.i: Users/mtsh/JUCE
 
 # target to preprocess a source file
 Users/mtsh/JUCE/modules/juce_audio_devices/juce_audio_devices.mm.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Users/mtsh/JUCE/modules/juce_audio_devices/juce_audio_devices.mm.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Users/mtsh/JUCE/modules/juce_audio_devices/juce_audio_devices.mm.i
 .PHONY : Users/mtsh/JUCE/modules/juce_audio_devices/juce_audio_devices.mm.i
 
 Users/mtsh/JUCE/modules/juce_audio_devices/juce_audio_devices.s: Users/mtsh/JUCE/modules/juce_audio_devices/juce_audio_devices.mm.s
@@ -364,7 +364,7 @@ Users/mtsh/JUCE/modules/juce_audio_devices/juce_audio_devices.s: Users/mtsh/JUCE
 
 # target to generate assembly for a file
 Users/mtsh/JUCE/modules/juce_audio_devices/juce_audio_devices.mm.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Users/mtsh/JUCE/modules/juce_audio_devices/juce_audio_devices.mm.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Users/mtsh/JUCE/modules/juce_audio_devices/juce_audio_devices.mm.s
 .PHONY : Users/mtsh/JUCE/modules/juce_audio_devices/juce_audio_devices.mm.s
 
 Users/mtsh/JUCE/modules/juce_audio_formats/juce_audio_formats.o: Users/mtsh/JUCE/modules/juce_audio_formats/juce_audio_formats.mm.o
@@ -372,7 +372,7 @@ Users/mtsh/JUCE/modules/juce_audio_formats/juce_audio_formats.o: Users/mtsh/JUCE
 
 # target to build an object file
 Users/mtsh/JUCE/modules/juce_audio_formats/juce_audio_formats.mm.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Users/mtsh/JUCE/modules/juce_audio_formats/juce_audio_formats.mm.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Users/mtsh/JUCE/modules/juce_audio_formats/juce_audio_formats.mm.o
 .PHONY : Users/mtsh/JUCE/modules/juce_audio_formats/juce_audio_formats.mm.o
 
 Users/mtsh/JUCE/modules/juce_audio_formats/juce_audio_formats.i: Users/mtsh/JUCE/modules/juce_audio_formats/juce_audio_formats.mm.i
@@ -380,7 +380,7 @@ Users/mtsh/JUCE/modules/juce_audio_formats/juce_audio_formats.i: Users/mtsh/JUCE
 
 # target to preprocess a source file
 Users/mtsh/JUCE/modules/juce_audio_formats/juce_audio_formats.mm.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Users/mtsh/JUCE/modules/juce_audio_formats/juce_audio_formats.mm.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Users/mtsh/JUCE/modules/juce_audio_formats/juce_audio_formats.mm.i
 .PHONY : Users/mtsh/JUCE/modules/juce_audio_formats/juce_audio_formats.mm.i
 
 Users/mtsh/JUCE/modules/juce_audio_formats/juce_audio_formats.s: Users/mtsh/JUCE/modules/juce_audio_formats/juce_audio_formats.mm.s
@@ -388,7 +388,7 @@ Users/mtsh/JUCE/modules/juce_audio_formats/juce_audio_formats.s: Users/mtsh/JUCE
 
 # target to generate assembly for a file
 Users/mtsh/JUCE/modules/juce_audio_formats/juce_audio_formats.mm.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Users/mtsh/JUCE/modules/juce_audio_formats/juce_audio_formats.mm.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Users/mtsh/JUCE/modules/juce_audio_formats/juce_audio_formats.mm.s
 .PHONY : Users/mtsh/JUCE/modules/juce_audio_formats/juce_audio_formats.mm.s
 
 Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors.o: Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors.mm.o
@@ -396,7 +396,7 @@ Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors.o: Users/mts
 
 # target to build an object file
 Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors.mm.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors.mm.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors.mm.o
 .PHONY : Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors.mm.o
 
 Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors.i: Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors.mm.i
@@ -404,7 +404,7 @@ Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors.i: Users/mts
 
 # target to preprocess a source file
 Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors.mm.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors.mm.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors.mm.i
 .PHONY : Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors.mm.i
 
 Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors.s: Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors.mm.s
@@ -412,7 +412,7 @@ Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors.s: Users/mts
 
 # target to generate assembly for a file
 Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors.mm.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors.mm.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors.mm.s
 .PHONY : Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors.mm.s
 
 Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_ara.o: Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_ara.cpp.o
@@ -420,7 +420,7 @@ Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_ara.o: Users
 
 # target to build an object file
 Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_ara.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_ara.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_ara.cpp.o
 .PHONY : Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_ara.cpp.o
 
 Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_ara.i: Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_ara.cpp.i
@@ -428,7 +428,7 @@ Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_ara.i: Users
 
 # target to preprocess a source file
 Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_ara.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_ara.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_ara.cpp.i
 .PHONY : Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_ara.cpp.i
 
 Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_ara.s: Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_ara.cpp.s
@@ -436,7 +436,7 @@ Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_ara.s: Users
 
 # target to generate assembly for a file
 Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_ara.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_ara.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_ara.cpp.s
 .PHONY : Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_ara.cpp.s
 
 Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_lv2_libs.o: Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_lv2_libs.cpp.o
@@ -444,7 +444,7 @@ Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_lv2_libs.o: 
 
 # target to build an object file
 Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_lv2_libs.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_lv2_libs.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_lv2_libs.cpp.o
 .PHONY : Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_lv2_libs.cpp.o
 
 Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_lv2_libs.i: Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_lv2_libs.cpp.i
@@ -452,7 +452,7 @@ Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_lv2_libs.i: 
 
 # target to preprocess a source file
 Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_lv2_libs.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_lv2_libs.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_lv2_libs.cpp.i
 .PHONY : Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_lv2_libs.cpp.i
 
 Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_lv2_libs.s: Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_lv2_libs.cpp.s
@@ -460,7 +460,7 @@ Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_lv2_libs.s: 
 
 # target to generate assembly for a file
 Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_lv2_libs.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_lv2_libs.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_lv2_libs.cpp.s
 .PHONY : Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_lv2_libs.cpp.s
 
 Users/mtsh/JUCE/modules/juce_audio_utils/juce_audio_utils.o: Users/mtsh/JUCE/modules/juce_audio_utils/juce_audio_utils.mm.o
@@ -468,7 +468,7 @@ Users/mtsh/JUCE/modules/juce_audio_utils/juce_audio_utils.o: Users/mtsh/JUCE/mod
 
 # target to build an object file
 Users/mtsh/JUCE/modules/juce_audio_utils/juce_audio_utils.mm.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Users/mtsh/JUCE/modules/juce_audio_utils/juce_audio_utils.mm.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Users/mtsh/JUCE/modules/juce_audio_utils/juce_audio_utils.mm.o
 .PHONY : Users/mtsh/JUCE/modules/juce_audio_utils/juce_audio_utils.mm.o
 
 Users/mtsh/JUCE/modules/juce_audio_utils/juce_audio_utils.i: Users/mtsh/JUCE/modules/juce_audio_utils/juce_audio_utils.mm.i
@@ -476,7 +476,7 @@ Users/mtsh/JUCE/modules/juce_audio_utils/juce_audio_utils.i: Users/mtsh/JUCE/mod
 
 # target to preprocess a source file
 Users/mtsh/JUCE/modules/juce_audio_utils/juce_audio_utils.mm.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Users/mtsh/JUCE/modules/juce_audio_utils/juce_audio_utils.mm.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Users/mtsh/JUCE/modules/juce_audio_utils/juce_audio_utils.mm.i
 .PHONY : Users/mtsh/JUCE/modules/juce_audio_utils/juce_audio_utils.mm.i
 
 Users/mtsh/JUCE/modules/juce_audio_utils/juce_audio_utils.s: Users/mtsh/JUCE/modules/juce_audio_utils/juce_audio_utils.mm.s
@@ -484,7 +484,7 @@ Users/mtsh/JUCE/modules/juce_audio_utils/juce_audio_utils.s: Users/mtsh/JUCE/mod
 
 # target to generate assembly for a file
 Users/mtsh/JUCE/modules/juce_audio_utils/juce_audio_utils.mm.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Users/mtsh/JUCE/modules/juce_audio_utils/juce_audio_utils.mm.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Users/mtsh/JUCE/modules/juce_audio_utils/juce_audio_utils.mm.s
 .PHONY : Users/mtsh/JUCE/modules/juce_audio_utils/juce_audio_utils.mm.s
 
 Users/mtsh/JUCE/modules/juce_core/juce_core.o: Users/mtsh/JUCE/modules/juce_core/juce_core.mm.o
@@ -492,7 +492,7 @@ Users/mtsh/JUCE/modules/juce_core/juce_core.o: Users/mtsh/JUCE/modules/juce_core
 
 # target to build an object file
 Users/mtsh/JUCE/modules/juce_core/juce_core.mm.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Users/mtsh/JUCE/modules/juce_core/juce_core.mm.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Users/mtsh/JUCE/modules/juce_core/juce_core.mm.o
 .PHONY : Users/mtsh/JUCE/modules/juce_core/juce_core.mm.o
 
 Users/mtsh/JUCE/modules/juce_core/juce_core.i: Users/mtsh/JUCE/modules/juce_core/juce_core.mm.i
@@ -500,7 +500,7 @@ Users/mtsh/JUCE/modules/juce_core/juce_core.i: Users/mtsh/JUCE/modules/juce_core
 
 # target to preprocess a source file
 Users/mtsh/JUCE/modules/juce_core/juce_core.mm.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Users/mtsh/JUCE/modules/juce_core/juce_core.mm.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Users/mtsh/JUCE/modules/juce_core/juce_core.mm.i
 .PHONY : Users/mtsh/JUCE/modules/juce_core/juce_core.mm.i
 
 Users/mtsh/JUCE/modules/juce_core/juce_core.s: Users/mtsh/JUCE/modules/juce_core/juce_core.mm.s
@@ -508,7 +508,7 @@ Users/mtsh/JUCE/modules/juce_core/juce_core.s: Users/mtsh/JUCE/modules/juce_core
 
 # target to generate assembly for a file
 Users/mtsh/JUCE/modules/juce_core/juce_core.mm.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Users/mtsh/JUCE/modules/juce_core/juce_core.mm.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Users/mtsh/JUCE/modules/juce_core/juce_core.mm.s
 .PHONY : Users/mtsh/JUCE/modules/juce_core/juce_core.mm.s
 
 Users/mtsh/JUCE/modules/juce_core/juce_core_CompilationTime.o: Users/mtsh/JUCE/modules/juce_core/juce_core_CompilationTime.cpp.o
@@ -516,7 +516,7 @@ Users/mtsh/JUCE/modules/juce_core/juce_core_CompilationTime.o: Users/mtsh/JUCE/m
 
 # target to build an object file
 Users/mtsh/JUCE/modules/juce_core/juce_core_CompilationTime.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Users/mtsh/JUCE/modules/juce_core/juce_core_CompilationTime.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Users/mtsh/JUCE/modules/juce_core/juce_core_CompilationTime.cpp.o
 .PHONY : Users/mtsh/JUCE/modules/juce_core/juce_core_CompilationTime.cpp.o
 
 Users/mtsh/JUCE/modules/juce_core/juce_core_CompilationTime.i: Users/mtsh/JUCE/modules/juce_core/juce_core_CompilationTime.cpp.i
@@ -524,7 +524,7 @@ Users/mtsh/JUCE/modules/juce_core/juce_core_CompilationTime.i: Users/mtsh/JUCE/m
 
 # target to preprocess a source file
 Users/mtsh/JUCE/modules/juce_core/juce_core_CompilationTime.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Users/mtsh/JUCE/modules/juce_core/juce_core_CompilationTime.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Users/mtsh/JUCE/modules/juce_core/juce_core_CompilationTime.cpp.i
 .PHONY : Users/mtsh/JUCE/modules/juce_core/juce_core_CompilationTime.cpp.i
 
 Users/mtsh/JUCE/modules/juce_core/juce_core_CompilationTime.s: Users/mtsh/JUCE/modules/juce_core/juce_core_CompilationTime.cpp.s
@@ -532,7 +532,7 @@ Users/mtsh/JUCE/modules/juce_core/juce_core_CompilationTime.s: Users/mtsh/JUCE/m
 
 # target to generate assembly for a file
 Users/mtsh/JUCE/modules/juce_core/juce_core_CompilationTime.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Users/mtsh/JUCE/modules/juce_core/juce_core_CompilationTime.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Users/mtsh/JUCE/modules/juce_core/juce_core_CompilationTime.cpp.s
 .PHONY : Users/mtsh/JUCE/modules/juce_core/juce_core_CompilationTime.cpp.s
 
 Users/mtsh/JUCE/modules/juce_data_structures/juce_data_structures.o: Users/mtsh/JUCE/modules/juce_data_structures/juce_data_structures.mm.o
@@ -540,7 +540,7 @@ Users/mtsh/JUCE/modules/juce_data_structures/juce_data_structures.o: Users/mtsh/
 
 # target to build an object file
 Users/mtsh/JUCE/modules/juce_data_structures/juce_data_structures.mm.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Users/mtsh/JUCE/modules/juce_data_structures/juce_data_structures.mm.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Users/mtsh/JUCE/modules/juce_data_structures/juce_data_structures.mm.o
 .PHONY : Users/mtsh/JUCE/modules/juce_data_structures/juce_data_structures.mm.o
 
 Users/mtsh/JUCE/modules/juce_data_structures/juce_data_structures.i: Users/mtsh/JUCE/modules/juce_data_structures/juce_data_structures.mm.i
@@ -548,7 +548,7 @@ Users/mtsh/JUCE/modules/juce_data_structures/juce_data_structures.i: Users/mtsh/
 
 # target to preprocess a source file
 Users/mtsh/JUCE/modules/juce_data_structures/juce_data_structures.mm.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Users/mtsh/JUCE/modules/juce_data_structures/juce_data_structures.mm.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Users/mtsh/JUCE/modules/juce_data_structures/juce_data_structures.mm.i
 .PHONY : Users/mtsh/JUCE/modules/juce_data_structures/juce_data_structures.mm.i
 
 Users/mtsh/JUCE/modules/juce_data_structures/juce_data_structures.s: Users/mtsh/JUCE/modules/juce_data_structures/juce_data_structures.mm.s
@@ -556,7 +556,7 @@ Users/mtsh/JUCE/modules/juce_data_structures/juce_data_structures.s: Users/mtsh/
 
 # target to generate assembly for a file
 Users/mtsh/JUCE/modules/juce_data_structures/juce_data_structures.mm.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Users/mtsh/JUCE/modules/juce_data_structures/juce_data_structures.mm.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Users/mtsh/JUCE/modules/juce_data_structures/juce_data_structures.mm.s
 .PHONY : Users/mtsh/JUCE/modules/juce_data_structures/juce_data_structures.mm.s
 
 Users/mtsh/JUCE/modules/juce_dsp/juce_dsp.o: Users/mtsh/JUCE/modules/juce_dsp/juce_dsp.mm.o
@@ -564,7 +564,7 @@ Users/mtsh/JUCE/modules/juce_dsp/juce_dsp.o: Users/mtsh/JUCE/modules/juce_dsp/ju
 
 # target to build an object file
 Users/mtsh/JUCE/modules/juce_dsp/juce_dsp.mm.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Users/mtsh/JUCE/modules/juce_dsp/juce_dsp.mm.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Users/mtsh/JUCE/modules/juce_dsp/juce_dsp.mm.o
 .PHONY : Users/mtsh/JUCE/modules/juce_dsp/juce_dsp.mm.o
 
 Users/mtsh/JUCE/modules/juce_dsp/juce_dsp.i: Users/mtsh/JUCE/modules/juce_dsp/juce_dsp.mm.i
@@ -572,7 +572,7 @@ Users/mtsh/JUCE/modules/juce_dsp/juce_dsp.i: Users/mtsh/JUCE/modules/juce_dsp/ju
 
 # target to preprocess a source file
 Users/mtsh/JUCE/modules/juce_dsp/juce_dsp.mm.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Users/mtsh/JUCE/modules/juce_dsp/juce_dsp.mm.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Users/mtsh/JUCE/modules/juce_dsp/juce_dsp.mm.i
 .PHONY : Users/mtsh/JUCE/modules/juce_dsp/juce_dsp.mm.i
 
 Users/mtsh/JUCE/modules/juce_dsp/juce_dsp.s: Users/mtsh/JUCE/modules/juce_dsp/juce_dsp.mm.s
@@ -580,7 +580,7 @@ Users/mtsh/JUCE/modules/juce_dsp/juce_dsp.s: Users/mtsh/JUCE/modules/juce_dsp/ju
 
 # target to generate assembly for a file
 Users/mtsh/JUCE/modules/juce_dsp/juce_dsp.mm.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Users/mtsh/JUCE/modules/juce_dsp/juce_dsp.mm.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Users/mtsh/JUCE/modules/juce_dsp/juce_dsp.mm.s
 .PHONY : Users/mtsh/JUCE/modules/juce_dsp/juce_dsp.mm.s
 
 Users/mtsh/JUCE/modules/juce_events/juce_events.o: Users/mtsh/JUCE/modules/juce_events/juce_events.mm.o
@@ -588,7 +588,7 @@ Users/mtsh/JUCE/modules/juce_events/juce_events.o: Users/mtsh/JUCE/modules/juce_
 
 # target to build an object file
 Users/mtsh/JUCE/modules/juce_events/juce_events.mm.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Users/mtsh/JUCE/modules/juce_events/juce_events.mm.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Users/mtsh/JUCE/modules/juce_events/juce_events.mm.o
 .PHONY : Users/mtsh/JUCE/modules/juce_events/juce_events.mm.o
 
 Users/mtsh/JUCE/modules/juce_events/juce_events.i: Users/mtsh/JUCE/modules/juce_events/juce_events.mm.i
@@ -596,7 +596,7 @@ Users/mtsh/JUCE/modules/juce_events/juce_events.i: Users/mtsh/JUCE/modules/juce_
 
 # target to preprocess a source file
 Users/mtsh/JUCE/modules/juce_events/juce_events.mm.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Users/mtsh/JUCE/modules/juce_events/juce_events.mm.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Users/mtsh/JUCE/modules/juce_events/juce_events.mm.i
 .PHONY : Users/mtsh/JUCE/modules/juce_events/juce_events.mm.i
 
 Users/mtsh/JUCE/modules/juce_events/juce_events.s: Users/mtsh/JUCE/modules/juce_events/juce_events.mm.s
@@ -604,7 +604,7 @@ Users/mtsh/JUCE/modules/juce_events/juce_events.s: Users/mtsh/JUCE/modules/juce_
 
 # target to generate assembly for a file
 Users/mtsh/JUCE/modules/juce_events/juce_events.mm.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Users/mtsh/JUCE/modules/juce_events/juce_events.mm.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Users/mtsh/JUCE/modules/juce_events/juce_events.mm.s
 .PHONY : Users/mtsh/JUCE/modules/juce_events/juce_events.mm.s
 
 Users/mtsh/JUCE/modules/juce_graphics/juce_graphics.o: Users/mtsh/JUCE/modules/juce_graphics/juce_graphics.mm.o
@@ -612,7 +612,7 @@ Users/mtsh/JUCE/modules/juce_graphics/juce_graphics.o: Users/mtsh/JUCE/modules/j
 
 # target to build an object file
 Users/mtsh/JUCE/modules/juce_graphics/juce_graphics.mm.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Users/mtsh/JUCE/modules/juce_graphics/juce_graphics.mm.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Users/mtsh/JUCE/modules/juce_graphics/juce_graphics.mm.o
 .PHONY : Users/mtsh/JUCE/modules/juce_graphics/juce_graphics.mm.o
 
 Users/mtsh/JUCE/modules/juce_graphics/juce_graphics.i: Users/mtsh/JUCE/modules/juce_graphics/juce_graphics.mm.i
@@ -620,7 +620,7 @@ Users/mtsh/JUCE/modules/juce_graphics/juce_graphics.i: Users/mtsh/JUCE/modules/j
 
 # target to preprocess a source file
 Users/mtsh/JUCE/modules/juce_graphics/juce_graphics.mm.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Users/mtsh/JUCE/modules/juce_graphics/juce_graphics.mm.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Users/mtsh/JUCE/modules/juce_graphics/juce_graphics.mm.i
 .PHONY : Users/mtsh/JUCE/modules/juce_graphics/juce_graphics.mm.i
 
 Users/mtsh/JUCE/modules/juce_graphics/juce_graphics.s: Users/mtsh/JUCE/modules/juce_graphics/juce_graphics.mm.s
@@ -628,7 +628,7 @@ Users/mtsh/JUCE/modules/juce_graphics/juce_graphics.s: Users/mtsh/JUCE/modules/j
 
 # target to generate assembly for a file
 Users/mtsh/JUCE/modules/juce_graphics/juce_graphics.mm.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Users/mtsh/JUCE/modules/juce_graphics/juce_graphics.mm.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Users/mtsh/JUCE/modules/juce_graphics/juce_graphics.mm.s
 .PHONY : Users/mtsh/JUCE/modules/juce_graphics/juce_graphics.mm.s
 
 Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Harfbuzz.o: Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Harfbuzz.cpp.o
@@ -636,7 +636,7 @@ Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Harfbuzz.o: Users/mtsh/JUCE/
 
 # target to build an object file
 Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Harfbuzz.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Harfbuzz.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Harfbuzz.cpp.o
 .PHONY : Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Harfbuzz.cpp.o
 
 Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Harfbuzz.i: Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Harfbuzz.cpp.i
@@ -644,7 +644,7 @@ Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Harfbuzz.i: Users/mtsh/JUCE/
 
 # target to preprocess a source file
 Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Harfbuzz.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Harfbuzz.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Harfbuzz.cpp.i
 .PHONY : Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Harfbuzz.cpp.i
 
 Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Harfbuzz.s: Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Harfbuzz.cpp.s
@@ -652,7 +652,7 @@ Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Harfbuzz.s: Users/mtsh/JUCE/
 
 # target to generate assembly for a file
 Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Harfbuzz.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Harfbuzz.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Harfbuzz.cpp.s
 .PHONY : Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Harfbuzz.cpp.s
 
 Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Sheenbidi.o: Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Sheenbidi.c.o
@@ -660,7 +660,7 @@ Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Sheenbidi.o: Users/mtsh/JUCE
 
 # target to build an object file
 Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Sheenbidi.c.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Sheenbidi.c.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Sheenbidi.c.o
 .PHONY : Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Sheenbidi.c.o
 
 Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Sheenbidi.i: Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Sheenbidi.c.i
@@ -668,7 +668,7 @@ Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Sheenbidi.i: Users/mtsh/JUCE
 
 # target to preprocess a source file
 Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Sheenbidi.c.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Sheenbidi.c.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Sheenbidi.c.i
 .PHONY : Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Sheenbidi.c.i
 
 Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Sheenbidi.s: Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Sheenbidi.c.s
@@ -676,7 +676,7 @@ Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Sheenbidi.s: Users/mtsh/JUCE
 
 # target to generate assembly for a file
 Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Sheenbidi.c.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Sheenbidi.c.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Sheenbidi.c.s
 .PHONY : Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Sheenbidi.c.s
 
 Users/mtsh/JUCE/modules/juce_gui_basics/juce_gui_basics.o: Users/mtsh/JUCE/modules/juce_gui_basics/juce_gui_basics.mm.o
@@ -684,7 +684,7 @@ Users/mtsh/JUCE/modules/juce_gui_basics/juce_gui_basics.o: Users/mtsh/JUCE/modul
 
 # target to build an object file
 Users/mtsh/JUCE/modules/juce_gui_basics/juce_gui_basics.mm.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Users/mtsh/JUCE/modules/juce_gui_basics/juce_gui_basics.mm.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Users/mtsh/JUCE/modules/juce_gui_basics/juce_gui_basics.mm.o
 .PHONY : Users/mtsh/JUCE/modules/juce_gui_basics/juce_gui_basics.mm.o
 
 Users/mtsh/JUCE/modules/juce_gui_basics/juce_gui_basics.i: Users/mtsh/JUCE/modules/juce_gui_basics/juce_gui_basics.mm.i
@@ -692,7 +692,7 @@ Users/mtsh/JUCE/modules/juce_gui_basics/juce_gui_basics.i: Users/mtsh/JUCE/modul
 
 # target to preprocess a source file
 Users/mtsh/JUCE/modules/juce_gui_basics/juce_gui_basics.mm.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Users/mtsh/JUCE/modules/juce_gui_basics/juce_gui_basics.mm.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Users/mtsh/JUCE/modules/juce_gui_basics/juce_gui_basics.mm.i
 .PHONY : Users/mtsh/JUCE/modules/juce_gui_basics/juce_gui_basics.mm.i
 
 Users/mtsh/JUCE/modules/juce_gui_basics/juce_gui_basics.s: Users/mtsh/JUCE/modules/juce_gui_basics/juce_gui_basics.mm.s
@@ -700,7 +700,7 @@ Users/mtsh/JUCE/modules/juce_gui_basics/juce_gui_basics.s: Users/mtsh/JUCE/modul
 
 # target to generate assembly for a file
 Users/mtsh/JUCE/modules/juce_gui_basics/juce_gui_basics.mm.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Users/mtsh/JUCE/modules/juce_gui_basics/juce_gui_basics.mm.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Users/mtsh/JUCE/modules/juce_gui_basics/juce_gui_basics.mm.s
 .PHONY : Users/mtsh/JUCE/modules/juce_gui_basics/juce_gui_basics.mm.s
 
 Users/mtsh/JUCE/modules/juce_gui_extra/juce_gui_extra.o: Users/mtsh/JUCE/modules/juce_gui_extra/juce_gui_extra.mm.o
@@ -708,7 +708,7 @@ Users/mtsh/JUCE/modules/juce_gui_extra/juce_gui_extra.o: Users/mtsh/JUCE/modules
 
 # target to build an object file
 Users/mtsh/JUCE/modules/juce_gui_extra/juce_gui_extra.mm.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Users/mtsh/JUCE/modules/juce_gui_extra/juce_gui_extra.mm.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Users/mtsh/JUCE/modules/juce_gui_extra/juce_gui_extra.mm.o
 .PHONY : Users/mtsh/JUCE/modules/juce_gui_extra/juce_gui_extra.mm.o
 
 Users/mtsh/JUCE/modules/juce_gui_extra/juce_gui_extra.i: Users/mtsh/JUCE/modules/juce_gui_extra/juce_gui_extra.mm.i
@@ -716,7 +716,7 @@ Users/mtsh/JUCE/modules/juce_gui_extra/juce_gui_extra.i: Users/mtsh/JUCE/modules
 
 # target to preprocess a source file
 Users/mtsh/JUCE/modules/juce_gui_extra/juce_gui_extra.mm.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Users/mtsh/JUCE/modules/juce_gui_extra/juce_gui_extra.mm.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Users/mtsh/JUCE/modules/juce_gui_extra/juce_gui_extra.mm.i
 .PHONY : Users/mtsh/JUCE/modules/juce_gui_extra/juce_gui_extra.mm.i
 
 Users/mtsh/JUCE/modules/juce_gui_extra/juce_gui_extra.s: Users/mtsh/JUCE/modules/juce_gui_extra/juce_gui_extra.mm.s
@@ -724,7 +724,7 @@ Users/mtsh/JUCE/modules/juce_gui_extra/juce_gui_extra.s: Users/mtsh/JUCE/modules
 
 # target to generate assembly for a file
 Users/mtsh/JUCE/modules/juce_gui_extra/juce_gui_extra.mm.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/Users/mtsh/JUCE/modules/juce_gui_extra/juce_gui_extra.mm.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/Users/mtsh/JUCE/modules/juce_gui_extra/juce_gui_extra.mm.s
 .PHONY : Users/mtsh/JUCE/modules/juce_gui_extra/juce_gui_extra.mm.s
 
 # Help Target
@@ -739,7 +739,7 @@ help:
 	@echo "... install/strip"
 	@echo "... list_install_components"
 	@echo "... rebuild_cache"
-	@echo "... PizzaLooper"
+	@echo "... Looper"
 	@echo "... Source/InputManager.o"
 	@echo "... Source/InputManager.i"
 	@echo "... Source/InputManager.s"
@@ -820,7 +820,7 @@ help:
 # No rule that depends on this can have commands that come from listfiles
 # because they might be regenerated.
 cmake_check_build_system:
-	$(CMAKE_COMMAND) -P /Users/mtsh/書類/code/JUCE/PizzaLooper/build/CMakeFiles/VerifyGlobs.cmake
+	$(CMAKE_COMMAND) -P /Users/mtsh/書類/code/JUCE/Looper/build/CMakeFiles/VerifyGlobs.cmake
 	$(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
 .PHONY : cmake_check_build_system
 

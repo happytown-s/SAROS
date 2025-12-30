@@ -259,7 +259,13 @@ void LooperAudio::mixTracksToOutput(juce::AudioBuffer<float>& output)
 
     for (auto& [id, track] : tracks)
     {
-        if (!track.isPlaying) continue;
+        if (!track.isPlaying)
+        {
+            // 停止中はレベルを減衰させてゼロにする
+            track.currentLevel *= 0.8f;
+            if (track.currentLevel < 0.001f) track.currentLevel = 0.0f;
+            continue;
+        }
 
         const int numChannels = juce::jmin(output.getNumChannels(), track.buffer.getNumChannels());
         
@@ -316,7 +322,12 @@ void LooperAudio::mixTracksToOutput(juce::AudioBuffer<float>& output)
             float r2 = track.buffer.getRMSLevel(0, 0, part2);
             rmsValue = (r1 + r2) * 0.5f; // 簡易平均
         }
-        track.currentLevel = rmsValue;
+        // Apply decay smoothing: rise immediately, fall slowly
+        constexpr float decayRate = 0.95f;  // Higher = slower decay
+        if (rmsValue > track.currentLevel)
+            track.currentLevel = rmsValue;
+        else
+            track.currentLevel = track.currentLevel * decayRate + rmsValue * (1.0f - decayRate);
     }
 
 

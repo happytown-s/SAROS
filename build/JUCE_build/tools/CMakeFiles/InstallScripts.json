@@ -1,10 +1,10 @@
 {
 	"InstallScripts" : 
 	[
-		"/Users/mtsh/\u66f8\u985e/code/JUCE/PizzaLooper/build/JUCE_build/tools/cmake_install.cmake",
-		"/Users/mtsh/\u66f8\u985e/code/JUCE/PizzaLooper/build/JUCE_build/tools/modules/cmake_install.cmake",
-		"/Users/mtsh/\u66f8\u985e/code/JUCE/PizzaLooper/build/JUCE_build/tools/extras/Build/cmake_install.cmake",
-		"/Users/mtsh/\u66f8\u985e/code/JUCE/PizzaLooper/build/JUCE_build/tools/extras/Build/juceaide/cmake_install.cmake"
+		"/Users/mtsh/\u66f8\u985e/code/JUCE/Looper/build/JUCE_build/tools/cmake_install.cmake",
+		"/Users/mtsh/\u66f8\u985e/code/JUCE/Looper/build/JUCE_build/tools/modules/cmake_install.cmake",
+		"/Users/mtsh/\u66f8\u985e/code/JUCE/Looper/build/JUCE_build/tools/extras/Build/cmake_install.cmake",
+		"/Users/mtsh/\u66f8\u985e/code/JUCE/Looper/build/JUCE_build/tools/extras/Build/juceaide/cmake_install.cmake"
 	],
 	"Parallel" : false
 }

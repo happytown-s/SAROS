@@ -58,6 +58,7 @@ class InputTap : public juce::AudioIODeviceCallback
 
 		//smartGate.processBlock(buffer,buffer);
 
+		updateInputLevel(buffer);
 
 		inputManager.analyze(buffer);
 
@@ -117,12 +118,35 @@ class InputTap : public juce::AudioIODeviceCallback
 	const InputManager& getManager() const noexcept {return inputManager;}
 	juce::TriggerEvent& getTriggerEvent() noexcept {return inputManager.getTriggerEvent();}
 
+	// 入力RMSレベルを取得
+	float getInputRMS() const
+	{
+		return currentInputLevel.load();
+	}
+
 private:
 	juce::AudioBuffer<float> buffer;
 	InputManager inputManager;
 	SmartGate smartGate;
 
 	double sampleRate = 44100.0;
+	std::atomic<float> currentInputLevel { 0.0f };
+
+	void updateInputLevel(const juce::AudioBuffer<float>& buf)
+	{
+		float rms = 0.0f;
+		if (buf.getNumChannels() > 0 && buf.getNumSamples() > 0)
+			rms = buf.getRMSLevel(0, 0, buf.getNumSamples());
+
+		// スムージング処理 (LooperAudioと同様)
+		float current = currentInputLevel.load();
+		constexpr float decayRate = 0.90f; // InputTap側は少し反応良く
+
+		if (rms > current)
+			currentInputLevel.store(rms);
+		else
+			currentInputLevel.store(current * decayRate + rms * (1.0f - decayRate));
+	}
 
 	void captureInput(const float* const* inputChannelData, int numInputChannels, int numSamples)
 	{
@@ -135,6 +159,8 @@ private:
 			if (inputChannelData[ch] != nullptr)
 				buffer.copyFrom(ch, 0, inputChannelData[ch], numSamples);
 		}
+		
+		updateInputLevel(buffer);
 
 		// 🎙️ Debugログ（入力検知）
 		//auto range = juce::FloatVectorOperations::findMinAndMax(buffer.getReadPointer(0), numSamples);

@@ -57,10 +57,10 @@ RM = /opt/homebrew/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /Users/mtsh/書類/code/JUCE/PizzaLooper
+CMAKE_SOURCE_DIR = /Users/mtsh/書類/code/JUCE/Looper
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /Users/mtsh/書類/code/JUCE/PizzaLooper/build
+CMAKE_BINARY_DIR = /Users/mtsh/書類/code/JUCE/Looper/build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -132,14 +132,14 @@ install/strip/fast: preinstall/fast
 
 # The main all target
 all: cmake_check_build_system
-	cd /Users/mtsh/書類/code/JUCE/PizzaLooper/build && $(CMAKE_COMMAND) -E cmake_progress_start /Users/mtsh/書類/code/JUCE/PizzaLooper/build/CMakeFiles /Users/mtsh/書類/code/JUCE/PizzaLooper/build/JUCE_build/extras/Build/juceaide//CMakeFiles/progress.marks
-	cd /Users/mtsh/書類/code/JUCE/PizzaLooper/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 JUCE_build/extras/Build/juceaide/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/mtsh/書類/code/JUCE/PizzaLooper/build/CMakeFiles 0
+	cd /Users/mtsh/書類/code/JUCE/Looper/build && $(CMAKE_COMMAND) -E cmake_progress_start /Users/mtsh/書類/code/JUCE/Looper/build/CMakeFiles /Users/mtsh/書類/code/JUCE/Looper/build/JUCE_build/extras/Build/juceaide//CMakeFiles/progress.marks
+	cd /Users/mtsh/書類/code/JUCE/Looper/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 JUCE_build/extras/Build/juceaide/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/mtsh/書類/code/JUCE/Looper/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	cd /Users/mtsh/書類/code/JUCE/PizzaLooper/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 JUCE_build/extras/Build/juceaide/clean
+	cd /Users/mtsh/書類/code/JUCE/Looper/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 JUCE_build/extras/Build/juceaide/clean
 .PHONY : clean
 
 # The main clean target
@@ -148,18 +148,18 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	cd /Users/mtsh/書類/code/JUCE/PizzaLooper/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 JUCE_build/extras/Build/juceaide/preinstall
+	cd /Users/mtsh/書類/code/JUCE/Looper/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 JUCE_build/extras/Build/juceaide/preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-	cd /Users/mtsh/書類/code/JUCE/PizzaLooper/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 JUCE_build/extras/Build/juceaide/preinstall
+	cd /Users/mtsh/書類/code/JUCE/Looper/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 JUCE_build/extras/Build/juceaide/preinstall
 .PHONY : preinstall/fast
 
 # clear depends
 depend:
-	cd /Users/mtsh/書類/code/JUCE/PizzaLooper/build && $(CMAKE_COMMAND) -P /Users/mtsh/書類/code/JUCE/PizzaLooper/build/CMakeFiles/VerifyGlobs.cmake
-	cd /Users/mtsh/書類/code/JUCE/PizzaLooper/build && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
+	cd /Users/mtsh/書類/code/JUCE/Looper/build && $(CMAKE_COMMAND) -P /Users/mtsh/書類/code/JUCE/Looper/build/CMakeFiles/VerifyGlobs.cmake
+	cd /Users/mtsh/書類/code/JUCE/Looper/build && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
 
 # Help Target
@@ -185,7 +185,7 @@ help:
 # No rule that depends on this can have commands that come from listfiles
 # because they might be regenerated.
 cmake_check_build_system:
-	cd /Users/mtsh/書類/code/JUCE/PizzaLooper/build && $(CMAKE_COMMAND) -P /Users/mtsh/書類/code/JUCE/PizzaLooper/build/CMakeFiles/VerifyGlobs.cmake
-	cd /Users/mtsh/書類/code/JUCE/PizzaLooper/build && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
+	cd /Users/mtsh/書類/code/JUCE/Looper/build && $(CMAKE_COMMAND) -P /Users/mtsh/書類/code/JUCE/Looper/build/CMakeFiles/VerifyGlobs.cmake
+	cd /Users/mtsh/書類/code/JUCE/Looper/build && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
 .PHONY : cmake_check_build_system
 

@@ -1,0 +1,17 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch Looper",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/LooperApp/Looper.app/Contents/MacOS/Looper",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/build/LooperApp/Looper.app/Contents/MacOS",
+            "environment": [],
+            "externalConsole": false,
+            "preLaunchTask": "CMake: build"
+        }
+    ]
+}

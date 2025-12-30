@@ -54,21 +54,21 @@ RM = /opt/homebrew/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /Users/mtsh/書類/code/JUCE/PizzaLooper
+CMAKE_SOURCE_DIR = /Users/mtsh/書類/code/JUCE/Looper
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /Users/mtsh/書類/code/JUCE/PizzaLooper/build
+CMAKE_BINARY_DIR = /Users/mtsh/書類/code/JUCE/Looper/build
 
 #=============================================================================
 # Directory level rules for the build root directory
 
 # The main recursive "all" target.
-all: CMakeFiles/PizzaLooper.dir/all
+all: CMakeFiles/Looper.dir/all
 all: JUCE_build/all
 .PHONY : all
 
 # The main recursive "codegen" target.
-codegen: CMakeFiles/PizzaLooper.dir/codegen
+codegen: CMakeFiles/Looper.dir/codegen
 codegen: JUCE_build/codegen
 .PHONY : codegen
 
@@ -77,7 +77,7 @@ preinstall: JUCE_build/preinstall
 .PHONY : preinstall
 
 # The main recursive "clean" target.
-clean: CMakeFiles/PizzaLooper.dir/clean
+clean: CMakeFiles/Looper.dir/clean
 clean: JUCE_build/clean
 .PHONY : clean
 
@@ -162,36 +162,36 @@ JUCE_build/modules/clean:
 .PHONY : JUCE_build/modules/clean
 
 #=============================================================================
-# Target rules for target CMakeFiles/PizzaLooper.dir
+# Target rules for target CMakeFiles/Looper.dir
 
 # All Build rule for target.
-CMakeFiles/PizzaLooper.dir/all:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/depend
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/mtsh/書類/code/JUCE/PizzaLooper/build/CMakeFiles --progress-num=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25 "Built target PizzaLooper"
-.PHONY : CMakeFiles/PizzaLooper.dir/all
+CMakeFiles/Looper.dir/all:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/mtsh/書類/code/JUCE/Looper/build/CMakeFiles --progress-num=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25 "Built target Looper"
+.PHONY : CMakeFiles/Looper.dir/all
 
 # Build rule for subdir invocation for target.
-CMakeFiles/PizzaLooper.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/mtsh/書類/code/JUCE/PizzaLooper/build/CMakeFiles 25
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/PizzaLooper.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/mtsh/書類/code/JUCE/PizzaLooper/build/CMakeFiles 0
-.PHONY : CMakeFiles/PizzaLooper.dir/rule
+CMakeFiles/Looper.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/mtsh/書類/code/JUCE/Looper/build/CMakeFiles 25
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/Looper.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/mtsh/書類/code/JUCE/Looper/build/CMakeFiles 0
+.PHONY : CMakeFiles/Looper.dir/rule
 
 # Convenience name for target.
-PizzaLooper: CMakeFiles/PizzaLooper.dir/rule
-.PHONY : PizzaLooper
+Looper: CMakeFiles/Looper.dir/rule
+.PHONY : Looper
 
 # codegen rule for target.
-CMakeFiles/PizzaLooper.dir/codegen:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/codegen
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/mtsh/書類/code/JUCE/PizzaLooper/build/CMakeFiles --progress-num=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25 "Finished codegen for target PizzaLooper"
-.PHONY : CMakeFiles/PizzaLooper.dir/codegen
+CMakeFiles/Looper.dir/codegen:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/codegen
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/mtsh/書類/code/JUCE/Looper/build/CMakeFiles --progress-num=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25 "Finished codegen for target Looper"
+.PHONY : CMakeFiles/Looper.dir/codegen
 
 # clean rule for target.
-CMakeFiles/PizzaLooper.dir/clean:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/PizzaLooper.dir/build.make CMakeFiles/PizzaLooper.dir/clean
-.PHONY : CMakeFiles/PizzaLooper.dir/clean
+CMakeFiles/Looper.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Looper.dir/build.make CMakeFiles/Looper.dir/clean
+.PHONY : CMakeFiles/Looper.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.
@@ -200,7 +200,7 @@ CMakeFiles/PizzaLooper.dir/clean:
 # No rule that depends on this can have commands that come from listfiles
 # because they might be regenerated.
 cmake_check_build_system:
-	$(CMAKE_COMMAND) -P /Users/mtsh/書類/code/JUCE/PizzaLooper/build/CMakeFiles/VerifyGlobs.cmake
+	$(CMAKE_COMMAND) -P /Users/mtsh/書類/code/JUCE/Looper/build/CMakeFiles/VerifyGlobs.cmake
 	$(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
 .PHONY : cmake_check_build_system
 

@@ -1,25 +1,22 @@
 cmake_minimum_required(VERSION 3.15)
-project(PizzaLooper VERSION 1.0.0)
+project(Looper VERSION 1.0.0)
 
 # 🍏 Apple Silicon 向けビルド設定
 set(CMAKE_OSX_ARCHITECTURES "arm64")
 
-# JUCEの実体フォルダを指定（君の環境に合わせた！）
+# JUCEの実体フォルダを指定
 set(JUCE_DIR "/Users/mtsh/JUCE")
-
 
 add_subdirectory(${JUCE_DIR} "${CMAKE_CURRENT_BINARY_DIR}/JUCE_build")
 
 # GUIアプリの定義
-
-juce_add_gui_app(PizzaLooper
+juce_add_gui_app(Looper
     COMPANY_NAME "BabyLeaf"
-    PRODUCT_NAME "PizzaLooper"
-    OUTPUT_NAME "PizzaLooper"
-    OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/PizzaLooperApp"
+    PRODUCT_NAME "Looper"
+    OUTPUT_NAME "Looper"
+    OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/LooperApp"
 )
-set_target_properties(PizzaLooper PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/PizzaLooperApp")
-
+set_target_properties(Looper PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/LooperApp")
 
 # ソースファイル
 set(SOURCE_FILES
@@ -32,8 +29,7 @@ set(SOURCE_FILES
 )
 
 set(HEADER_FILES
-    Source/PizzaColours.h
-    Source/DummyPizza.h
+    Source/ThemeColours.h
     Source/Util.h
     Source/TrackUtils.h
     Source/InputManager.h
@@ -44,13 +40,14 @@ set(HEADER_FILES
     Source/TriggerEvent.h
     Source/SmartGate.h
     Source/MainComponent.h
+    Source/RoundButtonLookAndFeel.h
+    Source/CircularVisualizer.h
 )
 
-target_sources(PizzaLooper PRIVATE ${SOURCE_FILES} ${HEADER_FILES})
-
+target_sources(Looper PRIVATE ${SOURCE_FILES} ${HEADER_FILES})
 
 # 使用モジュール
-target_link_libraries(PizzaLooper PRIVATE
+target_link_libraries(Looper PRIVATE
     juce::juce_gui_basics
     juce::juce_gui_extra
     juce::juce_audio_basics

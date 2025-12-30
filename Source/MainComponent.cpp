@@ -8,10 +8,10 @@ MainComponent::MainComponent()
 {
 	// 設定ファイルを初期化
 	juce::PropertiesFile::Options options;
-	options.applicationName = "PizzaLooper";
+	options.applicationName = "Looper";
 	options.filenameSuffix = ".settings";
 	options.osxLibrarySubFolder = "Application Support";
-	options.folderName = "PizzaLooper";
+	options.folderName = "Looper";
 	
 	appProperties.reset(new juce::PropertiesFile(options));
 	
@@ -39,9 +39,8 @@ MainComponent::MainComponent()
 		looper.addTrack(newId);
 	}
 
-	//pizzaビジュアライザー仮置き
-	addAndMakeVisible(pizzaVisualizer);
 	// ボタン類設定
+	addAndMakeVisible(visualizer);
 	addAndMakeVisible(transportPanel);
 
 	transportPanel.onAction = [this](const juce::String& action)
@@ -246,6 +245,9 @@ void MainComponent::getNextAudioBlock(const juce::AudioSourceChannelInfo& buffer
 
 	// 🌀 LooperAudio の処理は常に実行
 	looper.processBlock(*bufferToFill.buffer, input);
+
+	// 📊 ビジュアライザー更新 (入力と再生のミックスを渡す)
+	visualizer.pushBuffer(*bufferToFill.buffer);
 }
 
 
@@ -254,50 +256,48 @@ void MainComponent::getNextAudioBlock(const juce::AudioSourceChannelInfo& buffer
 
 void MainComponent::paint(juce::Graphics& g)
 {
-		g.fillAll(PizzaColours::CreamDough);
+    g.fillAll(ThemeColours::Background);
 
-	// 🍞 オーブンで焼けた外縁の影をうっすら描く
-	auto bounds = getLocalBounds().toFloat();
-	g.setGradientFill(juce::ColourGradient::vertical(
-									PizzaColours::DeepOvenBrown.withAlpha(0.25f),
-									0.0f,
-									PizzaColours::CreamDough,
-									(float)getHeight()));
-	g.fillRect(bounds);
-	// 🍅上部に赤グラデーション
-	juce::Rectangle<float> topBar(0, 0, getWidth(), 60.0f);
-	g.setGradientFill(juce::ColourGradient::horizontal(PizzaColours::TomatoRed.withAlpha(0.35f),0.0f,PizzaColours::CheeseYellow.withAlpha(0.15f),
-		(float)getWidth()
-		));
-	g.fillRect(topBar);
+    auto bounds = getLocalBounds().toFloat();
+    
+    // Subtle gradient for depth
+    g.setGradientFill(juce::ColourGradient::vertical(
+                                    ThemeColours::MetalGray.withAlpha(0.5f),
+                                    0.0f,
+                                    ThemeColours::Background,
+                                    (float)getHeight()));
+    g.fillRect(bounds);
 
-	// 🍕 タイトルを焼印風に
-	g.setColour(PizzaColours::DeepOvenBrown);
-	g.setFont(juce::Font("Arial Rounded MT Bold", 28.0f, juce::Font::bold));
-	g.drawText("PizzaLooper", topBar, juce::Justification::centred);
+    // Top Header with Neon Accent
+    juce::Rectangle<float> topBar(0, 0, getWidth(), 60.0f);
+    g.setGradientFill(juce::ColourGradient::horizontal(
+        ThemeColours::NeonCyan.withAlpha(0.2f), 0.0f,
+        ThemeColours::NeonMagenta.withAlpha(0.1f), (float)getWidth()));
+    g.fillRect(topBar);
 
-	// 🎛 セパレーターライン（ピザの切り目みたいに）
-	g.setColour(PizzaColours::DeepOvenBrown.withAlpha(0.3f));
-	g.drawLine(0, 65.0f, (float)getWidth(), 65.0f, 2.0f);
-
+    // Title
+    g.setColour(ThemeColours::Silver);
+    g.setFont(juce::Font("Inter", 28.0f, juce::Font::bold));
+    if (g.getCurrentFont().getTypefaceName() == "Sans-Serif") // Fallback
+        g.setFont(juce::Font("Arial", 28.0f, juce::Font::bold));
+        
+    g.drawText("LOOPER", topBar.reduced(20, 0), juce::Justification::centred);
+    
+    // Top border line
+    g.setColour(ThemeColours::NeonCyan.withAlpha(0.6f));
+    g.drawLine(0, 60.0f, (float)getWidth(), 60.0f, 2.0f);
 }
 
 void MainComponent::resized() 
 {
 	auto area = getLocalBounds().reduced(15);
 	
-	// ⬇️ Pizzaを50px下げるためのスペーサー
+	// ⬇️ Top margin for layout (skip past the 60px header bar)
 	area.removeFromTop(50);
 
-	// 🍕 ピザエリアを確保
-	auto pizzaArea = area.removeFromTop(pizzaVisualArea);
-
-	// 正円にするための調整
-	auto pizzaSize = juce::jmin(pizzaArea.getWidth(), pizzaArea.getHeight()) * 0.8f; // 少し小さめに
-	auto pizzaX = pizzaArea.getCentreX() - pizzaSize / 2.0f;
-	auto pizzaY = pizzaArea.getY() + (pizzaArea.getHeight() - pizzaSize) / 2.0f;
-
-	pizzaVisualizer.setBounds(pizzaX, pizzaY, pizzaSize, pizzaSize);
+	// Visual Area (Place for future waveform or visualizer)
+	auto visualArea = area.removeFromTop(headerVisualArea);
+    visualizer.setBounds(visualArea.reduced(10));
 
 	// 🎛 トランスポートエリア
 	auto transportArea = area.removeFromTop(100);  // 70 → 100 (ラベル用スペース)
@@ -476,8 +476,19 @@ void MainComponent::timerCallback()
             // break; // メーター更新のためbreakしない
         }
         
-        // メーター更新 (アイドル時でも音が出ていれば振れる)
-        t->setLevel(looper.getTrackRMS(t->getTrackId()));
+        // メーター更新
+        // 選択されたトラック（入力待ち状態）には入力レベルを表示
+        if (t->getIsSelected() && 
+            (t->getState() == LooperTrackUi::TrackState::Idle || 
+             t->getState() == LooperTrackUi::TrackState::Standby))
+        {
+            t->setLevel(inputTap.getInputRMS());
+        }
+        else
+        {
+            // それ以外のトラックは再生中のレベルを表示
+            t->setLevel(looper.getTrackRMS(t->getTrackId()));
+        }
     }
 
 	//TransportPanelの状態更新

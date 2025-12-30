@@ -15,12 +15,11 @@ TransportPanel::TransportPanel(LooperAudio& looperRef)
 : looper(looperRef)
 
 {
-	setupRoundButton(recordButton, PizzaColours::TomatoRed);
-	setupRoundButton(playButton,   PizzaColours::BasilGreen);
-	setupRoundButton(undoButton,   PizzaColours::GrapePurple);
-	setupRoundButton(clearButton,  PizzaColours::CheeseYellow);
-	setupRoundButton(clearButton,  PizzaColours::CheeseYellow);
-	setupRoundButton(settingButton,PizzaColours::CreamDough);
+	setupFuturisticButton(recordButton,  ThemeColours::RecordingRed);
+	setupFuturisticButton(playButton,    ThemeColours::PlayingGreen);
+	setupFuturisticButton(undoButton,    ThemeColours::MetalGray);
+	setupFuturisticButton(clearButton,   ThemeColours::MetalGray);
+	setupFuturisticButton(settingButton, ThemeColours::MetalGray);
 
     // テキストIDを設定 (LookAndFeelで判別するため)
     undoButton.setButtonText("UNDO");
@@ -50,9 +49,9 @@ TransportPanel::~TransportPanel()
 
 void TransportPanel::paint(juce::Graphics& g)
 {
-	g.fillAll(PizzaColours::CreamDough);
-	g.setColour(PizzaColours::DeepOvenBrown);
-	g.drawRoundedRectangle(getLocalBounds().toFloat().reduced(2), 12.0f, 2.0f);
+	g.fillAll(ThemeColours::Background.withAlpha(0.0f)); // Transparent background
+	g.setColour(ThemeColours::NeonCyan.withAlpha(0.2f));
+	g.drawRoundedRectangle(getLocalBounds().toFloat().reduced(2), 12.0f, 1.5f);
 }
 //================================
 //レイアウト
@@ -133,67 +132,41 @@ void TransportPanel::setState(State newState)
 	if (currentState == newState) return;
 	currentState = newState;
     
-    // 汎用ボタンの色のリセット（Idle/Stopped時の色）
-    undoButton.setColour(juce::TextButton::buttonColourId, PizzaColours::GrapePurple);
-    clearButton.setColour(juce::TextButton::buttonColourId, PizzaColours::CheeseYellow);
-    settingButton.setColour(juce::TextButton::buttonColourId, PizzaColours::CreamDough);
-
-
 	switch (newState)
 	{
 		case State::Idle:
-			// 録音済みトラックがない、初期状態
 			recordButton.setButtonText("REC"); 
-			recordButton.setColour(juce::TextButton::buttonColourId, PizzaColours::TomatoRed);
-			
+			recordButton.setColour(juce::TextButton::buttonColourId, ThemeColours::MetalGray);
 			playButton.setButtonText("PLAY");
-			playButton.setColour(juce::TextButton::buttonColourId, PizzaColours::MushroomGray);
-
-			undoButton.setColour(juce::TextButton::buttonColourId, PizzaColours::MushroomGray.withAlpha(0.5f));
-
+			playButton.setColour(juce::TextButton::buttonColourId, ThemeColours::MetalGray);
 			break;
 
 		case State::Standby:
-			// 🟭 待機中
 			recordButton.setButtonText("REC");
-			recordButton.setColour(juce::TextButton::buttonColourId, PizzaColours::CheeseYellow);
-			
+			recordButton.setColour(juce::TextButton::buttonColourId, ThemeColours::ElectricBlue);
 			playButton.setButtonText("PLAY");
-			playButton.setColour(juce::TextButton::buttonColourId, PizzaColours::MushroomGray);
-			
-			undoButton.setColour(juce::TextButton::buttonColourId, PizzaColours::MushroomGray.withAlpha(0.5f));
+			playButton.setColour(juce::TextButton::buttonColourId, ThemeColours::MetalGray);
 			break;
 
 		case State::Recording:
-			// 🔴 録音中
 			recordButton.setButtonText("STOP_REC");
-			recordButton.setColour(juce::TextButton::buttonColourId, PizzaColours::TomatoRed.darker(0.3f));
-			
+			recordButton.setColour(juce::TextButton::buttonColourId, ThemeColours::RecordingRed);
 			playButton.setButtonText("PLAY");
-			playButton.setColour(juce::TextButton::buttonColourId, PizzaColours::MushroomGray);
-			
-			undoButton.setColour(juce::TextButton::buttonColourId, PizzaColours::MushroomGray.withAlpha(0.5f));
-
+			playButton.setColour(juce::TextButton::buttonColourId, ThemeColours::MetalGray);
 			break;
 
 		case State::Playing:
-			// ▶️ 再生中
 			recordButton.setButtonText("REC");
-			recordButton.setColour(juce::TextButton::buttonColourId, PizzaColours::TomatoRed);
-
+			recordButton.setColour(juce::TextButton::buttonColourId, ThemeColours::MetalGray);
 			playButton.setButtonText("STOP"); 
-			playButton.setColour(juce::TextButton::buttonColourId, PizzaColours::CheeseYellow);
-			
+			playButton.setColour(juce::TextButton::buttonColourId, ThemeColours::ElectricBlue);
 			break;
 
 		case State::Stopped:
-			// ⏹ 停止中 (再生可能なトラックあり)
 			recordButton.setButtonText("REC");
-			recordButton.setColour(juce::TextButton::buttonColourId, PizzaColours::TomatoRed);
-			
+			recordButton.setColour(juce::TextButton::buttonColourId, ThemeColours::MetalGray);
 			playButton.setButtonText("PLAY"); 
-			playButton.setColour(juce::TextButton::buttonColourId, PizzaColours::BasilGreen);
-			
+			playButton.setColour(juce::TextButton::buttonColourId, ThemeColours::PlayingGreen);
 			break;
 	}
     

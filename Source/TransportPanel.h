@@ -10,7 +10,7 @@
 
 #pragma once
 #include <juce_gui_basics/juce_gui_basics.h>
-#include "PizzaColours.h"
+#include "ThemeColours.h"
 #include "LooperAudio.h"
 #include "RoundButtonLookAndFeel.h"
 // =====================================================

@@ -6,9 +6,9 @@
 #include "LooperAudio.h"
 #include "InputTap.h"
 #include "Util.h"
-#include "PizzaColours.h"
-#include "DummyPizza.h"
+#include "ThemeColours.h"
 #include "TransportPanel.h"
+#include "CircularVisualizer.h"
 
 //==============================================================================
 // ルーパーアプリ本体
@@ -63,6 +63,7 @@ public juce::Timer
 	void loadAudioDeviceSettings();
 
 	// ===== UI =====
+	CircularVisualizer visualizer;
 	TransportPanel transportPanel;
 	int selectedTrackId = 0;
 	std::atomic<bool> isStandbyMode { false };
@@ -72,14 +73,12 @@ public juce::Timer
 	std::vector<std::unique_ptr<LooperTrackUi>> trackUIs;
 	LooperTrackUi* selectedTrack = nullptr;
 
-	const int pizzaVisualArea = 250;
+	const int headerVisualArea = 280;
 	const int topHeight = 40;
 	const int trackWidth = 80;
 	const int trackHeight = 350;
 	const int spacing = 10;
 	const int tracksPerRow = 8;
-//pizzaスペース仮置き用コード
-	DummyPizza pizzaVisualizer;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainComponent)
 };

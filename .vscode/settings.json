@@ -1,3 +1,7 @@
 {
-    "C_Cpp.errorSquiggles": "disabled"
+    "cmake.sourceDirectory": "${workspaceFolder}",
+    "cmake.debugConfig": {
+        "cwd": "${workspaceFolder}/build/LooperApp/Looper.app/Contents/MacOS"
+    },
+    "cmake.defaultLaunchTarget": "Looper"
 }

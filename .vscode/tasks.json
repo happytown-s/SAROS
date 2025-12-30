@@ -1,28 +1,22 @@
 {
+    "version": "2.0.0",
     "tasks": [
         {
-            "type": "cppbuild",
-            "label": "C/C++: g++ アクティブなファイルのビルド",
-            "command": "/usr/bin/g++",
-            "args": [
-                "-fdiagnostics-color=always",
-                "-g",
-                "${file}",
-                "-o",
-                "${fileDirname}/${fileBasenameNoExtension}"
-            ],
-            "options": {
-                "cwd": "${fileDirname}"
-            },
-            "problemMatcher": [
-                "$gcc"
-            ],
+            "label": "CMake: build",
+            "type": "shell",
+            "command": "cmake --build ${workspaceFolder}/build",
             "group": {
                 "kind": "build",
                 "isDefault": true
             },
-            "detail": "デバッガーによって生成されたタスク。"
+            "problemMatcher": []
+        },
+        {
+            "label": "Run Looper",
+            "type": "shell",
+            "command": "open ${workspaceFolder}/build/LooperApp/Looper.app",
+            "problemMatcher": [],
+            "dependsOn": "CMake: build"
         }
-    ],
-    "version": "2.0.0"
+    ]
 }

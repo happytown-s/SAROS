@@ -10,7 +10,7 @@
 
 #include "LooperTrackUi.h"
 #include <juce_gui_basics/juce_gui_basics.h>
-#include "PizzaColours.h"
+#include "ThemeColours.h"
 
 //==============================================================================
 void LooperTrackUi::paint(juce::Graphics& g)
@@ -27,41 +27,49 @@ void LooperTrackUi::paint(juce::Graphics& g)
 	juce::Rectangle<float> bottomArea(0, buttonSize + gap, width, bounds.getHeight() - buttonSize - 15.0f - gap); 
 
 	// --- 1. Top Selection Button ---
-	// 影と角丸
-	g.setColour(PizzaColours::DeepOvenBrown.withAlpha(0.2f));
-	g.fillRoundedRectangle(buttonArea.translated(2, 2), 8.0f);
+	// Glowing backdrop
+    if (isSelected) {
+        g.setColour(ThemeColours::NeonCyan.withAlpha(0.15f));
+        g.fillRoundedRectangle(buttonArea.expanded(2.0f), 10.0f);
+    }
 
 	if(isSelected){
-		g.setColour(PizzaColours::TomatoRed);
+		g.setColour(ThemeColours::ElectricBlue);
 	}else if(isMouseOver && buttonArea.contains(getMouseXYRelative().toFloat())){
-		g.setColour(PizzaColours::BasilGreen.withAlpha(0.6f));
+		g.setColour(ThemeColours::MetalGray.brighter(0.2f));
 	}else{
-		g.setColour(PizzaColours::CreamDough.darker(0.1f));
+		g.setColour(ThemeColours::MetalGray);
 	}
 	g.fillRoundedRectangle(buttonArea, 8.0f);
     
-    // 枠線
-	g.setColour(PizzaColours::DeepOvenBrown);
-	g.drawRoundedRectangle(buttonArea, 8.0f, 2.0f);
+    // Border
+	g.setColour(isSelected ? ThemeColours::NeonCyan : ThemeColours::Silver.withAlpha(0.4f));
+	g.drawRoundedRectangle(buttonArea, 8.0f, 1.5f);
 
-	// 状態表示 (光るボーダー)
+	// State-specific overlays with synchronized pulsing
+	float time = (float)juce::Time::getMillisecondCounterHiRes() * 0.001f;
+	float pulse = 0.5f + 0.5f * std::sin(time * juce::MathConstants<float>::pi * 0.5f);
+	
 	if(state == TrackState::Recording){
-		g.setColour(PizzaColours::TomatoRed.darker(0.3f));
+		float alpha = 0.2f + 0.3f * pulse; // 0.2 to 0.5
+		g.setColour(ThemeColours::RecordingRed.withAlpha(alpha));
 		g.fillRoundedRectangle(buttonArea, 8.0f);
-		drawGlowingBorder(g, juce::Colours::red, buttonArea);
+		drawGlowingBorder(g, ThemeColours::RecordingRed, buttonArea);
 	}else if(state == TrackState::Playing){
-		g.setColour(PizzaColours::BasilGreen);
+		float alpha = 0.1f + 0.15f * pulse; // 0.1 to 0.25
+		g.setColour(ThemeColours::PlayingGreen.withAlpha(alpha));
 		g.fillRoundedRectangle(buttonArea, 8.0f);
-		drawGlowingBorder(g, juce::Colours::lightgreen, buttonArea);
+		drawGlowingBorder(g, ThemeColours::PlayingGreen, buttonArea);
 	} else if (state == TrackState::Standby) {
-        g.setColour(PizzaColours::CheeseYellow);
+		float alpha = 0.15f + 0.2f * pulse; // 0.15 to 0.35
+        g.setColour(ThemeColours::ElectricBlue.withAlpha(alpha));
         g.fillRoundedRectangle(buttonArea, 8.0f);
-        drawGlowingBorder(g, juce::Colours::yellow, buttonArea);
+        drawGlowingBorder(g, ThemeColours::ElectricBlue, buttonArea);
     }
 
-	// トラック番号
-	g.setColour(PizzaColours::DeepOvenBrown);
-	g.setFont(20.0f);
+	// Track Number
+	g.setColour(ThemeColours::Silver);
+	g.setFont(juce::Font("Inter", 20.0f, juce::Font::bold));
 	g.drawText(juce::String(trackId), buttonArea, juce::Justification::centred, true);
 
 
@@ -82,8 +90,8 @@ void LooperTrackUi::paint(juce::Graphics& g)
 										 meterArea.getWidth(), 
 										 levelHeight);
 		
-		g.setColour(PizzaColours::BasilGreen);
-		if (currentRmsLevel > 0.8f) g.setColour(PizzaColours::TomatoRed); // クリップ付近
+		g.setColour(ThemeColours::PlayingGreen);
+		if (currentRmsLevel > 0.8f) g.setColour(ThemeColours::RecordingRed);
 		
 		g.fillRoundedRectangle(levelRect, 3.0f);
 	}
@@ -91,33 +99,26 @@ void LooperTrackUi::paint(juce::Graphics& g)
 
 void LooperTrackUi::drawGlowingBorder(juce::Graphics& g, juce::Colour glowColour, juce::Rectangle<float> area)
 {
-	float totalPerimeter = area.getWidth() * 2 + area.getHeight()* 2;
-	float drawLength = flashProgress * totalPerimeter;
-
-	juce::Line<float> lines[4] = {
-		{area.getTopLeft(), area.getTopRight()},
-		{area.getTopRight(), area.getBottomRight()},
-		{area.getBottomRight(), area.getBottomLeft()},
-		{area.getBottomLeft(), area.getTopLeft()}
-	};
-	g.setColour(glowColour.brighter(0.5f));
-
-	float remaining = drawLength;
-
-	for(int i = 0; i < 4; ++i){
-		auto lineLength = lines[i].getLength();
-		if(remaining <= 0) break;
-
-		if(remaining < lineLength){
-			juce::Point<float> end = lines[i].getStart() + (lines[i].getEnd() - lines[i].getStart()) * (remaining / lineLength);
-			g.drawLine(lines[i].getStart().x,lines[i].getStart().y,end.x,end.y, 4.0f);
-			break;
-		}
-		else{
-			g.drawLine(lines[i], 4.0f);
-			remaining -= lineLength;
-		}
+	// Use global time for consistent animation across all tracks
+	float time = (float)juce::Time::getMillisecondCounterHiRes() * 0.001f;
+	
+	// Soft pulsing glow effect (sine wave, 0.5 Hz = gentle pulse)
+	float pulse = 0.5f + 0.5f * std::sin(time * juce::MathConstants<float>::pi * 0.5f);
+	float glowAlpha = 0.3f + 0.4f * pulse; // Range: 0.3 to 0.7
+	float glowThickness = 2.0f + 2.0f * pulse; // Range: 2 to 4
+	
+	// Draw soft outer glow
+	for (int i = 3; i >= 0; --i)
+	{
+		float expand = (float)i * 2.0f;
+		float alpha = glowAlpha * (1.0f - (float)i / 4.0f);
+		g.setColour(glowColour.withAlpha(juce::jlimit(0.0f, 1.0f, alpha * 0.5f)));
+		g.drawRoundedRectangle(area.expanded(expand), 8.0f + expand * 0.5f, glowThickness);
 	}
+	
+	// Inner bright border
+	g.setColour(glowColour.withAlpha(juce::jlimit(0.0f, 1.0f, glowAlpha)));
+	g.drawRoundedRectangle(area, 8.0f, glowThickness);
 }
 
 //==============================================================================
@@ -125,47 +126,44 @@ void LooperTrackUi::FaderLookAndFeel::drawLinearSlider(juce::Graphics& g, int x,
                                                        float sliderPos, float minSliderPos, float maxSliderPos,
                                                        const juce::Slider::SliderStyle style, juce::Slider& slider)
 {
-    // メモリ（目盛り）の描画
-    g.setColour(PizzaColours::DeepOvenBrown.withAlpha(0.3f));
-    int numTicks = 5; // 0, 25, 50, 75, 100%
-    float trackSpecWidth = 4.0f;
+    // Tick marks
+    g.setColour(ThemeColours::Silver.withAlpha(0.4f));
+    int numTicks = 5; 
+    float trackSpecWidth = 2.0f;
     float centerX = x + width * 0.5f;
     
     for (int i = 0; i < numTicks; ++i)
     {
-        float ratio = (float)i / (float)(numTicks - 1); // 0.0 to 1.0
-        float tickY = y + height - (height * ratio); // 下から上へ
+        float ratio = (float)i / (float)(numTicks - 1);
+        float tickY = y + height - (height * ratio);
         
-        // トラックの両側に短い線を描く
-        float tickSize = (i == 0 || i == numTicks - 1 || i == 2) ? 6.0f : 3.0f; // 両端と真ん中は長く
+        float tickSize = (i == 0 || i == numTicks - 1 || i == 2) ? 6.0f : 3.0f;
         
-        g.drawLine(centerX - trackSpecWidth - tickSize, tickY, centerX - trackSpecWidth + 2.0f, tickY, 1.0f); // 左側
-        g.drawLine(centerX + trackSpecWidth - 2.0f, tickY, centerX + trackSpecWidth + tickSize, tickY, 1.0f); // 右側
+        g.drawLine(centerX - trackSpecWidth - tickSize, tickY, centerX - trackSpecWidth, tickY, 1.0f);
+        g.drawLine(centerX + trackSpecWidth, tickY, centerX + trackSpecWidth + tickSize, tickY, 1.0f);
     }
 
-    // トラック（溝）の描画
-    g.setColour(PizzaColours::DeepOvenBrown.withAlpha(0.2f));
+    // Track
+    g.setColour(juce::Colours::black.withAlpha(0.4f));
     juce::Rectangle<float> track(centerX - trackSpecWidth * 0.5f, 
                                  (float)y, 
                                  trackSpecWidth, 
                                  (float)height);
-    g.fillRoundedRectangle(track, 2.0f);
+    g.fillRoundedRectangle(track, 1.0f);
 
-    // つまみ（Thumb）の描画 - 横長にする
-    // sliderPos は中心位置
-    float thumbWidth = (float)width * 0.8f; // 幅の80%を使う
-    float thumbHeight = 12.0f;
+    // Thumb
+    float thumbWidth = (float)width * 0.7f;
+    float thumbHeight = 8.0f;
     
     juce::Rectangle<float> thumb(0, 0, thumbWidth, thumbHeight);
     thumb.setCentre(centerX, sliderPos);
     
-    // つまみの色
-    g.setColour(PizzaColours::TomatoRed);
-    g.fillRoundedRectangle(thumb, 4.0f);
+    g.setColour(ThemeColours::NeonCyan);
+    g.fillRoundedRectangle(thumb, 2.0f);
     
-    // つまみの装飾（中央線）
-    g.setColour(PizzaColours::CreamDough.withAlpha(0.8f));
-    g.drawLine(thumb.getX() + 2.0f, thumb.getCentreY(), thumb.getRight() - 2.0f, thumb.getCentreY(), 2.0f);
+    // Thumb line
+    g.setColour(juce::Colours::white);
+    g.drawLine(thumb.getX() + 2.0f, thumb.getCentreY(), thumb.getRight() - 2.0f, thumb.getCentreY(), 1.0f);
 }
 
 //==============================================================================
@@ -277,12 +275,8 @@ void LooperTrackUi::startFlash(){
 }
 
 void LooperTrackUi::timerCallback(){
-	// アニメーション更新
+	// アニメーション更新 (repaint only, global time handles sync)
 	if(state == TrackState::Recording || state == TrackState::Playing || state == TrackState::Standby){
-		flashProgress += 0.02f;
-		if(flashProgress >= 1.0f){
-			flashProgress = 0.0f;
-		}
 		repaint();
 	}
 }
