@@ -12,9 +12,9 @@
             "problemMatcher": []
         },
         {
-            "label": "Run Looper",
+            "label": "Run ORAS",
             "type": "shell",
-            "command": "open ${workspaceFolder}/build/LooperApp/Looper.app",
+            "command": "open ${workspaceFolder}/build/ORASApp/ORAS.app",
             "problemMatcher": [],
             "dependsOn": "CMake: build"
         }

@@ -42,6 +42,9 @@ public:
             // Advance write position
             writePos = (writePos + 1) % bufferSize;
         }
+        
+        // 現在のブロックサイズを記録（getLookbackData で除外するため）
+        lastWrittenBlockSize = numSamples;
     }
     
     // Check triggers and return true if high threshold detected
@@ -115,16 +118,21 @@ public:
         if (potentialStartIndex < 0 || bufferSize == 0) return;
         
         int currentWritePos = writePos.load();
-        int availableSamples = 0;
         
+        // まず総サンプル数を計算（元のロジック）
+        int totalAvailable = 0;
         if (currentWritePos >= potentialStartIndex)
-            availableSamples = currentWritePos - potentialStartIndex;
+            totalAvailable = currentWritePos - potentialStartIndex;
         else
-            availableSamples = (bufferSize - potentialStartIndex) + currentWritePos;
+            totalAvailable = (bufferSize - potentialStartIndex) + currentWritePos;
+        
+        // 現在のブロックを除外（二重記録防止）
+        // recordIntoTracks() で同じブロックが再度記録されるため
+        int availableSamples = totalAvailable - lastWrittenBlockSize;
             
         // Safety cap
         if (availableSamples > bufferSize) availableSamples = bufferSize;
-        if (availableSamples <= 0) return;
+        if (availableSamples <= 0) return; // 現在ブロックを除外すると何も残らない場合
         
         dest.setSize(1, availableSamples);
         
@@ -174,4 +182,5 @@ private:
     int potentialStartIndex = -1; // The ring buffer index where Low Threshold was crossed
     bool inPreRoll = false;       // Are we tracking a potential sound?
     int silenceCounter = 0;       // Buffer counters for silence logic
+    int lastWrittenBlockSize = 0; // 最後に書き込まれたブロックサイズ（二重記録防止用）
 };

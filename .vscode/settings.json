@@ -1,7 +1,7 @@
 {
     "cmake.sourceDirectory": "${workspaceFolder}",
     "cmake.debugConfig": {
-        "cwd": "${workspaceFolder}/build/LooperApp/Looper.app/Contents/MacOS"
+        "cwd": "${workspaceFolder}/build/ORASApp/ORAS.app/Contents/MacOS"
     },
-    "cmake.defaultLaunchTarget": "Looper"
+    "cmake.defaultLaunchTarget": "ORAS"
 }

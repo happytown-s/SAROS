@@ -304,13 +304,19 @@ void MainComponent::getNextAudioBlock(const juce::AudioSourceChannelInfo& buffer
 		bool anyRecording = false;
 		isStandbyMode = false; // 録音開始でスタンバイ解除)
 		
+		// ✅ オーディオエンジン側の録音状態を直接チェック (スレッドセーフ)
+		// UI状態は非同期更新のため、レースコンディションを避ける
 		for (auto& t : trackUIs)
 		{
-			if (t->getIsSelected() && 
-				t->getState() == LooperTrackUi::TrackState::Recording)  // ✅ Standbyを除外
+			if (t->getIsSelected())
 			{
-				anyRecording = true;
-				break;
+				int trackId = t->getTrackId();
+				const auto& tracks = looper.getTracks();
+				if (auto it = tracks.find(trackId); it != tracks.end() && it->second.isRecording)
+				{
+					anyRecording = true;
+					break;
+				}
 			}
 		}
 
