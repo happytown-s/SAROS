@@ -15,29 +15,10 @@ void LooperAudio::prepareToPlay(int samplesPerBlockExpected, double sr)
 {
     sampleRate = sr;
     
-    juce::dsp::ProcessSpec spec;
-    spec.sampleRate = sampleRate;
-    spec.maximumBlockSize = samplesPerBlockExpected;
-    spec.numChannels = 2;
-
-    // Prepare Master FX
-    masterFX.compressor.prepare(spec);
-    masterFX.filter.prepare(spec);
-    masterFX.delay.prepare(spec);
-    masterFX.reverb.prepare(spec);
-    
-    // Defaults
-    masterFX.compressor.setThreshold(0.0f);
-    masterFX.compressor.setRatio(1.0f);
-    
-    masterFX.filter.setType(juce::dsp::StateVariableTPTFilterType::lowpass);
-    masterFX.filter.setCutoffFrequency(20000.0f);
-    
-    masterFX.delay.setMaximumDelayInSamples(static_cast<int>(sampleRate * 2.0));
-    
-    juce::dsp::Reverb::Parameters params;
-    params.dryLevel = 1.0f; params.wetLevel = 0.0f; params.roomSize = 0.5f;
-    masterFX.reverb.setParameters(params);
+    // Store spec for per-track FX initialization
+    fxSpec.sampleRate = sampleRate;
+    fxSpec.maximumBlockSize = samplesPerBlockExpected;
+    fxSpec.numChannels = 2;
 }
 
 void LooperAudio::processBlock(juce::AudioBuffer<float>& output,
@@ -65,6 +46,26 @@ void LooperAudio::addTrack(int trackId)
     auto& track = tracks[trackId];
     track.buffer.setSize(2, maxSamples);
     track.buffer.clear();
+    
+    // Initialize per-track FX
+    if (fxSpec.sampleRate > 0)
+    {
+        track.fx.compressor.prepare(fxSpec);
+        track.fx.filter.prepare(fxSpec);
+        track.fx.delay.prepare(fxSpec);
+        track.fx.reverb.prepare(fxSpec);
+        
+        // Defaults
+        track.fx.compressor.setThreshold(0.0f);
+        track.fx.compressor.setRatio(1.0f);
+        track.fx.filter.setType(juce::dsp::StateVariableTPTFilterType::lowpass);
+        track.fx.filter.setCutoffFrequency(20000.0f);
+        track.fx.delay.setMaximumDelayInSamples(static_cast<int>(sampleRate * 2.0));
+        
+        juce::dsp::Reverb::Parameters params;
+        params.dryLevel = 1.0f; params.wetLevel = 0.0f; params.roomSize = 0.5f;
+        track.fx.reverb.setParameters(params);
+    }
 }
 
 
@@ -343,7 +344,10 @@ void LooperAudio::mixTracksToOutput(juce::AudioBuffer<float>& output)
 {
     const int numSamples = output.getNumSamples();
     
-    // 1. Sum all tracks to output
+    // Temporary buffer for per-track FX processing
+    juce::AudioBuffer<float> trackBuffer(2, numSamples);
+    
+    // Sum all tracks to output
     for (auto& [id, track] : tracks)
     {
         if (!track.isPlaying)
@@ -359,11 +363,14 @@ void LooperAudio::mixTracksToOutput(juce::AudioBuffer<float>& output)
             ? masterLoopLength
             : juce::jmax(1, track.recordLength > 0 ? track.recordLength : track.buffer.getNumSamples());
 
+        // Clear temp buffer
+        trackBuffer.clear();
+        
         int readPos = track.readPosition;
         int remaining = numSamples;
         int outputOffset = 0;
 
-        // 🔄 再生ラップアラウンドループ
+        // 🔄 再生ラップアラウンドループ - write to temp buffer first
         while (remaining > 0)
         {
             const int samplesToEnd = loopLength - readPos;
@@ -371,7 +378,7 @@ void LooperAudio::mixTracksToOutput(juce::AudioBuffer<float>& output)
 
             for (int ch = 0; ch < numChannels; ++ch)
             {
-                output.addFrom(ch, outputOffset, track.buffer, ch, readPos, samplesToCopy, track.gain);
+                trackBuffer.addFrom(ch, outputOffset, track.buffer, ch, readPos, samplesToCopy, track.gain);
             }
 
             readPos = (readPos + samplesToCopy) % loopLength;
@@ -380,6 +387,50 @@ void LooperAudio::mixTracksToOutput(juce::AudioBuffer<float>& output)
         }
 
         track.readPosition = readPos;
+        
+        // ============ Per-Track FX Processing ============
+        juce::dsp::AudioBlock<float> block(trackBuffer);
+        juce::dsp::ProcessContextReplacing<float> context(block);
+        
+        // Filter
+        track.fx.filter.process(context);
+        
+        // Delay (Manual Feedback)
+        if (track.fx.delayMix > 0.0f)
+        {
+            auto* left = trackBuffer.getWritePointer(0);
+            auto* right = trackBuffer.getWritePointer(1);
+            
+            for(int i = 0; i < numSamples; ++i)
+            {
+                float inL = left[i];
+                float inR = right[i];
+                
+                float wetL = track.fx.delay.popSample(0);
+                float wetR = track.fx.delay.popSample(1);
+                
+                left[i] = inL * (1.0f - track.fx.delayMix) + wetL * track.fx.delayMix;
+                right[i] = inR * (1.0f - track.fx.delayMix) + wetR * track.fx.delayMix;
+                
+                float feedL = inL + wetL * track.fx.delayFeedback;
+                float feedR = inR + wetR * track.fx.delayFeedback;
+                
+                feedL = std::tanh(feedL);
+                feedR = std::tanh(feedR);
+                
+                track.fx.delay.pushSample(0, feedL);
+                track.fx.delay.pushSample(1, feedR);
+            }
+        }
+        
+        // Reverb
+        track.fx.reverb.process(context);
+        
+        // Add FX-processed track to final output
+        for (int ch = 0; ch < numChannels; ++ch)
+        {
+            output.addFrom(ch, 0, trackBuffer, ch, 0, numSamples);
+        }
 
         // 🧮 RMS計算
         const int rmsWindow = 256;
@@ -406,49 +457,6 @@ void LooperAudio::mixTracksToOutput(juce::AudioBuffer<float>& output)
         else
             track.currentLevel = track.currentLevel * decayRate + rmsValue * (1.0f - decayRate);
     } // End track loop
-
-    // 2. Apply Master FX Implementation
-    juce::dsp::AudioBlock<float> block(output);
-    juce::dsp::ProcessContextReplacing<float> context(block);
-    
-    // Compressor
-    masterFX.compressor.process(context);
-    
-    // Filter
-    masterFX.filter.process(context);
-    
-    // Delay (Manual Feedback)
-    if (masterFX.delayMix > 0.0f)
-    {
-         auto* left = output.getWritePointer(0);
-         auto* right = output.getWritePointer(1);
-         int numSamplesToProcess = output.getNumSamples();
-         
-         for(int i=0; i<numSamplesToProcess; ++i)
-         {
-            float inL = left[i];
-            float inR = right[i];
-            
-            float wetL = masterFX.delay.popSample(0);
-            float wetR = masterFX.delay.popSample(1);
-            
-            left[i] = inL * (1.0f - masterFX.delayMix) + wetL * masterFX.delayMix;
-            right[i] = inR * (1.0f - masterFX.delayMix) + wetR * masterFX.delayMix;
-            
-            float feedL = inL + wetL * masterFX.delayFeedback;
-            float feedR = inR + wetR * masterFX.delayFeedback;
-            
-            feedL = std::tanh(feedL);
-            feedR = std::tanh(feedR);
-            
-            masterFX.delay.pushSample(0, feedL);
-            masterFX.delay.pushSample(1, feedR);
-         }
-    }
-    
-    // Reverb
-    masterFX.reverb.process(context);
-
 
     // 再生中または録音中のトラックが1つでもあるかチェック
     bool isActive = isAnyPlaying() || isAnyRecording();
@@ -614,65 +622,86 @@ void LooperAudio::generateTestClick(int trackId)
     listeners.call([trackId](Listener& l) { l.onRecordingStopped(trackId); });
 }
 
-// ================= FX Setters (Master) =================
+// ================= FX Setters (Per-Track) =================
 
-void LooperAudio::setMasterFilterCutoff(float freq)
+void LooperAudio::setTrackFilterCutoff(int trackId, float freq)
 {
-    masterFX.filter.setCutoffFrequency(freq);
+    if (auto it = tracks.find(trackId); it != tracks.end())
+        it->second.fx.filter.setCutoffFrequency(freq);
 }
 
-void LooperAudio::setMasterFilterResonance(float q)
+void LooperAudio::setTrackFilterResonance(int trackId, float q)
 {
-    masterFX.filter.setResonance(q);
+    if (auto it = tracks.find(trackId); it != tracks.end())
+        it->second.fx.filter.setResonance(q);
 }
 
-void LooperAudio::setMasterFilterType(int type)
+void LooperAudio::setTrackFilterType(int trackId, int type)
 {
-    if(type == 0) masterFX.filter.setType(juce::dsp::StateVariableTPTFilterType::lowpass);
-    else if(type == 1) masterFX.filter.setType(juce::dsp::StateVariableTPTFilterType::highpass);
+    if (auto it = tracks.find(trackId); it != tracks.end())
+    {
+        if(type == 0) it->second.fx.filter.setType(juce::dsp::StateVariableTPTFilterType::lowpass);
+        else if(type == 1) it->second.fx.filter.setType(juce::dsp::StateVariableTPTFilterType::highpass);
+    }
 }
 
-void LooperAudio::setMasterCompressor(float threshold, float ratio)
+void LooperAudio::setTrackCompressor(int trackId, float threshold, float ratio)
 {
-    masterFX.compressor.setThreshold(threshold);
-    masterFX.compressor.setRatio(ratio);
+    if (auto it = tracks.find(trackId); it != tracks.end())
+    {
+        it->second.fx.compressor.setThreshold(threshold);
+        it->second.fx.compressor.setRatio(ratio);
+    }
 }
 
-void LooperAudio::setMasterDelayMix(float mix, float time)
+void LooperAudio::setTrackDelayMix(int trackId, float mix, float time)
 {
-    masterFX.delayMix = mix;
-    
-    float maxDelay = sampleRate * 1.0f;
-    float delaySamples = time * maxDelay;
-    if(delaySamples < 1.0f) delaySamples = 1.0f;
-    
-    masterFX.delay.setDelay(delaySamples);
+    if (auto it = tracks.find(trackId); it != tracks.end())
+    {
+        it->second.fx.delayMix = mix;
+        
+        float maxDelay = sampleRate * 1.0f;
+        float delaySamples = time * maxDelay;
+        if(delaySamples < 1.0f) delaySamples = 1.0f;
+        
+        it->second.fx.delay.setDelay(delaySamples);
+    }
 }
 
-void LooperAudio::setMasterDelayFeedback(float feedback)
+void LooperAudio::setTrackDelayFeedback(int trackId, float feedback)
 {
-    masterFX.delayFeedback = feedback;
+    if (auto it = tracks.find(trackId); it != tracks.end())
+        it->second.fx.delayFeedback = feedback;
 }
 
-void LooperAudio::setMasterReverbMix(float mix)
+void LooperAudio::setTrackReverbMix(int trackId, float mix)
 {
-    masterFX.reverbMix = mix;
-    juce::dsp::Reverb::Parameters params = masterFX.reverb.getParameters();
-    params.dryLevel = 1.0f - (mix * 0.5f);
-    params.wetLevel = mix;
-    masterFX.reverb.setParameters(params);
+    if (auto it = tracks.find(trackId); it != tracks.end())
+    {
+        it->second.fx.reverbMix = mix;
+        juce::dsp::Reverb::Parameters params = it->second.fx.reverb.getParameters();
+        params.dryLevel = 1.0f - (mix * 0.5f);
+        params.wetLevel = mix;
+        it->second.fx.reverb.setParameters(params);
+    }
 }
 
-void LooperAudio::setMasterReverbDamping(float damping)
+void LooperAudio::setTrackReverbDamping(int trackId, float damping)
 {
-    juce::dsp::Reverb::Parameters params = masterFX.reverb.getParameters();
-    params.damping = damping;
-    masterFX.reverb.setParameters(params);
+    if (auto it = tracks.find(trackId); it != tracks.end())
+    {
+        juce::dsp::Reverb::Parameters params = it->second.fx.reverb.getParameters();
+        params.damping = damping;
+        it->second.fx.reverb.setParameters(params);
+    }
 }
 
-void LooperAudio::setMasterReverbRoomSize(float size)
+void LooperAudio::setTrackReverbRoomSize(int trackId, float size)
 {
-    juce::dsp::Reverb::Parameters params = masterFX.reverb.getParameters();
-    params.roomSize = size;
-    masterFX.reverb.setParameters(params);
+    if (auto it = tracks.find(trackId); it != tracks.end())
+    {
+        juce::dsp::Reverb::Parameters params = it->second.fx.reverb.getParameters();
+        params.roomSize = size;
+        it->second.fx.reverb.setParameters(params);
+    }
 }

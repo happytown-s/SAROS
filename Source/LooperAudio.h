@@ -109,6 +109,9 @@ private:
 		int lengthInSample = 0; //トラックの長さ
 		float currentLevel = 0.0f;
 		float gain = 1.0f;
+		
+		// Per-Track FX Chain
+		FXChain fx;
 	};
 
 public:
@@ -126,19 +129,19 @@ public:
 	float getTrackRMS(int trackId) const;
 	void setTrackGain(int trackId, float gain);
 
-    // Global (Master) FX Setters
-    void setMasterFilterCutoff(float freq);
-    void setMasterFilterResonance(float q);
-    void setMasterFilterType(int type); // 0=LPF, 1=HPF
+    // Per-Track FX Setters
+    void setTrackFilterCutoff(int trackId, float freq);
+    void setTrackFilterResonance(int trackId, float q);
+    void setTrackFilterType(int trackId, int type); // 0=LPF, 1=HPF
 
-    void setMasterReverbMix(float mix); // 0.0 - 1.0
-    void setMasterReverbDamping(float damping);
-    void setMasterReverbRoomSize(float size);
+    void setTrackReverbMix(int trackId, float mix); // 0.0 - 1.0
+    void setTrackReverbDamping(int trackId, float damping);
+    void setTrackReverbRoomSize(int trackId, float size);
 
-    void setMasterDelayMix(float mix, float time); // mix 0-1, time 0-1 sec
-    void setMasterDelayFeedback(float feedback); // 0-1
+    void setTrackDelayMix(int trackId, float mix, float time); // mix 0-1, time 0-1 sec
+    void setTrackDelayFeedback(int trackId, float feedback); // 0-1
 
-    void setMasterCompressor(float threshold, float ratio); 
+    void setTrackCompressor(int trackId, float threshold, float ratio); 
 
 	// ビジュアライザ用
 	const juce::AudioBuffer<float>* getTrackBuffer(int trackId) const
@@ -192,6 +195,7 @@ private:
 
 	double sampleRate;
 	int maxSamples;
+	juce::dsp::ProcessSpec fxSpec; // For per-track FX initialization
 
 	//最初に録音完了したトラックをマスターとする
 	int masterStartSample    = 0;
@@ -210,6 +214,6 @@ private:
 	void recordIntoTracks(const juce::AudioBuffer<float>& input);
 	void mixTracksToOutput(juce::AudioBuffer<float>& output);
 
-    FXChain masterFX;
+
 };
 

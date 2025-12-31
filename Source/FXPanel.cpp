@@ -16,7 +16,7 @@ FXPanel::FXPanel(LooperAudio& looperRef) : looper(looperRef)
     titleLabel.setJustificationType(juce::Justification::centred);
     titleLabel.setFont(juce::FontOptions(24.0f, juce::Font::bold));
     titleLabel.setColour(juce::Label::textColourId, ThemeColours::NeonCyan);
-    titleLabel.setText("Master FX Rack", juce::dontSendNotification);
+    titleLabel.setText("Track FX Rack", juce::dontSendNotification);
 
     // --- FILTER ---
     setupSlider(filterSlider, filterLabel, "CUTOFF", "IceBlue");
@@ -24,14 +24,14 @@ FXPanel::FXPanel(LooperAudio& looperRef) : looper(looperRef)
     filterSlider.setSkewFactorFromMidPoint(1000.0);
     filterSlider.setValue(20000.0);
     filterSlider.onValueChange = [this]() {
-        looper.setMasterFilterCutoff((float)filterSlider.getValue());
+        looper.setTrackFilterCutoff(currentTrackId, (float)filterSlider.getValue());
     };
     
     setupSlider(filterResSlider, filterResLabel, "RES", "IceBlue"); 
     filterResSlider.setRange(0.1, 10.0, 0.1);
     filterResSlider.setValue(0.707);
     filterResSlider.onValueChange = [this]() {
-        looper.setMasterFilterResonance((float)filterResSlider.getValue());
+        looper.setTrackFilterResonance(currentTrackId, (float)filterResSlider.getValue());
     };
     
     addChildComponent(filterTypeButton);
@@ -41,7 +41,7 @@ FXPanel::FXPanel(LooperAudio& looperRef) : looper(looperRef)
     filterTypeButton.onClick = [this]() {
         bool isHPF = filterTypeButton.getToggleState();
         filterTypeButton.setButtonText(isHPF ? "HPF" : "LPF");
-        looper.setMasterFilterType(isHPF ? 1 : 0);
+        looper.setTrackFilterType(currentTrackId, isHPF ? 1 : 0);
     };
 
     // --- COMP ---
@@ -52,7 +52,7 @@ FXPanel::FXPanel(LooperAudio& looperRef) : looper(looperRef)
         float amt = (float)compSlider.getValue();
         float thresh = -40.0f * amt;
         float ratio = 1.0f + (7.0f * amt);
-        looper.setMasterCompressor(thresh, ratio);
+        looper.setTrackCompressor(currentTrackId, thresh, ratio);
     };
 
     // --- DELAY ---
@@ -60,21 +60,21 @@ FXPanel::FXPanel(LooperAudio& looperRef) : looper(looperRef)
     delaySlider.setRange(0.0, 1.0, 0.01);
     delaySlider.setValue(0.5);
     delaySlider.onValueChange = [this]() {
-        looper.setMasterDelayMix((float)delayMixSlider.getValue(), (float)delaySlider.getValue());
+        looper.setTrackDelayMix(currentTrackId, (float)delayMixSlider.getValue(), (float)delaySlider.getValue());
     };
     
     setupSlider(delayFeedbackSlider, delayFeedbackLabel, "F.BACK", "BlackHole");
     delayFeedbackSlider.setRange(0.0, 0.95, 0.01);
     delayFeedbackSlider.setValue(0.0);
     delayFeedbackSlider.onValueChange = [this]() {
-        looper.setMasterDelayFeedback((float)delayFeedbackSlider.getValue());
+        looper.setTrackDelayFeedback(currentTrackId, (float)delayFeedbackSlider.getValue());
     };
     
     setupSlider(delayMixSlider, delayMixLabel, "MIX", "BlackHole");
     delayMixSlider.setRange(0.0, 0.8, 0.01); 
     delayMixSlider.setValue(0.0);
     delayMixSlider.onValueChange = [this]() {
-        looper.setMasterDelayMix((float)delayMixSlider.getValue(), (float)delaySlider.getValue()); 
+        looper.setTrackDelayMix(currentTrackId, (float)delayMixSlider.getValue(), (float)delaySlider.getValue()); 
     };
 
     // --- REVERB ---
@@ -82,14 +82,14 @@ FXPanel::FXPanel(LooperAudio& looperRef) : looper(looperRef)
     reverbSlider.setRange(0.0, 1.0, 0.01);
     reverbSlider.setValue(0.0);
     reverbSlider.onValueChange = [this]() {
-        looper.setMasterReverbMix((float)reverbSlider.getValue());
+        looper.setTrackReverbMix(currentTrackId, (float)reverbSlider.getValue());
     };
     
     setupSlider(reverbDecaySlider, reverbDecayLabel, "DECAY", "GasGiant");
     reverbDecaySlider.setRange(0.0, 1.0, 0.01);
     reverbDecaySlider.setValue(0.5);
     reverbDecaySlider.onValueChange = [this]() {
-        looper.setMasterReverbRoomSize((float)reverbDecaySlider.getValue());
+        looper.setTrackReverbRoomSize(currentTrackId, (float)reverbDecaySlider.getValue());
     };
     
     updateSliderVisibility();
