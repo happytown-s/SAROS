@@ -89,6 +89,9 @@ public juce::Timer
     };
     std::vector<Star> stars;
     juce::Typeface::Ptr customTypeface;
+    
+    // UI Visibility Toggle
+    bool areTracksVisible = true;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainComponent)
 };

@@ -179,8 +179,12 @@ public:
             default: wp.colour = ThemeColours::NeonCyan; break;
         }
 
+        // 既存の同トラックIDの波形があれば削除（重複防止）
+        waveformPaths.erase(std::remove_if(waveformPaths.begin(), waveformPaths.end(),
+            [trackId](const WaveformPath& w) { return w.trackId == trackId; }), waveformPaths.end());
+
         waveformPaths.insert(waveformPaths.begin(), wp);
-        if (waveformPaths.size() > 5) waveformPaths.resize(5);
+        if (waveformPaths.size() > 8) waveformPaths.resize(8);  // 8トラック分表示
         
         // デバッグ用：リニア波形データを保存
         LinearWaveformData lwd;
@@ -203,8 +207,13 @@ public:
             rms /= (float)samplesPerLinearPoint;
             lwd.samples[i] = rms;
         }
+        
+        // 直線波形も重複防止
+        linearWaveforms.erase(std::remove_if(linearWaveforms.begin(), linearWaveforms.end(),
+            [trackId](const LinearWaveformData& l) { return l.trackId == trackId; }), linearWaveforms.end());
+            
         linearWaveforms.insert(linearWaveforms.begin(), lwd);
-        if (linearWaveforms.size() > 5) linearWaveforms.resize(5);
+        if (linearWaveforms.size() > 8) linearWaveforms.resize(8);
         
         repaint();
     }
@@ -248,24 +257,31 @@ public:
         g.drawEllipse(bounds.withSizeKeepingCentre(radius * 2.1f, radius * 2.1f), 1.0f);
 
         // --- Draw Concentric Waveforms with Glow ---
-        // ズームスケールを適用: ズームインすると内側のレイヤーが大きく表示される
-        for (int i = 0; i < (int)waveformPaths.size(); ++i)
+        // --- Draw Concentric Waveforms with Glow ---
+        // 新しい（i=0）ほど内側（サイズ1.0）、古い（i>0）ほど外側（サイズ>1.0）
+        // 大きい方（古い方）から先に描画しないと、内側が隠れてしまうため逆順でループ
+        for (int i = (int)waveformPaths.size() - 1; i >= 0; --i)
         {
             const auto& wp = waveformPaths[i];
             
-            // 元の計算方式を維持し、ズームで拡大
-            float layerOffset = (float)i * 0.18f;
-            float scaleLayer = 1.0f - layerOffset;
-            if (scaleLayer <= 0.1f) continue;
+            // i=0 (最新) -> offset 0.0 -> scale 1.0
+            // i=1 (古い) -> offset 0.40 -> scale 1.40
+            float layerOffset = (float)i * 0.40f;
+            float scaleLayer = 1.0f + layerOffset;
             
-            // ズーム適用: zoomScale=1.0で元通り、>1.0で拡大
+            // ズーム適用: zoomScaleで全体が拡大（内側に潜る動き）
             float zoomedScale = scaleLayer * zoomScale;
-            if (zoomedScale > 3.0f) continue;  // 大きすぎるものはスキップ
             
-            float finalScale = radius * zoomedScale;
+            // 画面外に大きくなりすぎたら描画スキップ（適当な上限）
+            if (zoomedScale > 5.0f) continue;
+
+            // 出現アニメーション適用: newest spawn starts from center (0.0) -> expands to 1.0
+            float finalScale = radius * zoomedScale * wp.spawnProgress;
             
-            // アルファ値（元の計算方式）
-            float baseAlpha = 0.9f - (float)i * 0.12f;
+            // アルファ値: 古いほど（外側ほど）薄くするフェードアウト
+            // i=0 -> 0.9, i=1 -> 0.8...
+            float baseAlpha = (0.9f - layerOffset * 0.5f) * wp.spawnProgress;
+            if (baseAlpha < 0.0f) baseAlpha = 0.0f;
             
             auto transform = juce::AffineTransform::scale(finalScale, finalScale)
                                                    .translated(centre.x, centre.y);
@@ -449,8 +465,17 @@ public:
     {
         updateParticles();
         
-        // スムーズなズームアニメーション
-        zoomScale += (targetZoomScale - zoomScale) * 0.15f;
+        // スムーズなズームアニメーション (0.15 -> 0.05 ゆっくり)
+        zoomScale += (targetZoomScale - zoomScale) * 0.05f;
+        
+        // 波形の出現アニメーション (0.15 -> 0.05 ゆっくり)
+        for (auto& wp : waveformPaths)
+        {
+            if (wp.spawnProgress < 1.0f) {
+                wp.spawnProgress += (1.0f - wp.spawnProgress) * 0.05f;
+                if (std::abs(1.0f - wp.spawnProgress) < 0.001f) wp.spawnProgress = 1.0f;
+            }
+        }
         
         repaint(); // Always repaint for animations
         
@@ -466,8 +491,9 @@ private:
     struct WaveformPath
     {
         juce::Path path;
-        int trackId;
         juce::Colour colour;
+        int trackId = 0;
+        float spawnProgress = 0.0f; // 0.0 -> 1.0 アニメーション用
     };
     std::vector<WaveformPath> waveformPaths;
     
@@ -501,7 +527,8 @@ private:
         // 垂直ドラッグでズーム制御（上にドラッグ = ズームイン）
         float deltaY = lastDragPos.y - e.position.y;
         targetZoomScale += deltaY * 0.01f;
-        targetZoomScale = juce::jlimit(1.0f, 5.0f, targetZoomScale);
+        // 0.2倍まで縮小可能にして、外側の波形も見えるようにする
+        targetZoomScale = juce::jlimit(0.2f, 5.0f, targetZoomScale);
         
         lastDragPos = e.position;
     }
@@ -521,7 +548,7 @@ private:
     {
         // マウスホイールでもズーム
         targetZoomScale += wheel.deltaY * 0.5f;
-        targetZoomScale = juce::jlimit(1.0f, 5.0f, targetZoomScale);
+        targetZoomScale = juce::jlimit(0.2f, 5.0f, targetZoomScale);
     }
 
     void drawRotatingRing(juce::Graphics& g, juce::Point<float> centre, float radius, float rotation, float arcLength)

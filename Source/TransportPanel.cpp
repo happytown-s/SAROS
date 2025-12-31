@@ -42,6 +42,14 @@ TransportPanel::TransportPanel(LooperAudio& looperRef)
 	testButton.setColour(juce::TextButton::buttonColourId, ThemeColours::NeonCyan.withAlpha(0.3f));
 	testButton.setColour(juce::TextButton::textColourOnId, ThemeColours::Silver);
 	testButton.setColour(juce::TextButton::textColourOffId, ThemeColours::Silver);
+	
+	// Visual Mode Button
+	addAndMakeVisible(visualModeButton);
+	visualModeButton.addListener(this);
+	visualModeButton.setColour(juce::TextButton::buttonColourId, juce::Colours::black.withAlpha(0.6f));
+	visualModeButton.setColour(juce::TextButton::buttonOnColourId, ThemeColours::NeonCyan.withAlpha(0.3f));
+	visualModeButton.setColour(juce::TextButton::textColourOffId, ThemeColours::NeonCyan);
+	visualModeButton.setColour(juce::TextButton::textColourOnId, ThemeColours::NeonCyan.brighter());
 }
 
 TransportPanel::~TransportPanel()
@@ -53,6 +61,12 @@ TransportPanel::~TransportPanel()
 		btn->removeListener(this);
 	}
 	testButton.removeListener(this);
+	visualModeButton.removeListener(this);
+}
+
+void TransportPanel::setVisualModeButtonText(const juce::String& text)
+{
+	visualModeButton.setButtonText(text);
 }
 
 void TransportPanel::paint(juce::Graphics& g)
@@ -88,8 +102,11 @@ void TransportPanel::resized()
 		startX += buttonWidth + spacing;
 	}
 	
-	// テストボタンは右端に小さく配置
+	// テストボタンは右端に配置
 	testButton.setBounds(area.getRight() - 50, y + 10, 45, 30);
+	
+	// Visual Mode Buttonは左端に配置
+	visualModeButton.setBounds(area.getX(), y + 10, 120, 30);
 }
 
 
@@ -98,6 +115,11 @@ void TransportPanel::resized()
 //===========================================================
 void TransportPanel::buttonClicked(juce::Button* button)
 {
+	if (button == &visualModeButton)
+	{
+		if (onToggleTracks) onToggleTracks();
+		return;
+	}
 	if (!onAction) return;
 
 	if(button == &recordButton)

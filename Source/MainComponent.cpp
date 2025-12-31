@@ -139,6 +139,7 @@ MainComponent::MainComponent()
 	};
 	transportPanel.onTestClick = [this]()
 	{
+		bool processed = false;
 		// 選択されているトラックにテストクリックを生成
 		for (auto& t : trackUIs)
 		{
@@ -146,11 +147,13 @@ MainComponent::MainComponent()
 			{
 				looper.generateTestClick(t->getTrackId());
 				t->setState(LooperTrackUi::TrackState::Playing);
+				processed = true;
 				break;
 			}
 		}
+		
 		// 選択されていない場合はトラック1に
-		if (!selectedTrackId)
+		if (!processed)
 		{
 			looper.generateTestClick(1);
 			if (!trackUIs.empty())
@@ -161,6 +164,24 @@ MainComponent::MainComponent()
 
 
 
+
+	transportPanel.onToggleTracks = [this]()
+	{
+		areTracksVisible = !areTracksVisible;
+		
+		// Button Text Update in TransportPanel
+		if (areTracksVisible)
+			transportPanel.setVisualModeButtonText("VISUAL MODE"); // Click to hide tracks
+		else
+			transportPanel.setVisualModeButtonText("SHOW TRACKS"); // Click to show tracks
+			
+		// Visibility Update
+		for (auto& t : trackUIs)
+			t->setVisible(areTracksVisible);
+			
+		resized();
+		repaint();
+	};
 
 	setSize(760, 800);
 
@@ -403,47 +424,83 @@ void MainComponent::paint(juce::Graphics& g)
     g.drawLine(0, 40.0f, (float)getWidth(), 40.0f, 2.0f);
 
     // --- Track Area Background ---
-    // Start below the Transport Panel
-    // Layout: 15 (reduce) + 30 (header skip) + 280 (visual) + 70 (transport) + 15 = 410
-    float trackStartY = 400.0f; 
-    juce::Rectangle<float> trackArea(0, trackStartY, (float)getWidth(), (float)getHeight() - trackStartY);
-    
-    // Darken the track area significantly to make UI controls stand out
-    g.setColour(juce::Colours::black.withAlpha(0.7f));
-    g.fillRect(trackArea);
-    
-    // Add a separator line
-    g.setColour(ThemeColours::NeonCyan.withAlpha(0.3f));
-    g.drawLine(0, trackStartY, (float)getWidth(), trackStartY, 1.0f);
+    if (areTracksVisible)
+    {
+        // Layout: 30 (header spacing) + headerVisualArea + 70 (transport) = Start of tracks
+        // Visualizerの実際の高さや隙間(spacing)も考慮
+        // resized()のロジック:
+        // area.removeFromTop(30);
+        // area.removeFromTop(headerVisualArea);
+        // area.removeFromTop(70);
+        // 残りがトラック領域
+        
+        float trackStartY = 30.0f + (float)headerVisualArea + 70.0f;
+        // マージン分(15px)もあるので、絶対座標的には +15 startY
+        trackStartY += 15.0f; // Top margin used in resized()
+        
+        // 微調整: 背景は少し広めに描画しても良いが、ビジュアライザを隠さないように
+        
+        juce::Rectangle<float> trackArea(0, trackStartY, (float)getWidth(), (float)getHeight() - trackStartY);
+        
+        // Darken the track area significantly to make UI controls stand out
+        g.setColour(juce::Colours::black.withAlpha(0.7f));
+        g.fillRect(trackArea);
+        
+        // Add a separator line
+        g.setColour(ThemeColours::NeonCyan.withAlpha(0.3f));
+        g.drawLine(0, trackStartY, (float)getWidth(), trackStartY, 1.0f);
+    }
 }
 
 void MainComponent::resized() 
 {
 	auto area = getLocalBounds().reduced(15);
 	
-	// ⬇️ Top margin for layout (skip past the 40px header bar)
+// ⬇️ Top margin for layout (skip past the 40px header bar)
 	area.removeFromTop(30);
 
-	// Visual Area (Place for future waveform or visualizer)
-	auto visualArea = area.removeFromTop(headerVisualArea);
-    visualizer.setBounds(visualArea.reduced(10));
+	// トラック表示/非表示によるレイアウト調整
+    if (areTracksVisible)
+    {
+        // --- 通常モード（トラック表示） ---
+        
+        // Visual Area (Upper Part)
+        auto visualArea = area.removeFromTop(headerVisualArea);
+        visualizer.setBounds(visualArea.reduced(10));
+        
+        // Toggle Button Removed (Moved to TransportPanel)
+        
+        // 🎛 トランスポートエリア
+        auto transportArea = area.removeFromTop(70);
+        transportPanel.setBounds(transportArea);
+        
+        // 🎚 トラック群
+        int x = 0, y = 0;
+        for (int i = 0; i < trackUIs.size(); i++)
+        {
+            int row = i / tracksPerRow;
+            int col = i % tracksPerRow;
+            x = col * (trackWidth + spacing);
+            y = row * (trackHeight + spacing);
 
-	// 🎛 トランスポートエリア
-	auto transportArea = area.removeFromTop(70);  // 100 → 70 (ラベル不要)
-	transportPanel.setBounds(transportArea);
-	// 🎚 トラック群
-	int x = 0, y = 0;
-	for (int i = 0; i < trackUIs.size(); i++)
-	{
-		int row = i / tracksPerRow;
-		int col = i % tracksPerRow;
-		x = col * (trackWidth + spacing);
-		y = row * (trackHeight + spacing);
-
-		trackUIs[i]->setBounds(area.getX() + x + spacing,
-							   area.getY() + y + spacing,
-							   trackWidth, trackHeight);
-	}
+            trackUIs[i]->setBounds(area.getX() + x + spacing,
+                                   area.getY() + y + spacing,
+                                   trackWidth, trackHeight);
+        }
+    }
+    else
+    {
+        // --- 全画面ビジュアライザモード（トラック非表示） ---
+        
+        // トランスポートパネルだけ下部に残す（オプション、今回はシンプルに下に配置）
+        auto transportArea = area.removeFromBottom(70);
+        transportPanel.setBounds(transportArea);
+        
+        // 残りのエリア全部をビジュアライザに
+        visualizer.setBounds(area.reduced(10));
+        
+        // Toggle Button Removed (Moved to TransportPanel)
+    }
 }
 
 //==============================================================================
