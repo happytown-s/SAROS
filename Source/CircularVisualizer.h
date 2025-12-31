@@ -118,7 +118,7 @@ public:
             double angleVal = juce::MathConstants<double>::twoPi * currentAngleRatio + manualOffset;
             float angle = (float)angleVal;
             
-            float rInner = 1.0f - (rms * maxAmpWidth);
+            float rInner = juce::jmax(0.1f, 1.0f - (rms * maxAmpWidth));
             float xIn = rInner * std::cos(angle);
             float yIn = rInner * std::sin(angle);
             
@@ -232,6 +232,7 @@ public:
         auto squareArea = bounds.withSizeKeepingCentre(side, side);
         auto centre = squareArea.getCentre();
         auto radius = side * 0.35f;
+        if (radius <= 0) return;
 
         // --- Visualizer Elements (Overlay only) ---
         

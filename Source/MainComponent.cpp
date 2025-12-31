@@ -413,7 +413,7 @@ void MainComponent::paint(juce::Graphics& g)
     g.fillRect(topBar);
 
     // --- Title Logo Rendering ---
-    juce::String titleText = "SAROS";
+    juce::String titleText = "ORAS";
     float titleFontSize = 32.0f;
     
     // システムフォントを使用 (Futura または Arial)
