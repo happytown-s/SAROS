@@ -1,4 +1,3 @@
 # Hashes of file build rules.
-e2df15285455de5812e370d5e970ce7c Looper_artefacts/JuceLibraryCode/Looper/PkgInfo
-aef9b170c21935f909f4cbcbcf28a124 ORAS_artefacts/JuceLibraryCode/ORAS/PkgInfo
-ca4527b9e8c8bffbb1dc813c4734068a juce_binarydata_Assets/JuceLibraryCode/BinaryData1.cpp
+63f37987fe5544b48e9d818b7202c4ea ORAS_artefacts/JuceLibraryCode/ORAS/PkgInfo
+941d747923745fd06ba0d2954231f5a3 juce_binarydata_Assets/JuceLibraryCode/BinaryData1.cpp

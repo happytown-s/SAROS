@@ -1,11 +1,11 @@
 {
 	"InstallScripts" : 
 	[
-		"/Users/mtsh/\u66f8\u985e/code/JUCE/Looper/build/cmake_install.cmake",
-		"/Users/mtsh/\u66f8\u985e/code/JUCE/Looper/build/JUCE_build/cmake_install.cmake",
-		"/Users/mtsh/\u66f8\u985e/code/JUCE/Looper/build/JUCE_build/modules/cmake_install.cmake",
-		"/Users/mtsh/\u66f8\u985e/code/JUCE/Looper/build/JUCE_build/extras/Build/cmake_install.cmake",
-		"/Users/mtsh/\u66f8\u985e/code/JUCE/Looper/build/JUCE_build/extras/Build/juceaide/cmake_install.cmake"
+		"/Users/mtsh/\u66f8\u985e/code/JUCE/ORAS/build/cmake_install.cmake",
+		"/Users/mtsh/\u66f8\u985e/code/JUCE/ORAS/build/JUCE_build/cmake_install.cmake",
+		"/Users/mtsh/\u66f8\u985e/code/JUCE/ORAS/build/JUCE_build/modules/cmake_install.cmake",
+		"/Users/mtsh/\u66f8\u985e/code/JUCE/ORAS/build/JUCE_build/extras/Build/cmake_install.cmake",
+		"/Users/mtsh/\u66f8\u985e/code/JUCE/ORAS/build/JUCE_build/extras/Build/juceaide/cmake_install.cmake"
 	],
 	"Parallel" : false
 }

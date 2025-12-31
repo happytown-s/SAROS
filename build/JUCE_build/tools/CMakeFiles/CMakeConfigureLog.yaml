@@ -26,6 +26,7 @@ events:
       - "/Users/mtsh/.pyenv/shims/"
       - "/Users/mtsh/.pyenv/bin/"
       - "/usr/local/bin/"
+      - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin/"
       - "/opt/homebrew/bin/"
       - "/opt/homebrew/sbin/"
       - "/System/Cryptexes/App/usr/bin/"
@@ -44,6 +45,7 @@ events:
       - "/Users/mtsh/.pyenv/shims/uname"
       - "/Users/mtsh/.pyenv/bin/uname"
       - "/usr/local/bin/uname"
+      - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin/uname"
       - "/opt/homebrew/bin/uname"
       - "/opt/homebrew/sbin/uname"
       - "/System/Cryptexes/App/usr/bin/uname"
@@ -57,6 +59,7 @@ events:
         - "/Users/mtsh/.pyenv/shims"
         - "/Users/mtsh/.pyenv/bin"
         - "/usr/local/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/opt/homebrew/bin"
         - "/opt/homebrew/sbin"
         - "/usr/local/bin"
@@ -69,6 +72,7 @@ events:
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
         - "/Library/Apple/usr/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/Users/mtsh/.antigravity/antigravity/bin"
         - "/Users/mtsh/.rbenv/shims"
         - "/Users/mtsh/.rbenv/bin"
@@ -107,6 +111,7 @@ events:
       - "/Users/mtsh/.pyenv/shims/"
       - "/Users/mtsh/.pyenv/bin/"
       - "/usr/local/bin/"
+      - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin/"
       - "/opt/homebrew/bin/"
       - "/opt/homebrew/sbin/"
       - "/System/Cryptexes/App/usr/bin/"
@@ -128,6 +133,7 @@ events:
         - "/Users/mtsh/.pyenv/shims"
         - "/Users/mtsh/.pyenv/bin"
         - "/usr/local/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/opt/homebrew/bin"
         - "/opt/homebrew/sbin"
         - "/usr/local/bin"
@@ -140,6 +146,7 @@ events:
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
         - "/Library/Apple/usr/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/Users/mtsh/.antigravity/antigravity/bin"
         - "/Users/mtsh/.rbenv/shims"
         - "/Users/mtsh/.rbenv/bin"
@@ -179,6 +186,7 @@ events:
         - "/Users/mtsh/.pyenv/shims"
         - "/Users/mtsh/.pyenv/bin"
         - "/usr/local/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/opt/homebrew/bin"
         - "/opt/homebrew/sbin"
         - "/usr/local/bin"
@@ -191,6 +199,7 @@ events:
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
         - "/Library/Apple/usr/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/Users/mtsh/.antigravity/antigravity/bin"
         - "/Users/mtsh/.rbenv/shims"
         - "/Users/mtsh/.rbenv/bin"
@@ -216,7 +225,7 @@ events:
       Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "a.out"
       
       The C compiler identification is AppleClang, found in:
-        /Users/mtsh/書類/code/JUCE/Looper/build/JUCE_build/tools/CMakeFiles/4.1.1/CompilerIdC/a.out
+        /Users/mtsh/書類/code/JUCE/ORAS/build/JUCE_build/tools/CMakeFiles/4.1.1/CompilerIdC/a.out
       
   -
     kind: "message-v1"
@@ -286,6 +295,7 @@ events:
       - "/Users/mtsh/.pyenv/shims/"
       - "/Users/mtsh/.pyenv/bin/"
       - "/usr/local/bin/"
+      - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin/"
       - "/opt/homebrew/bin/"
       - "/opt/homebrew/sbin/"
       - "/System/Cryptexes/App/usr/bin/"
@@ -306,6 +316,7 @@ events:
         - "/Users/mtsh/.pyenv/shims"
         - "/Users/mtsh/.pyenv/bin"
         - "/usr/local/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/opt/homebrew/bin"
         - "/opt/homebrew/sbin"
         - "/usr/local/bin"
@@ -318,6 +329,7 @@ events:
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
         - "/Library/Apple/usr/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/Users/mtsh/.antigravity/antigravity/bin"
         - "/Users/mtsh/.rbenv/shims"
         - "/Users/mtsh/.rbenv/bin"
@@ -350,6 +362,7 @@ events:
       - "/Users/mtsh/.pyenv/shims/"
       - "/Users/mtsh/.pyenv/bin/"
       - "/usr/local/bin/"
+      - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin/"
       - "/opt/homebrew/bin/"
       - "/opt/homebrew/sbin/"
       - "/System/Cryptexes/App/usr/bin/"
@@ -370,6 +383,7 @@ events:
         - "/Users/mtsh/.pyenv/shims"
         - "/Users/mtsh/.pyenv/bin"
         - "/usr/local/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/opt/homebrew/bin"
         - "/opt/homebrew/sbin"
         - "/usr/local/bin"
@@ -382,6 +396,7 @@ events:
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
         - "/Library/Apple/usr/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/Users/mtsh/.antigravity/antigravity/bin"
         - "/Users/mtsh/.rbenv/shims"
         - "/Users/mtsh/.rbenv/bin"
@@ -414,6 +429,7 @@ events:
       - "/Users/mtsh/.pyenv/shims/"
       - "/Users/mtsh/.pyenv/bin/"
       - "/usr/local/bin/"
+      - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin/"
       - "/opt/homebrew/bin/"
       - "/opt/homebrew/sbin/"
       - "/System/Cryptexes/App/usr/bin/"
@@ -434,6 +450,7 @@ events:
         - "/Users/mtsh/.pyenv/shims"
         - "/Users/mtsh/.pyenv/bin"
         - "/usr/local/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/opt/homebrew/bin"
         - "/opt/homebrew/sbin"
         - "/usr/local/bin"
@@ -446,6 +463,7 @@ events:
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
         - "/Library/Apple/usr/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/Users/mtsh/.antigravity/antigravity/bin"
         - "/Users/mtsh/.rbenv/shims"
         - "/Users/mtsh/.rbenv/bin"
@@ -478,6 +496,7 @@ events:
       - "/Users/mtsh/.pyenv/shims/"
       - "/Users/mtsh/.pyenv/bin/"
       - "/usr/local/bin/"
+      - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin/"
       - "/opt/homebrew/bin/"
       - "/opt/homebrew/sbin/"
       - "/System/Cryptexes/App/usr/bin/"
@@ -498,6 +517,7 @@ events:
         - "/Users/mtsh/.pyenv/shims"
         - "/Users/mtsh/.pyenv/bin"
         - "/usr/local/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/opt/homebrew/bin"
         - "/opt/homebrew/sbin"
         - "/usr/local/bin"
@@ -510,6 +530,7 @@ events:
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
         - "/Library/Apple/usr/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/Users/mtsh/.antigravity/antigravity/bin"
         - "/Users/mtsh/.rbenv/shims"
         - "/Users/mtsh/.rbenv/bin"
@@ -542,6 +563,7 @@ events:
       - "/Users/mtsh/.pyenv/shims/"
       - "/Users/mtsh/.pyenv/bin/"
       - "/usr/local/bin/"
+      - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin/"
       - "/opt/homebrew/bin/"
       - "/opt/homebrew/sbin/"
       - "/System/Cryptexes/App/usr/bin/"
@@ -562,6 +584,7 @@ events:
         - "/Users/mtsh/.pyenv/shims"
         - "/Users/mtsh/.pyenv/bin"
         - "/usr/local/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/opt/homebrew/bin"
         - "/opt/homebrew/sbin"
         - "/usr/local/bin"
@@ -574,6 +597,7 @@ events:
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
         - "/Library/Apple/usr/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/Users/mtsh/.antigravity/antigravity/bin"
         - "/Users/mtsh/.rbenv/shims"
         - "/Users/mtsh/.rbenv/bin"
@@ -606,6 +630,7 @@ events:
       - "/Users/mtsh/.pyenv/shims/"
       - "/Users/mtsh/.pyenv/bin/"
       - "/usr/local/bin/"
+      - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin/"
       - "/opt/homebrew/bin/"
       - "/opt/homebrew/sbin/"
       - "/System/Cryptexes/App/usr/bin/"
@@ -626,6 +651,7 @@ events:
         - "/Users/mtsh/.pyenv/shims"
         - "/Users/mtsh/.pyenv/bin"
         - "/usr/local/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/opt/homebrew/bin"
         - "/opt/homebrew/sbin"
         - "/usr/local/bin"
@@ -638,6 +664,7 @@ events:
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
         - "/Library/Apple/usr/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/Users/mtsh/.antigravity/antigravity/bin"
         - "/Users/mtsh/.rbenv/shims"
         - "/Users/mtsh/.rbenv/bin"
@@ -670,6 +697,7 @@ events:
       - "/Users/mtsh/.pyenv/shims/"
       - "/Users/mtsh/.pyenv/bin/"
       - "/usr/local/bin/"
+      - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin/"
       - "/opt/homebrew/bin/"
       - "/opt/homebrew/sbin/"
       - "/System/Cryptexes/App/usr/bin/"
@@ -688,6 +716,7 @@ events:
       - "/Users/mtsh/.pyenv/shims/objcopy"
       - "/Users/mtsh/.pyenv/bin/objcopy"
       - "/usr/local/bin/objcopy"
+      - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin/objcopy"
       - "/opt/homebrew/bin/objcopy"
       - "/opt/homebrew/sbin/objcopy"
       - "/System/Cryptexes/App/usr/bin/objcopy"
@@ -708,6 +737,7 @@ events:
         - "/Users/mtsh/.pyenv/shims"
         - "/Users/mtsh/.pyenv/bin"
         - "/usr/local/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/opt/homebrew/bin"
         - "/opt/homebrew/sbin"
         - "/usr/local/bin"
@@ -720,6 +750,7 @@ events:
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
         - "/Library/Apple/usr/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/Users/mtsh/.antigravity/antigravity/bin"
         - "/Users/mtsh/.rbenv/shims"
         - "/Users/mtsh/.rbenv/bin"
@@ -752,6 +783,7 @@ events:
       - "/Users/mtsh/.pyenv/shims/"
       - "/Users/mtsh/.pyenv/bin/"
       - "/usr/local/bin/"
+      - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin/"
       - "/opt/homebrew/bin/"
       - "/opt/homebrew/sbin/"
       - "/System/Cryptexes/App/usr/bin/"
@@ -770,6 +802,7 @@ events:
       - "/Users/mtsh/.pyenv/shims/readelf"
       - "/Users/mtsh/.pyenv/bin/readelf"
       - "/usr/local/bin/readelf"
+      - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin/readelf"
       - "/opt/homebrew/bin/readelf"
       - "/opt/homebrew/sbin/readelf"
       - "/System/Cryptexes/App/usr/bin/readelf"
@@ -790,6 +823,7 @@ events:
         - "/Users/mtsh/.pyenv/shims"
         - "/Users/mtsh/.pyenv/bin"
         - "/usr/local/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/opt/homebrew/bin"
         - "/opt/homebrew/sbin"
         - "/usr/local/bin"
@@ -802,6 +836,7 @@ events:
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
         - "/Library/Apple/usr/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/Users/mtsh/.antigravity/antigravity/bin"
         - "/Users/mtsh/.rbenv/shims"
         - "/Users/mtsh/.rbenv/bin"
@@ -834,6 +869,7 @@ events:
       - "/Users/mtsh/.pyenv/shims/"
       - "/Users/mtsh/.pyenv/bin/"
       - "/usr/local/bin/"
+      - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin/"
       - "/opt/homebrew/bin/"
       - "/opt/homebrew/sbin/"
       - "/System/Cryptexes/App/usr/bin/"
@@ -852,6 +888,7 @@ events:
       - "/Users/mtsh/.pyenv/shims/dlltool"
       - "/Users/mtsh/.pyenv/bin/dlltool"
       - "/usr/local/bin/dlltool"
+      - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin/dlltool"
       - "/opt/homebrew/bin/dlltool"
       - "/opt/homebrew/sbin/dlltool"
       - "/System/Cryptexes/App/usr/bin/dlltool"
@@ -872,6 +909,7 @@ events:
         - "/Users/mtsh/.pyenv/shims"
         - "/Users/mtsh/.pyenv/bin"
         - "/usr/local/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/opt/homebrew/bin"
         - "/opt/homebrew/sbin"
         - "/usr/local/bin"
@@ -884,6 +922,7 @@ events:
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
         - "/Library/Apple/usr/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/Users/mtsh/.antigravity/antigravity/bin"
         - "/Users/mtsh/.rbenv/shims"
         - "/Users/mtsh/.rbenv/bin"
@@ -916,6 +955,7 @@ events:
       - "/Users/mtsh/.pyenv/shims/"
       - "/Users/mtsh/.pyenv/bin/"
       - "/usr/local/bin/"
+      - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin/"
       - "/opt/homebrew/bin/"
       - "/opt/homebrew/sbin/"
       - "/System/Cryptexes/App/usr/bin/"
@@ -934,6 +974,7 @@ events:
       - "/Users/mtsh/.pyenv/shims/addr2line"
       - "/Users/mtsh/.pyenv/bin/addr2line"
       - "/usr/local/bin/addr2line"
+      - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin/addr2line"
       - "/opt/homebrew/bin/addr2line"
       - "/opt/homebrew/sbin/addr2line"
       - "/System/Cryptexes/App/usr/bin/addr2line"
@@ -954,6 +995,7 @@ events:
         - "/Users/mtsh/.pyenv/shims"
         - "/Users/mtsh/.pyenv/bin"
         - "/usr/local/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/opt/homebrew/bin"
         - "/opt/homebrew/sbin"
         - "/usr/local/bin"
@@ -966,6 +1008,7 @@ events:
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
         - "/Library/Apple/usr/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/Users/mtsh/.antigravity/antigravity/bin"
         - "/Users/mtsh/.rbenv/shims"
         - "/Users/mtsh/.rbenv/bin"
@@ -998,6 +1041,7 @@ events:
       - "/Users/mtsh/.pyenv/shims/"
       - "/Users/mtsh/.pyenv/bin/"
       - "/usr/local/bin/"
+      - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin/"
       - "/opt/homebrew/bin/"
       - "/opt/homebrew/sbin/"
       - "/System/Cryptexes/App/usr/bin/"
@@ -1016,6 +1060,7 @@ events:
       - "/Users/mtsh/.pyenv/shims/tapi"
       - "/Users/mtsh/.pyenv/bin/tapi"
       - "/usr/local/bin/tapi"
+      - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin/tapi"
       - "/opt/homebrew/bin/tapi"
       - "/opt/homebrew/sbin/tapi"
       - "/System/Cryptexes/App/usr/bin/tapi"
@@ -1036,6 +1081,7 @@ events:
         - "/Users/mtsh/.pyenv/shims"
         - "/Users/mtsh/.pyenv/bin"
         - "/usr/local/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/opt/homebrew/bin"
         - "/opt/homebrew/sbin"
         - "/usr/local/bin"
@@ -1048,6 +1094,7 @@ events:
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
         - "/Library/Apple/usr/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/Users/mtsh/.antigravity/antigravity/bin"
         - "/Users/mtsh/.rbenv/shims"
         - "/Users/mtsh/.rbenv/bin"
@@ -1084,6 +1131,7 @@ events:
         - "/Users/mtsh/.pyenv/shims"
         - "/Users/mtsh/.pyenv/bin"
         - "/usr/local/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/opt/homebrew/bin"
         - "/opt/homebrew/sbin"
         - "/usr/local/bin"
@@ -1096,6 +1144,7 @@ events:
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
         - "/Library/Apple/usr/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/Users/mtsh/.antigravity/antigravity/bin"
         - "/Users/mtsh/.rbenv/shims"
         - "/Users/mtsh/.rbenv/bin"
@@ -1135,6 +1184,7 @@ events:
         - "/Users/mtsh/.pyenv/shims"
         - "/Users/mtsh/.pyenv/bin"
         - "/usr/local/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/opt/homebrew/bin"
         - "/opt/homebrew/sbin"
         - "/usr/local/bin"
@@ -1147,6 +1197,7 @@ events:
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
         - "/Library/Apple/usr/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/Users/mtsh/.antigravity/antigravity/bin"
         - "/Users/mtsh/.rbenv/shims"
         - "/Users/mtsh/.rbenv/bin"
@@ -1172,7 +1223,7 @@ events:
       Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "a.out"
       
       The CXX compiler identification is AppleClang, found in:
-        /Users/mtsh/書類/code/JUCE/Looper/build/JUCE_build/tools/CMakeFiles/4.1.1/CompilerIdCXX/a.out
+        /Users/mtsh/書類/code/JUCE/ORAS/build/JUCE_build/tools/CMakeFiles/4.1.1/CompilerIdCXX/a.out
       
   -
     kind: "message-v1"
@@ -1241,6 +1292,7 @@ events:
       - "/Users/mtsh/.pyenv/shims/"
       - "/Users/mtsh/.pyenv/bin/"
       - "/usr/local/bin/"
+      - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin/"
       - "/opt/homebrew/bin/"
       - "/opt/homebrew/sbin/"
       - "/System/Cryptexes/App/usr/bin/"
@@ -1259,6 +1311,7 @@ events:
       - "/Users/mtsh/.pyenv/shims/install_name_tool"
       - "/Users/mtsh/.pyenv/bin/install_name_tool"
       - "/usr/local/bin/install_name_tool"
+      - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin/install_name_tool"
       - "/opt/homebrew/bin/install_name_tool"
       - "/opt/homebrew/sbin/install_name_tool"
       - "/System/Cryptexes/App/usr/bin/install_name_tool"
@@ -1272,6 +1325,7 @@ events:
         - "/Users/mtsh/.pyenv/shims"
         - "/Users/mtsh/.pyenv/bin"
         - "/usr/local/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/opt/homebrew/bin"
         - "/opt/homebrew/sbin"
         - "/usr/local/bin"
@@ -1284,6 +1338,7 @@ events:
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
         - "/Library/Apple/usr/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/Users/mtsh/.antigravity/antigravity/bin"
         - "/Users/mtsh/.rbenv/shims"
         - "/Users/mtsh/.rbenv/bin"
@@ -1298,8 +1353,8 @@ events:
     checks:
       - "Detecting C compiler ABI info"
     directories:
-      source: "/Users/mtsh/\u66f8\u985e/code/JUCE/Looper/build/JUCE_build/tools/CMakeFiles/CMakeScratch/TryCompile-hncoBB"
-      binary: "/Users/mtsh/\u66f8\u985e/code/JUCE/Looper/build/JUCE_build/tools/CMakeFiles/CMakeScratch/TryCompile-hncoBB"
+      source: "/Users/mtsh/\u66f8\u985e/code/JUCE/ORAS/build/JUCE_build/tools/CMakeFiles/CMakeScratch/TryCompile-x1Rfq5"
+      binary: "/Users/mtsh/\u66f8\u985e/code/JUCE/ORAS/build/JUCE_build/tools/CMakeFiles/CMakeScratch/TryCompile-x1Rfq5"
     cmakeVariables:
       CMAKE_C_FLAGS: ""
       CMAKE_C_FLAGS_DEBUG: "-g"
@@ -1311,18 +1366,18 @@ events:
       variable: "CMAKE_C_ABI_COMPILED"
       cached: true
       stdout: |
-        Change Dir: '/Users/mtsh/書類/code/JUCE/Looper/build/JUCE_build/tools/CMakeFiles/CMakeScratch/TryCompile-hncoBB'
+        Change Dir: '/Users/mtsh/書類/code/JUCE/ORAS/build/JUCE_build/tools/CMakeFiles/CMakeScratch/TryCompile-x1Rfq5'
         
-        Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_fb7a7/fast
-        /Applications/Xcode.app/Contents/Developer/usr/bin/make  -f CMakeFiles/cmTC_fb7a7.dir/build.make CMakeFiles/cmTC_fb7a7.dir/build
-        Building C object CMakeFiles/cmTC_fb7a7.dir/CMakeCCompilerABI.c.o
-        /usr/bin/cc   -arch arm64   -v -Wl,-v -MD -MT CMakeFiles/cmTC_fb7a7.dir/CMakeCCompilerABI.c.o -MF CMakeFiles/cmTC_fb7a7.dir/CMakeCCompilerABI.c.o.d -o CMakeFiles/cmTC_fb7a7.dir/CMakeCCompilerABI.c.o -c /opt/homebrew/share/cmake/Modules/CMakeCCompilerABI.c
+        Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_b28ad/fast
+        /Applications/Xcode.app/Contents/Developer/usr/bin/make  -f CMakeFiles/cmTC_b28ad.dir/build.make CMakeFiles/cmTC_b28ad.dir/build
+        Building C object CMakeFiles/cmTC_b28ad.dir/CMakeCCompilerABI.c.o
+        /usr/bin/cc   -arch arm64   -v -Wl,-v -MD -MT CMakeFiles/cmTC_b28ad.dir/CMakeCCompilerABI.c.o -MF CMakeFiles/cmTC_b28ad.dir/CMakeCCompilerABI.c.o.d -o CMakeFiles/cmTC_b28ad.dir/CMakeCCompilerABI.c.o -c /opt/homebrew/share/cmake/Modules/CMakeCCompilerABI.c
         Apple clang version 17.0.0 (clang-1700.0.13.5)
         Target: arm64-apple-darwin24.6.0
         Thread model: posix
         InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin
         clang: warning: -Wl,-v: 'linker' input unused [-Wunused-command-line-argument]
-         "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang" -cc1 -triple arm64-apple-macosx15.0.0 -Wundef-prefix=TARGET_OS_ -Wdeprecated-objc-isa-usage -Werror=deprecated-objc-isa-usage -Werror=implicit-function-declaration -emit-obj -disable-free -clear-ast-before-backend -disable-llvm-verifier -discard-value-names -main-file-name CMakeCCompilerABI.c -mrelocation-model pic -pic-level 2 -mframe-pointer=non-leaf -fno-strict-return -ffp-contract=on -fno-rounding-math -funwind-tables=1 -fobjc-msgsend-selector-stubs -target-sdk-version=15.5 -fvisibility-inlines-hidden-static-local-var -fdefine-target-os-macros -fno-assume-unique-vtables -fno-modulemap-allow-subdirectory-search -target-cpu apple-m1 -target-feature +zcm -target-feature +zcz -target-feature +v8.5a -target-feature +aes -target-feature +altnzcv -target-feature +ccdp -target-feature +complxnum -target-feature +crc -target-feature +dotprod -target-feature +fp-armv8 -target-feature +fp16fml -target-feature +fptoint -target-feature +fullfp16 -target-feature +jsconv -target-feature +lse -target-feature +neon -target-feature +pauth -target-feature +perfmon -target-feature +predres -target-feature +ras -target-feature +rcpc -target-feature +rdm -target-feature +sb -target-feature +sha2 -target-feature +sha3 -target-feature +specrestrict -target-feature +ssbs -target-abi darwinpcs -debugger-tuning=lldb -fdebug-compilation-dir=/Users/mtsh/書類/code/JUCE/Looper/build/JUCE_build/tools/CMakeFiles/CMakeScratch/TryCompile-hncoBB -target-linker-version 1167.5 -v -fcoverage-compilation-dir=/Users/mtsh/書類/code/JUCE/Looper/build/JUCE_build/tools/CMakeFiles/CMakeScratch/TryCompile-hncoBB -resource-dir /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17 -dependency-file CMakeFiles/cmTC_fb7a7.dir/CMakeCCompilerABI.c.o.d -skip-unused-modulemap-deps -MT CMakeFiles/cmTC_fb7a7.dir/CMakeCCompilerABI.c.o -sys-header-deps -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -I/usr/local/include -internal-isystem /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/local/include -internal-isystem /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include -internal-externc-isystem /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include -internal-externc-isystem /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include -Wno-reorder-init-list -Wno-implicit-int-float-conversion -Wno-c99-designator -Wno-final-dtor-non-final-class -Wno-extra-semi-stmt -Wno-misleading-indentation -Wno-quoted-include-in-framework-header -Wno-implicit-fallthrough -Wno-enum-enum-conversion -Wno-enum-float-conversion -Wno-elaborated-enum-base -Wno-reserved-identifier -Wno-gnu-folding-constant -ferror-limit 19 -stack-protector 1 -fstack-check -mdarwin-stkchk-strong-link -fblocks -fencode-extended-block-signature -fregister-global-dtors-with-atexit -fgnuc-version=4.2.1 -fskip-odr-check-in-gmf -fmax-type-align=16 -fcommon -clang-vendor-feature=+disableNonDependentMemberExprInCurrentInstantiation -fno-odr-hash-protocols -clang-vendor-feature=+enableAggressiveVLAFolding -clang-vendor-feature=+revert09abecef7bbf -clang-vendor-feature=+thisNoAlignAttr -clang-vendor-feature=+thisNoNullAttr -clang-vendor-feature=+disableAtImportPrivateFrameworkInImplementationError -D__GCC_HAVE_DWARF2_CFI_ASM=1 -o CMakeFiles/cmTC_fb7a7.dir/CMakeCCompilerABI.c.o -x c /opt/homebrew/share/cmake/Modules/CMakeCCompilerABI.c
+         "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang" -cc1 -triple arm64-apple-macosx15.0.0 -Wundef-prefix=TARGET_OS_ -Wdeprecated-objc-isa-usage -Werror=deprecated-objc-isa-usage -Werror=implicit-function-declaration -emit-obj -disable-free -clear-ast-before-backend -disable-llvm-verifier -discard-value-names -main-file-name CMakeCCompilerABI.c -mrelocation-model pic -pic-level 2 -mframe-pointer=non-leaf -fno-strict-return -ffp-contract=on -fno-rounding-math -funwind-tables=1 -fobjc-msgsend-selector-stubs -target-sdk-version=15.5 -fvisibility-inlines-hidden-static-local-var -fdefine-target-os-macros -fno-assume-unique-vtables -fno-modulemap-allow-subdirectory-search -target-cpu apple-m1 -target-feature +zcm -target-feature +zcz -target-feature +v8.5a -target-feature +aes -target-feature +altnzcv -target-feature +ccdp -target-feature +complxnum -target-feature +crc -target-feature +dotprod -target-feature +fp-armv8 -target-feature +fp16fml -target-feature +fptoint -target-feature +fullfp16 -target-feature +jsconv -target-feature +lse -target-feature +neon -target-feature +pauth -target-feature +perfmon -target-feature +predres -target-feature +ras -target-feature +rcpc -target-feature +rdm -target-feature +sb -target-feature +sha2 -target-feature +sha3 -target-feature +specrestrict -target-feature +ssbs -target-abi darwinpcs -debugger-tuning=lldb -fdebug-compilation-dir=/Users/mtsh/書類/code/JUCE/ORAS/build/JUCE_build/tools/CMakeFiles/CMakeScratch/TryCompile-x1Rfq5 -target-linker-version 1167.5 -v -fcoverage-compilation-dir=/Users/mtsh/書類/code/JUCE/ORAS/build/JUCE_build/tools/CMakeFiles/CMakeScratch/TryCompile-x1Rfq5 -resource-dir /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17 -dependency-file CMakeFiles/cmTC_b28ad.dir/CMakeCCompilerABI.c.o.d -skip-unused-modulemap-deps -MT CMakeFiles/cmTC_b28ad.dir/CMakeCCompilerABI.c.o -sys-header-deps -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -I/usr/local/include -internal-isystem /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/local/include -internal-isystem /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include -internal-externc-isystem /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include -internal-externc-isystem /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include -Wno-reorder-init-list -Wno-implicit-int-float-conversion -Wno-c99-designator -Wno-final-dtor-non-final-class -Wno-extra-semi-stmt -Wno-misleading-indentation -Wno-quoted-include-in-framework-header -Wno-implicit-fallthrough -Wno-enum-enum-conversion -Wno-enum-float-conversion -Wno-elaborated-enum-base -Wno-reserved-identifier -Wno-gnu-folding-constant -ferror-limit 19 -stack-protector 1 -fstack-check -mdarwin-stkchk-strong-link -fblocks -fencode-extended-block-signature -fregister-global-dtors-with-atexit -fgnuc-version=4.2.1 -fskip-odr-check-in-gmf -fmax-type-align=16 -fcommon -clang-vendor-feature=+disableNonDependentMemberExprInCurrentInstantiation -fno-odr-hash-protocols -clang-vendor-feature=+enableAggressiveVLAFolding -clang-vendor-feature=+revert09abecef7bbf -clang-vendor-feature=+thisNoAlignAttr -clang-vendor-feature=+thisNoNullAttr -clang-vendor-feature=+disableAtImportPrivateFrameworkInImplementationError -D__GCC_HAVE_DWARF2_CFI_ASM=1 -o CMakeFiles/cmTC_b28ad.dir/CMakeCCompilerABI.c.o -x c /opt/homebrew/share/cmake/Modules/CMakeCCompilerABI.c
         clang -cc1 version 17.0.0 (clang-1700.0.13.5) default target arm64-apple-darwin24.6.0
         ignoring nonexistent directory "/usr/local/include"
         ignoring nonexistent directory "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/local/include"
@@ -1335,13 +1390,13 @@ events:
          /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include
          /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks (framework directory)
         End of search list.
-        Linking C executable cmTC_fb7a7
-        /opt/homebrew/bin/cmake -E cmake_link_script CMakeFiles/cmTC_fb7a7.dir/link.txt --verbose=1
+        Linking C executable cmTC_b28ad
+        /opt/homebrew/bin/cmake -E cmake_link_script CMakeFiles/cmTC_b28ad.dir/link.txt --verbose=1
         Apple clang version 17.0.0 (clang-1700.0.13.5)
         Target: arm64-apple-darwin24.6.0
         Thread model: posix
         InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin
-         "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld" -demangle -lto_library /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/libLTO.dylib -dynamic -arch arm64 -platform_version macos 15.0.0 15.5 -syslibroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -mllvm -enable-linkonceodr-outlining -o cmTC_fb7a7 -L/usr/local/lib -search_paths_first -headerpad_max_install_names -v CMakeFiles/cmTC_fb7a7.dir/CMakeCCompilerABI.c.o -lSystem /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/lib/darwin/libclang_rt.osx.a
+         "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld" -demangle -lto_library /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/libLTO.dylib -dynamic -arch arm64 -platform_version macos 15.0.0 15.5 -syslibroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -mllvm -enable-linkonceodr-outlining -o cmTC_b28ad -L/usr/local/lib -search_paths_first -headerpad_max_install_names -v CMakeFiles/cmTC_b28ad.dir/CMakeCCompilerABI.c.o -lSystem /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/lib/darwin/libclang_rt.osx.a
         @(#)PROGRAM:ld PROJECT:ld-1167.5
         BUILD 01:45:05 Apr 30 2025
         configured to support archs: armv6 armv7 armv7s arm64 arm64e arm64_32 i386 x86_64 x86_64h armv6m armv7k armv7m armv7em
@@ -1353,7 +1408,7 @@ events:
         	/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/lib/swift
         Framework search paths:
         	/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks
-        /usr/bin/cc  -arch arm64 -Wl,-search_paths_first -Wl,-headerpad_max_install_names  -v -Wl,-v CMakeFiles/cmTC_fb7a7.dir/CMakeCCompilerABI.c.o -o cmTC_fb7a7
+        /usr/bin/cc  -arch arm64 -Wl,-search_paths_first -Wl,-headerpad_max_install_names  -v -Wl,-v CMakeFiles/cmTC_b28ad.dir/CMakeCCompilerABI.c.o -o cmTC_b28ad
         
       exitCode: 0
   -
@@ -1395,18 +1450,18 @@ events:
       Parsed C implicit link information:
         link line regex: [^( *|.*[/\\])(ld[0-9]*(|\\.[a-rt-z][a-z]*|\\.s[a-np-z][a-z]*|\\.so[a-z]+)|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\\]+-)?ld|collect2)[^/\\]*( |$)]
         linker tool regex: [^[ 	]*(->|")?[ 	]*(([^"]*[/\\])?(ld[0-9]*(|\\.[a-rt-z][a-z]*|\\.s[a-np-z][a-z]*|\\.so[a-z]+)))("|,| |$)]
-        ignore line: [Change Dir: '/Users/mtsh/書類/code/JUCE/Looper/build/JUCE_build/tools/CMakeFiles/CMakeScratch/TryCompile-hncoBB']
+        ignore line: [Change Dir: '/Users/mtsh/書類/code/JUCE/ORAS/build/JUCE_build/tools/CMakeFiles/CMakeScratch/TryCompile-x1Rfq5']
         ignore line: []
-        ignore line: [Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_fb7a7/fast]
-        ignore line: [/Applications/Xcode.app/Contents/Developer/usr/bin/make  -f CMakeFiles/cmTC_fb7a7.dir/build.make CMakeFiles/cmTC_fb7a7.dir/build]
-        ignore line: [Building C object CMakeFiles/cmTC_fb7a7.dir/CMakeCCompilerABI.c.o]
-        ignore line: [/usr/bin/cc   -arch arm64   -v -Wl -v -MD -MT CMakeFiles/cmTC_fb7a7.dir/CMakeCCompilerABI.c.o -MF CMakeFiles/cmTC_fb7a7.dir/CMakeCCompilerABI.c.o.d -o CMakeFiles/cmTC_fb7a7.dir/CMakeCCompilerABI.c.o -c /opt/homebrew/share/cmake/Modules/CMakeCCompilerABI.c]
+        ignore line: [Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_b28ad/fast]
+        ignore line: [/Applications/Xcode.app/Contents/Developer/usr/bin/make  -f CMakeFiles/cmTC_b28ad.dir/build.make CMakeFiles/cmTC_b28ad.dir/build]
+        ignore line: [Building C object CMakeFiles/cmTC_b28ad.dir/CMakeCCompilerABI.c.o]
+        ignore line: [/usr/bin/cc   -arch arm64   -v -Wl -v -MD -MT CMakeFiles/cmTC_b28ad.dir/CMakeCCompilerABI.c.o -MF CMakeFiles/cmTC_b28ad.dir/CMakeCCompilerABI.c.o.d -o CMakeFiles/cmTC_b28ad.dir/CMakeCCompilerABI.c.o -c /opt/homebrew/share/cmake/Modules/CMakeCCompilerABI.c]
         ignore line: [Apple clang version 17.0.0 (clang-1700.0.13.5)]
         ignore line: [Target: arm64-apple-darwin24.6.0]
         ignore line: [Thread model: posix]
         ignore line: [InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin]
         ignore line: [clang: warning: -Wl -v: 'linker' input unused [-Wunused-command-line-argument]]
-        ignore line: [ "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang" -cc1 -triple arm64-apple-macosx15.0.0 -Wundef-prefix=TARGET_OS_ -Wdeprecated-objc-isa-usage -Werror=deprecated-objc-isa-usage -Werror=implicit-function-declaration -emit-obj -disable-free -clear-ast-before-backend -disable-llvm-verifier -discard-value-names -main-file-name CMakeCCompilerABI.c -mrelocation-model pic -pic-level 2 -mframe-pointer=non-leaf -fno-strict-return -ffp-contract=on -fno-rounding-math -funwind-tables=1 -fobjc-msgsend-selector-stubs -target-sdk-version=15.5 -fvisibility-inlines-hidden-static-local-var -fdefine-target-os-macros -fno-assume-unique-vtables -fno-modulemap-allow-subdirectory-search -target-cpu apple-m1 -target-feature +zcm -target-feature +zcz -target-feature +v8.5a -target-feature +aes -target-feature +altnzcv -target-feature +ccdp -target-feature +complxnum -target-feature +crc -target-feature +dotprod -target-feature +fp-armv8 -target-feature +fp16fml -target-feature +fptoint -target-feature +fullfp16 -target-feature +jsconv -target-feature +lse -target-feature +neon -target-feature +pauth -target-feature +perfmon -target-feature +predres -target-feature +ras -target-feature +rcpc -target-feature +rdm -target-feature +sb -target-feature +sha2 -target-feature +sha3 -target-feature +specrestrict -target-feature +ssbs -target-abi darwinpcs -debugger-tuning=lldb -fdebug-compilation-dir=/Users/mtsh/書類/code/JUCE/Looper/build/JUCE_build/tools/CMakeFiles/CMakeScratch/TryCompile-hncoBB -target-linker-version 1167.5 -v -fcoverage-compilation-dir=/Users/mtsh/書類/code/JUCE/Looper/build/JUCE_build/tools/CMakeFiles/CMakeScratch/TryCompile-hncoBB -resource-dir /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17 -dependency-file CMakeFiles/cmTC_fb7a7.dir/CMakeCCompilerABI.c.o.d -skip-unused-modulemap-deps -MT CMakeFiles/cmTC_fb7a7.dir/CMakeCCompilerABI.c.o -sys-header-deps -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -I/usr/local/include -internal-isystem /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/local/include -internal-isystem /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include -internal-externc-isystem /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include -internal-externc-isystem /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include -Wno-reorder-init-list -Wno-implicit-int-float-conversion -Wno-c99-designator -Wno-final-dtor-non-final-class -Wno-extra-semi-stmt -Wno-misleading-indentation -Wno-quoted-include-in-framework-header -Wno-implicit-fallthrough -Wno-enum-enum-conversion -Wno-enum-float-conversion -Wno-elaborated-enum-base -Wno-reserved-identifier -Wno-gnu-folding-constant -ferror-limit 19 -stack-protector 1 -fstack-check -mdarwin-stkchk-strong-link -fblocks -fencode-extended-block-signature -fregister-global-dtors-with-atexit -fgnuc-version=4.2.1 -fskip-odr-check-in-gmf -fmax-type-align=16 -fcommon -clang-vendor-feature=+disableNonDependentMemberExprInCurrentInstantiation -fno-odr-hash-protocols -clang-vendor-feature=+enableAggressiveVLAFolding -clang-vendor-feature=+revert09abecef7bbf -clang-vendor-feature=+thisNoAlignAttr -clang-vendor-feature=+thisNoNullAttr -clang-vendor-feature=+disableAtImportPrivateFrameworkInImplementationError -D__GCC_HAVE_DWARF2_CFI_ASM=1 -o CMakeFiles/cmTC_fb7a7.dir/CMakeCCompilerABI.c.o -x c /opt/homebrew/share/cmake/Modules/CMakeCCompilerABI.c]
+        ignore line: [ "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang" -cc1 -triple arm64-apple-macosx15.0.0 -Wundef-prefix=TARGET_OS_ -Wdeprecated-objc-isa-usage -Werror=deprecated-objc-isa-usage -Werror=implicit-function-declaration -emit-obj -disable-free -clear-ast-before-backend -disable-llvm-verifier -discard-value-names -main-file-name CMakeCCompilerABI.c -mrelocation-model pic -pic-level 2 -mframe-pointer=non-leaf -fno-strict-return -ffp-contract=on -fno-rounding-math -funwind-tables=1 -fobjc-msgsend-selector-stubs -target-sdk-version=15.5 -fvisibility-inlines-hidden-static-local-var -fdefine-target-os-macros -fno-assume-unique-vtables -fno-modulemap-allow-subdirectory-search -target-cpu apple-m1 -target-feature +zcm -target-feature +zcz -target-feature +v8.5a -target-feature +aes -target-feature +altnzcv -target-feature +ccdp -target-feature +complxnum -target-feature +crc -target-feature +dotprod -target-feature +fp-armv8 -target-feature +fp16fml -target-feature +fptoint -target-feature +fullfp16 -target-feature +jsconv -target-feature +lse -target-feature +neon -target-feature +pauth -target-feature +perfmon -target-feature +predres -target-feature +ras -target-feature +rcpc -target-feature +rdm -target-feature +sb -target-feature +sha2 -target-feature +sha3 -target-feature +specrestrict -target-feature +ssbs -target-abi darwinpcs -debugger-tuning=lldb -fdebug-compilation-dir=/Users/mtsh/書類/code/JUCE/ORAS/build/JUCE_build/tools/CMakeFiles/CMakeScratch/TryCompile-x1Rfq5 -target-linker-version 1167.5 -v -fcoverage-compilation-dir=/Users/mtsh/書類/code/JUCE/ORAS/build/JUCE_build/tools/CMakeFiles/CMakeScratch/TryCompile-x1Rfq5 -resource-dir /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17 -dependency-file CMakeFiles/cmTC_b28ad.dir/CMakeCCompilerABI.c.o.d -skip-unused-modulemap-deps -MT CMakeFiles/cmTC_b28ad.dir/CMakeCCompilerABI.c.o -sys-header-deps -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -I/usr/local/include -internal-isystem /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/local/include -internal-isystem /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include -internal-externc-isystem /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include -internal-externc-isystem /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include -Wno-reorder-init-list -Wno-implicit-int-float-conversion -Wno-c99-designator -Wno-final-dtor-non-final-class -Wno-extra-semi-stmt -Wno-misleading-indentation -Wno-quoted-include-in-framework-header -Wno-implicit-fallthrough -Wno-enum-enum-conversion -Wno-enum-float-conversion -Wno-elaborated-enum-base -Wno-reserved-identifier -Wno-gnu-folding-constant -ferror-limit 19 -stack-protector 1 -fstack-check -mdarwin-stkchk-strong-link -fblocks -fencode-extended-block-signature -fregister-global-dtors-with-atexit -fgnuc-version=4.2.1 -fskip-odr-check-in-gmf -fmax-type-align=16 -fcommon -clang-vendor-feature=+disableNonDependentMemberExprInCurrentInstantiation -fno-odr-hash-protocols -clang-vendor-feature=+enableAggressiveVLAFolding -clang-vendor-feature=+revert09abecef7bbf -clang-vendor-feature=+thisNoAlignAttr -clang-vendor-feature=+thisNoNullAttr -clang-vendor-feature=+disableAtImportPrivateFrameworkInImplementationError -D__GCC_HAVE_DWARF2_CFI_ASM=1 -o CMakeFiles/cmTC_b28ad.dir/CMakeCCompilerABI.c.o -x c /opt/homebrew/share/cmake/Modules/CMakeCCompilerABI.c]
         ignore line: [clang -cc1 version 17.0.0 (clang-1700.0.13.5) default target arm64-apple-darwin24.6.0]
         ignore line: [ignoring nonexistent directory "/usr/local/include"]
         ignore line: [ignoring nonexistent directory "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/local/include"]
@@ -1419,13 +1474,13 @@ events:
         ignore line: [ /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include]
         ignore line: [ /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks (framework directory)]
         ignore line: [End of search list.]
-        ignore line: [Linking C executable cmTC_fb7a7]
-        ignore line: [/opt/homebrew/bin/cmake -E cmake_link_script CMakeFiles/cmTC_fb7a7.dir/link.txt --verbose=1]
+        ignore line: [Linking C executable cmTC_b28ad]
+        ignore line: [/opt/homebrew/bin/cmake -E cmake_link_script CMakeFiles/cmTC_b28ad.dir/link.txt --verbose=1]
         ignore line: [Apple clang version 17.0.0 (clang-1700.0.13.5)]
         ignore line: [Target: arm64-apple-darwin24.6.0]
         ignore line: [Thread model: posix]
         ignore line: [InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin]
-        link line: [ "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld" -demangle -lto_library /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/libLTO.dylib -dynamic -arch arm64 -platform_version macos 15.0.0 15.5 -syslibroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -mllvm -enable-linkonceodr-outlining -o cmTC_fb7a7 -L/usr/local/lib -search_paths_first -headerpad_max_install_names -v CMakeFiles/cmTC_fb7a7.dir/CMakeCCompilerABI.c.o -lSystem /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/lib/darwin/libclang_rt.osx.a]
+        link line: [ "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld" -demangle -lto_library /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/libLTO.dylib -dynamic -arch arm64 -platform_version macos 15.0.0 15.5 -syslibroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -mllvm -enable-linkonceodr-outlining -o cmTC_b28ad -L/usr/local/lib -search_paths_first -headerpad_max_install_names -v CMakeFiles/cmTC_b28ad.dir/CMakeCCompilerABI.c.o -lSystem /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/lib/darwin/libclang_rt.osx.a]
           arg [/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld] ==> ignore
           arg [-demangle] ==> ignore
           arg [-lto_library] ==> ignore, skip following value
@@ -1442,12 +1497,12 @@ events:
           arg [-mllvm] ==> ignore
           arg [-enable-linkonceodr-outlining] ==> ignore
           arg [-o] ==> ignore
-          arg [cmTC_fb7a7] ==> ignore
+          arg [cmTC_b28ad] ==> ignore
           arg [-L/usr/local/lib] ==> dir [/usr/local/lib]
           arg [-search_paths_first] ==> ignore
           arg [-headerpad_max_install_names] ==> ignore
           arg [-v] ==> ignore
-          arg [CMakeFiles/cmTC_fb7a7.dir/CMakeCCompilerABI.c.o] ==> ignore
+          arg [CMakeFiles/cmTC_b28ad.dir/CMakeCCompilerABI.c.o] ==> ignore
           arg [-lSystem] ==> lib [System]
           arg [/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/lib/darwin/libclang_rt.osx.a] ==> lib [/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/lib/darwin/libclang_rt.osx.a]
         linker tool for 'C': /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld
@@ -1489,8 +1544,8 @@ events:
     checks:
       - "Detecting CXX compiler ABI info"
     directories:
-      source: "/Users/mtsh/\u66f8\u985e/code/JUCE/Looper/build/JUCE_build/tools/CMakeFiles/CMakeScratch/TryCompile-My8sRE"
-      binary: "/Users/mtsh/\u66f8\u985e/code/JUCE/Looper/build/JUCE_build/tools/CMakeFiles/CMakeScratch/TryCompile-My8sRE"
+      source: "/Users/mtsh/\u66f8\u985e/code/JUCE/ORAS/build/JUCE_build/tools/CMakeFiles/CMakeScratch/TryCompile-HjlAss"
+      binary: "/Users/mtsh/\u66f8\u985e/code/JUCE/ORAS/build/JUCE_build/tools/CMakeFiles/CMakeScratch/TryCompile-HjlAss"
     cmakeVariables:
       CMAKE_CXX_FLAGS: ""
       CMAKE_CXX_FLAGS_DEBUG: "-g"
@@ -1503,19 +1558,19 @@ events:
       variable: "CMAKE_CXX_ABI_COMPILED"
       cached: true
       stdout: |
-        Change Dir: '/Users/mtsh/書類/code/JUCE/Looper/build/JUCE_build/tools/CMakeFiles/CMakeScratch/TryCompile-My8sRE'
+        Change Dir: '/Users/mtsh/書類/code/JUCE/ORAS/build/JUCE_build/tools/CMakeFiles/CMakeScratch/TryCompile-HjlAss'
         
-        Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_f9bec/fast
-        /Applications/Xcode.app/Contents/Developer/usr/bin/make  -f CMakeFiles/cmTC_f9bec.dir/build.make CMakeFiles/cmTC_f9bec.dir/build
-        Building CXX object CMakeFiles/cmTC_f9bec.dir/CMakeCXXCompilerABI.cpp.o
-        /usr/bin/c++   -arch arm64   -v -Wl,-v -MD -MT CMakeFiles/cmTC_f9bec.dir/CMakeCXXCompilerABI.cpp.o -MF CMakeFiles/cmTC_f9bec.dir/CMakeCXXCompilerABI.cpp.o.d -o CMakeFiles/cmTC_f9bec.dir/CMakeCXXCompilerABI.cpp.o -c /opt/homebrew/share/cmake/Modules/CMakeCXXCompilerABI.cpp
+        Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_144e4/fast
+        /Applications/Xcode.app/Contents/Developer/usr/bin/make  -f CMakeFiles/cmTC_144e4.dir/build.make CMakeFiles/cmTC_144e4.dir/build
+        Building CXX object CMakeFiles/cmTC_144e4.dir/CMakeCXXCompilerABI.cpp.o
+        /usr/bin/c++   -arch arm64   -v -Wl,-v -MD -MT CMakeFiles/cmTC_144e4.dir/CMakeCXXCompilerABI.cpp.o -MF CMakeFiles/cmTC_144e4.dir/CMakeCXXCompilerABI.cpp.o.d -o CMakeFiles/cmTC_144e4.dir/CMakeCXXCompilerABI.cpp.o -c /opt/homebrew/share/cmake/Modules/CMakeCXXCompilerABI.cpp
         Apple clang version 17.0.0 (clang-1700.0.13.5)
         Target: arm64-apple-darwin24.6.0
         Thread model: posix
         InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin
         clang++: warning: -Wl,-v: 'linker' input unused [-Wunused-command-line-argument]
         ignoring nonexistent directory "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../include/c++/v1"
-         "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang" -cc1 -triple arm64-apple-macosx15.0.0 -Wundef-prefix=TARGET_OS_ -Wdeprecated-objc-isa-usage -Werror=deprecated-objc-isa-usage -Werror=implicit-function-declaration -emit-obj -disable-free -clear-ast-before-backend -disable-llvm-verifier -discard-value-names -main-file-name CMakeCXXCompilerABI.cpp -mrelocation-model pic -pic-level 2 -mframe-pointer=non-leaf -fno-strict-return -ffp-contract=on -fno-rounding-math -funwind-tables=1 -fobjc-msgsend-selector-stubs -target-sdk-version=15.5 -fvisibility-inlines-hidden-static-local-var -fdefine-target-os-macros -fno-assume-unique-vtables -fno-modulemap-allow-subdirectory-search -target-cpu apple-m1 -target-feature +zcm -target-feature +zcz -target-feature +v8.5a -target-feature +aes -target-feature +altnzcv -target-feature +ccdp -target-feature +complxnum -target-feature +crc -target-feature +dotprod -target-feature +fp-armv8 -target-feature +fp16fml -target-feature +fptoint -target-feature +fullfp16 -target-feature +jsconv -target-feature +lse -target-feature +neon -target-feature +pauth -target-feature +perfmon -target-feature +predres -target-feature +ras -target-feature +rcpc -target-feature +rdm -target-feature +sb -target-feature +sha2 -target-feature +sha3 -target-feature +specrestrict -target-feature +ssbs -target-abi darwinpcs -debugger-tuning=lldb -fdebug-compilation-dir=/Users/mtsh/書類/code/JUCE/Looper/build/JUCE_build/tools/CMakeFiles/CMakeScratch/TryCompile-My8sRE -target-linker-version 1167.5 -v -fcoverage-compilation-dir=/Users/mtsh/書類/code/JUCE/Looper/build/JUCE_build/tools/CMakeFiles/CMakeScratch/TryCompile-My8sRE -resource-dir /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17 -dependency-file CMakeFiles/cmTC_f9bec.dir/CMakeCXXCompilerABI.cpp.o.d -skip-unused-modulemap-deps -MT CMakeFiles/cmTC_f9bec.dir/CMakeCXXCompilerABI.cpp.o -sys-header-deps -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -I/usr/local/include -internal-isystem /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1 -internal-isystem /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/local/include -internal-isystem /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include -internal-externc-isystem /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include -internal-externc-isystem /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include -Wno-reorder-init-list -Wno-implicit-int-float-conversion -Wno-c99-designator -Wno-final-dtor-non-final-class -Wno-extra-semi-stmt -Wno-misleading-indentation -Wno-quoted-include-in-framework-header -Wno-implicit-fallthrough -Wno-enum-enum-conversion -Wno-enum-float-conversion -Wno-elaborated-enum-base -Wno-reserved-identifier -Wno-gnu-folding-constant -fdeprecated-macro -ferror-limit 19 -stack-protector 1 -fstack-check -mdarwin-stkchk-strong-link -fblocks -fencode-extended-block-signature -fregister-global-dtors-with-atexit -fgnuc-version=4.2.1 -fno-cxx-modules -fskip-odr-check-in-gmf -fcxx-exceptions -fexceptions -fmax-type-align=16 -fcommon -clang-vendor-feature=+disableNonDependentMemberExprInCurrentInstantiation -fno-odr-hash-protocols -clang-vendor-feature=+enableAggressiveVLAFolding -clang-vendor-feature=+revert09abecef7bbf -clang-vendor-feature=+thisNoAlignAttr -clang-vendor-feature=+thisNoNullAttr -clang-vendor-feature=+disableAtImportPrivateFrameworkInImplementationError -D__GCC_HAVE_DWARF2_CFI_ASM=1 -o CMakeFiles/cmTC_f9bec.dir/CMakeCXXCompilerABI.cpp.o -x c++ /opt/homebrew/share/cmake/Modules/CMakeCXXCompilerABI.cpp
+         "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang" -cc1 -triple arm64-apple-macosx15.0.0 -Wundef-prefix=TARGET_OS_ -Wdeprecated-objc-isa-usage -Werror=deprecated-objc-isa-usage -Werror=implicit-function-declaration -emit-obj -disable-free -clear-ast-before-backend -disable-llvm-verifier -discard-value-names -main-file-name CMakeCXXCompilerABI.cpp -mrelocation-model pic -pic-level 2 -mframe-pointer=non-leaf -fno-strict-return -ffp-contract=on -fno-rounding-math -funwind-tables=1 -fobjc-msgsend-selector-stubs -target-sdk-version=15.5 -fvisibility-inlines-hidden-static-local-var -fdefine-target-os-macros -fno-assume-unique-vtables -fno-modulemap-allow-subdirectory-search -target-cpu apple-m1 -target-feature +zcm -target-feature +zcz -target-feature +v8.5a -target-feature +aes -target-feature +altnzcv -target-feature +ccdp -target-feature +complxnum -target-feature +crc -target-feature +dotprod -target-feature +fp-armv8 -target-feature +fp16fml -target-feature +fptoint -target-feature +fullfp16 -target-feature +jsconv -target-feature +lse -target-feature +neon -target-feature +pauth -target-feature +perfmon -target-feature +predres -target-feature +ras -target-feature +rcpc -target-feature +rdm -target-feature +sb -target-feature +sha2 -target-feature +sha3 -target-feature +specrestrict -target-feature +ssbs -target-abi darwinpcs -debugger-tuning=lldb -fdebug-compilation-dir=/Users/mtsh/書類/code/JUCE/ORAS/build/JUCE_build/tools/CMakeFiles/CMakeScratch/TryCompile-HjlAss -target-linker-version 1167.5 -v -fcoverage-compilation-dir=/Users/mtsh/書類/code/JUCE/ORAS/build/JUCE_build/tools/CMakeFiles/CMakeScratch/TryCompile-HjlAss -resource-dir /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17 -dependency-file CMakeFiles/cmTC_144e4.dir/CMakeCXXCompilerABI.cpp.o.d -skip-unused-modulemap-deps -MT CMakeFiles/cmTC_144e4.dir/CMakeCXXCompilerABI.cpp.o -sys-header-deps -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -I/usr/local/include -internal-isystem /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1 -internal-isystem /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/local/include -internal-isystem /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include -internal-externc-isystem /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include -internal-externc-isystem /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include -Wno-reorder-init-list -Wno-implicit-int-float-conversion -Wno-c99-designator -Wno-final-dtor-non-final-class -Wno-extra-semi-stmt -Wno-misleading-indentation -Wno-quoted-include-in-framework-header -Wno-implicit-fallthrough -Wno-enum-enum-conversion -Wno-enum-float-conversion -Wno-elaborated-enum-base -Wno-reserved-identifier -Wno-gnu-folding-constant -fdeprecated-macro -ferror-limit 19 -stack-protector 1 -fstack-check -mdarwin-stkchk-strong-link -fblocks -fencode-extended-block-signature -fregister-global-dtors-with-atexit -fgnuc-version=4.2.1 -fno-cxx-modules -fskip-odr-check-in-gmf -fcxx-exceptions -fexceptions -fmax-type-align=16 -fcommon -clang-vendor-feature=+disableNonDependentMemberExprInCurrentInstantiation -fno-odr-hash-protocols -clang-vendor-feature=+enableAggressiveVLAFolding -clang-vendor-feature=+revert09abecef7bbf -clang-vendor-feature=+thisNoAlignAttr -clang-vendor-feature=+thisNoNullAttr -clang-vendor-feature=+disableAtImportPrivateFrameworkInImplementationError -D__GCC_HAVE_DWARF2_CFI_ASM=1 -o CMakeFiles/cmTC_144e4.dir/CMakeCXXCompilerABI.cpp.o -x c++ /opt/homebrew/share/cmake/Modules/CMakeCXXCompilerABI.cpp
         clang -cc1 version 17.0.0 (clang-1700.0.13.5) default target arm64-apple-darwin24.6.0
         ignoring nonexistent directory "/usr/local/include"
         ignoring nonexistent directory "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/local/include"
@@ -1529,13 +1584,13 @@ events:
          /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include
          /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks (framework directory)
         End of search list.
-        Linking CXX executable cmTC_f9bec
-        /opt/homebrew/bin/cmake -E cmake_link_script CMakeFiles/cmTC_f9bec.dir/link.txt --verbose=1
+        Linking CXX executable cmTC_144e4
+        /opt/homebrew/bin/cmake -E cmake_link_script CMakeFiles/cmTC_144e4.dir/link.txt --verbose=1
         Apple clang version 17.0.0 (clang-1700.0.13.5)
         Target: arm64-apple-darwin24.6.0
         Thread model: posix
         InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin
-         "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld" -demangle -lto_library /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/libLTO.dylib -dynamic -arch arm64 -platform_version macos 15.0.0 15.5 -syslibroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -mllvm -enable-linkonceodr-outlining -o cmTC_f9bec -L/usr/local/lib -search_paths_first -headerpad_max_install_names -v CMakeFiles/cmTC_f9bec.dir/CMakeCXXCompilerABI.cpp.o -lc++ -lSystem /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/lib/darwin/libclang_rt.osx.a
+         "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld" -demangle -lto_library /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/libLTO.dylib -dynamic -arch arm64 -platform_version macos 15.0.0 15.5 -syslibroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -mllvm -enable-linkonceodr-outlining -o cmTC_144e4 -L/usr/local/lib -search_paths_first -headerpad_max_install_names -v CMakeFiles/cmTC_144e4.dir/CMakeCXXCompilerABI.cpp.o -lc++ -lSystem /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/lib/darwin/libclang_rt.osx.a
         @(#)PROGRAM:ld PROJECT:ld-1167.5
         BUILD 01:45:05 Apr 30 2025
         configured to support archs: armv6 armv7 armv7s arm64 arm64e arm64_32 i386 x86_64 x86_64h armv6m armv7k armv7m armv7em
@@ -1547,7 +1602,7 @@ events:
         	/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/lib/swift
         Framework search paths:
         	/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks
-        /usr/bin/c++  -arch arm64 -Wl,-search_paths_first -Wl,-headerpad_max_install_names  -v -Wl,-v CMakeFiles/cmTC_f9bec.dir/CMakeCXXCompilerABI.cpp.o -o cmTC_f9bec
+        /usr/bin/c++  -arch arm64 -Wl,-search_paths_first -Wl,-headerpad_max_install_names  -v -Wl,-v CMakeFiles/cmTC_144e4.dir/CMakeCXXCompilerABI.cpp.o -o cmTC_144e4
         
       exitCode: 0
   -
@@ -1591,19 +1646,19 @@ events:
       Parsed CXX implicit link information:
         link line regex: [^( *|.*[/\\])(ld[0-9]*(|\\.[a-rt-z][a-z]*|\\.s[a-np-z][a-z]*|\\.so[a-z]+)|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\\]+-)?ld|collect2)[^/\\]*( |$)]
         linker tool regex: [^[ 	]*(->|")?[ 	]*(([^"]*[/\\])?(ld[0-9]*(|\\.[a-rt-z][a-z]*|\\.s[a-np-z][a-z]*|\\.so[a-z]+)))("|,| |$)]
-        ignore line: [Change Dir: '/Users/mtsh/書類/code/JUCE/Looper/build/JUCE_build/tools/CMakeFiles/CMakeScratch/TryCompile-My8sRE']
+        ignore line: [Change Dir: '/Users/mtsh/書類/code/JUCE/ORAS/build/JUCE_build/tools/CMakeFiles/CMakeScratch/TryCompile-HjlAss']
         ignore line: []
-        ignore line: [Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_f9bec/fast]
-        ignore line: [/Applications/Xcode.app/Contents/Developer/usr/bin/make  -f CMakeFiles/cmTC_f9bec.dir/build.make CMakeFiles/cmTC_f9bec.dir/build]
-        ignore line: [Building CXX object CMakeFiles/cmTC_f9bec.dir/CMakeCXXCompilerABI.cpp.o]
-        ignore line: [/usr/bin/c++   -arch arm64   -v -Wl -v -MD -MT CMakeFiles/cmTC_f9bec.dir/CMakeCXXCompilerABI.cpp.o -MF CMakeFiles/cmTC_f9bec.dir/CMakeCXXCompilerABI.cpp.o.d -o CMakeFiles/cmTC_f9bec.dir/CMakeCXXCompilerABI.cpp.o -c /opt/homebrew/share/cmake/Modules/CMakeCXXCompilerABI.cpp]
+        ignore line: [Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_144e4/fast]
+        ignore line: [/Applications/Xcode.app/Contents/Developer/usr/bin/make  -f CMakeFiles/cmTC_144e4.dir/build.make CMakeFiles/cmTC_144e4.dir/build]
+        ignore line: [Building CXX object CMakeFiles/cmTC_144e4.dir/CMakeCXXCompilerABI.cpp.o]
+        ignore line: [/usr/bin/c++   -arch arm64   -v -Wl -v -MD -MT CMakeFiles/cmTC_144e4.dir/CMakeCXXCompilerABI.cpp.o -MF CMakeFiles/cmTC_144e4.dir/CMakeCXXCompilerABI.cpp.o.d -o CMakeFiles/cmTC_144e4.dir/CMakeCXXCompilerABI.cpp.o -c /opt/homebrew/share/cmake/Modules/CMakeCXXCompilerABI.cpp]
         ignore line: [Apple clang version 17.0.0 (clang-1700.0.13.5)]
         ignore line: [Target: arm64-apple-darwin24.6.0]
         ignore line: [Thread model: posix]
         ignore line: [InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin]
         ignore line: [clang++: warning: -Wl -v: 'linker' input unused [-Wunused-command-line-argument]]
         ignore line: [ignoring nonexistent directory "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../include/c++/v1"]
-        ignore line: [ "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang" -cc1 -triple arm64-apple-macosx15.0.0 -Wundef-prefix=TARGET_OS_ -Wdeprecated-objc-isa-usage -Werror=deprecated-objc-isa-usage -Werror=implicit-function-declaration -emit-obj -disable-free -clear-ast-before-backend -disable-llvm-verifier -discard-value-names -main-file-name CMakeCXXCompilerABI.cpp -mrelocation-model pic -pic-level 2 -mframe-pointer=non-leaf -fno-strict-return -ffp-contract=on -fno-rounding-math -funwind-tables=1 -fobjc-msgsend-selector-stubs -target-sdk-version=15.5 -fvisibility-inlines-hidden-static-local-var -fdefine-target-os-macros -fno-assume-unique-vtables -fno-modulemap-allow-subdirectory-search -target-cpu apple-m1 -target-feature +zcm -target-feature +zcz -target-feature +v8.5a -target-feature +aes -target-feature +altnzcv -target-feature +ccdp -target-feature +complxnum -target-feature +crc -target-feature +dotprod -target-feature +fp-armv8 -target-feature +fp16fml -target-feature +fptoint -target-feature +fullfp16 -target-feature +jsconv -target-feature +lse -target-feature +neon -target-feature +pauth -target-feature +perfmon -target-feature +predres -target-feature +ras -target-feature +rcpc -target-feature +rdm -target-feature +sb -target-feature +sha2 -target-feature +sha3 -target-feature +specrestrict -target-feature +ssbs -target-abi darwinpcs -debugger-tuning=lldb -fdebug-compilation-dir=/Users/mtsh/書類/code/JUCE/Looper/build/JUCE_build/tools/CMakeFiles/CMakeScratch/TryCompile-My8sRE -target-linker-version 1167.5 -v -fcoverage-compilation-dir=/Users/mtsh/書類/code/JUCE/Looper/build/JUCE_build/tools/CMakeFiles/CMakeScratch/TryCompile-My8sRE -resource-dir /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17 -dependency-file CMakeFiles/cmTC_f9bec.dir/CMakeCXXCompilerABI.cpp.o.d -skip-unused-modulemap-deps -MT CMakeFiles/cmTC_f9bec.dir/CMakeCXXCompilerABI.cpp.o -sys-header-deps -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -I/usr/local/include -internal-isystem /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1 -internal-isystem /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/local/include -internal-isystem /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include -internal-externc-isystem /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include -internal-externc-isystem /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include -Wno-reorder-init-list -Wno-implicit-int-float-conversion -Wno-c99-designator -Wno-final-dtor-non-final-class -Wno-extra-semi-stmt -Wno-misleading-indentation -Wno-quoted-include-in-framework-header -Wno-implicit-fallthrough -Wno-enum-enum-conversion -Wno-enum-float-conversion -Wno-elaborated-enum-base -Wno-reserved-identifier -Wno-gnu-folding-constant -fdeprecated-macro -ferror-limit 19 -stack-protector 1 -fstack-check -mdarwin-stkchk-strong-link -fblocks -fencode-extended-block-signature -fregister-global-dtors-with-atexit -fgnuc-version=4.2.1 -fno-cxx-modules -fskip-odr-check-in-gmf -fcxx-exceptions -fexceptions -fmax-type-align=16 -fcommon -clang-vendor-feature=+disableNonDependentMemberExprInCurrentInstantiation -fno-odr-hash-protocols -clang-vendor-feature=+enableAggressiveVLAFolding -clang-vendor-feature=+revert09abecef7bbf -clang-vendor-feature=+thisNoAlignAttr -clang-vendor-feature=+thisNoNullAttr -clang-vendor-feature=+disableAtImportPrivateFrameworkInImplementationError -D__GCC_HAVE_DWARF2_CFI_ASM=1 -o CMakeFiles/cmTC_f9bec.dir/CMakeCXXCompilerABI.cpp.o -x c++ /opt/homebrew/share/cmake/Modules/CMakeCXXCompilerABI.cpp]
+        ignore line: [ "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang" -cc1 -triple arm64-apple-macosx15.0.0 -Wundef-prefix=TARGET_OS_ -Wdeprecated-objc-isa-usage -Werror=deprecated-objc-isa-usage -Werror=implicit-function-declaration -emit-obj -disable-free -clear-ast-before-backend -disable-llvm-verifier -discard-value-names -main-file-name CMakeCXXCompilerABI.cpp -mrelocation-model pic -pic-level 2 -mframe-pointer=non-leaf -fno-strict-return -ffp-contract=on -fno-rounding-math -funwind-tables=1 -fobjc-msgsend-selector-stubs -target-sdk-version=15.5 -fvisibility-inlines-hidden-static-local-var -fdefine-target-os-macros -fno-assume-unique-vtables -fno-modulemap-allow-subdirectory-search -target-cpu apple-m1 -target-feature +zcm -target-feature +zcz -target-feature +v8.5a -target-feature +aes -target-feature +altnzcv -target-feature +ccdp -target-feature +complxnum -target-feature +crc -target-feature +dotprod -target-feature +fp-armv8 -target-feature +fp16fml -target-feature +fptoint -target-feature +fullfp16 -target-feature +jsconv -target-feature +lse -target-feature +neon -target-feature +pauth -target-feature +perfmon -target-feature +predres -target-feature +ras -target-feature +rcpc -target-feature +rdm -target-feature +sb -target-feature +sha2 -target-feature +sha3 -target-feature +specrestrict -target-feature +ssbs -target-abi darwinpcs -debugger-tuning=lldb -fdebug-compilation-dir=/Users/mtsh/書類/code/JUCE/ORAS/build/JUCE_build/tools/CMakeFiles/CMakeScratch/TryCompile-HjlAss -target-linker-version 1167.5 -v -fcoverage-compilation-dir=/Users/mtsh/書類/code/JUCE/ORAS/build/JUCE_build/tools/CMakeFiles/CMakeScratch/TryCompile-HjlAss -resource-dir /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17 -dependency-file CMakeFiles/cmTC_144e4.dir/CMakeCXXCompilerABI.cpp.o.d -skip-unused-modulemap-deps -MT CMakeFiles/cmTC_144e4.dir/CMakeCXXCompilerABI.cpp.o -sys-header-deps -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -I/usr/local/include -internal-isystem /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1 -internal-isystem /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/local/include -internal-isystem /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include -internal-externc-isystem /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include -internal-externc-isystem /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include -Wno-reorder-init-list -Wno-implicit-int-float-conversion -Wno-c99-designator -Wno-final-dtor-non-final-class -Wno-extra-semi-stmt -Wno-misleading-indentation -Wno-quoted-include-in-framework-header -Wno-implicit-fallthrough -Wno-enum-enum-conversion -Wno-enum-float-conversion -Wno-elaborated-enum-base -Wno-reserved-identifier -Wno-gnu-folding-constant -fdeprecated-macro -ferror-limit 19 -stack-protector 1 -fstack-check -mdarwin-stkchk-strong-link -fblocks -fencode-extended-block-signature -fregister-global-dtors-with-atexit -fgnuc-version=4.2.1 -fno-cxx-modules -fskip-odr-check-in-gmf -fcxx-exceptions -fexceptions -fmax-type-align=16 -fcommon -clang-vendor-feature=+disableNonDependentMemberExprInCurrentInstantiation -fno-odr-hash-protocols -clang-vendor-feature=+enableAggressiveVLAFolding -clang-vendor-feature=+revert09abecef7bbf -clang-vendor-feature=+thisNoAlignAttr -clang-vendor-feature=+thisNoNullAttr -clang-vendor-feature=+disableAtImportPrivateFrameworkInImplementationError -D__GCC_HAVE_DWARF2_CFI_ASM=1 -o CMakeFiles/cmTC_144e4.dir/CMakeCXXCompilerABI.cpp.o -x c++ /opt/homebrew/share/cmake/Modules/CMakeCXXCompilerABI.cpp]
         ignore line: [clang -cc1 version 17.0.0 (clang-1700.0.13.5) default target arm64-apple-darwin24.6.0]
         ignore line: [ignoring nonexistent directory "/usr/local/include"]
         ignore line: [ignoring nonexistent directory "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/local/include"]
@@ -1617,13 +1672,13 @@ events:
         ignore line: [ /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include]
         ignore line: [ /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks (framework directory)]
         ignore line: [End of search list.]
-        ignore line: [Linking CXX executable cmTC_f9bec]
-        ignore line: [/opt/homebrew/bin/cmake -E cmake_link_script CMakeFiles/cmTC_f9bec.dir/link.txt --verbose=1]
+        ignore line: [Linking CXX executable cmTC_144e4]
+        ignore line: [/opt/homebrew/bin/cmake -E cmake_link_script CMakeFiles/cmTC_144e4.dir/link.txt --verbose=1]
         ignore line: [Apple clang version 17.0.0 (clang-1700.0.13.5)]
         ignore line: [Target: arm64-apple-darwin24.6.0]
         ignore line: [Thread model: posix]
         ignore line: [InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin]
-        link line: [ "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld" -demangle -lto_library /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/libLTO.dylib -dynamic -arch arm64 -platform_version macos 15.0.0 15.5 -syslibroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -mllvm -enable-linkonceodr-outlining -o cmTC_f9bec -L/usr/local/lib -search_paths_first -headerpad_max_install_names -v CMakeFiles/cmTC_f9bec.dir/CMakeCXXCompilerABI.cpp.o -lc++ -lSystem /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/lib/darwin/libclang_rt.osx.a]
+        link line: [ "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld" -demangle -lto_library /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/libLTO.dylib -dynamic -arch arm64 -platform_version macos 15.0.0 15.5 -syslibroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -mllvm -enable-linkonceodr-outlining -o cmTC_144e4 -L/usr/local/lib -search_paths_first -headerpad_max_install_names -v CMakeFiles/cmTC_144e4.dir/CMakeCXXCompilerABI.cpp.o -lc++ -lSystem /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/lib/darwin/libclang_rt.osx.a]
           arg [/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld] ==> ignore
           arg [-demangle] ==> ignore
           arg [-lto_library] ==> ignore, skip following value
@@ -1640,12 +1695,12 @@ events:
           arg [-mllvm] ==> ignore
           arg [-enable-linkonceodr-outlining] ==> ignore
           arg [-o] ==> ignore
-          arg [cmTC_f9bec] ==> ignore
+          arg [cmTC_144e4] ==> ignore
           arg [-L/usr/local/lib] ==> dir [/usr/local/lib]
           arg [-search_paths_first] ==> ignore
           arg [-headerpad_max_install_names] ==> ignore
           arg [-v] ==> ignore
-          arg [CMakeFiles/cmTC_f9bec.dir/CMakeCXXCompilerABI.cpp.o] ==> ignore
+          arg [CMakeFiles/cmTC_144e4.dir/CMakeCXXCompilerABI.cpp.o] ==> ignore
           arg [-lc++] ==> lib [c++]
           arg [-lSystem] ==> lib [System]
           arg [/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/lib/darwin/libclang_rt.osx.a] ==> lib [/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/lib/darwin/libclang_rt.osx.a]
@@ -1704,6 +1759,7 @@ events:
       - "/Users/mtsh/.rbenv/shims/"
       - "/Users/mtsh/.pyenv/shims/"
       - "/usr/local/bin/"
+      - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin/"
       - "/opt/homebrew/bin/"
       - "/opt/homebrew/sbin/"
       - "/System/Cryptexes/App/usr/bin/"
@@ -1735,6 +1791,7 @@ events:
         - "/Users/mtsh/.pyenv/shims"
         - "/Users/mtsh/.pyenv/bin"
         - "/usr/local/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/opt/homebrew/bin"
         - "/opt/homebrew/sbin"
         - "/usr/local/bin"
@@ -1747,6 +1804,7 @@ events:
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
         - "/Library/Apple/usr/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/Users/mtsh/.antigravity/antigravity/bin"
         - "/Users/mtsh/.rbenv/shims"
         - "/Users/mtsh/.rbenv/bin"
@@ -1802,6 +1860,7 @@ events:
       - "/Users/mtsh/.rbenv/shims/"
       - "/Users/mtsh/.pyenv/shims/"
       - "/usr/local/bin/"
+      - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin/"
       - "/opt/homebrew/bin/"
       - "/opt/homebrew/sbin/"
       - "/System/Cryptexes/App/usr/bin/"
@@ -1833,6 +1892,7 @@ events:
         - "/Users/mtsh/.pyenv/shims"
         - "/Users/mtsh/.pyenv/bin"
         - "/usr/local/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/opt/homebrew/bin"
         - "/opt/homebrew/sbin"
         - "/usr/local/bin"
@@ -1845,6 +1905,7 @@ events:
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
         - "/Library/Apple/usr/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/Users/mtsh/.antigravity/antigravity/bin"
         - "/Users/mtsh/.rbenv/shims"
         - "/Users/mtsh/.rbenv/bin"
@@ -1900,6 +1961,7 @@ events:
       - "/Users/mtsh/.rbenv/shims/"
       - "/Users/mtsh/.pyenv/shims/"
       - "/usr/local/bin/"
+      - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin/"
       - "/opt/homebrew/bin/"
       - "/opt/homebrew/sbin/"
       - "/System/Cryptexes/App/usr/bin/"
@@ -1931,6 +1993,7 @@ events:
         - "/Users/mtsh/.pyenv/shims"
         - "/Users/mtsh/.pyenv/bin"
         - "/usr/local/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/opt/homebrew/bin"
         - "/opt/homebrew/sbin"
         - "/usr/local/bin"
@@ -1943,6 +2006,7 @@ events:
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
         - "/Library/Apple/usr/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/Users/mtsh/.antigravity/antigravity/bin"
         - "/Users/mtsh/.rbenv/shims"
         - "/Users/mtsh/.rbenv/bin"
@@ -1998,6 +2062,7 @@ events:
       - "/Users/mtsh/.rbenv/shims/"
       - "/Users/mtsh/.pyenv/shims/"
       - "/usr/local/bin/"
+      - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin/"
       - "/opt/homebrew/bin/"
       - "/opt/homebrew/sbin/"
       - "/System/Cryptexes/App/usr/bin/"
@@ -2029,6 +2094,7 @@ events:
         - "/Users/mtsh/.pyenv/shims"
         - "/Users/mtsh/.pyenv/bin"
         - "/usr/local/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/opt/homebrew/bin"
         - "/opt/homebrew/sbin"
         - "/usr/local/bin"
@@ -2041,6 +2107,7 @@ events:
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
         - "/Library/Apple/usr/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/Users/mtsh/.antigravity/antigravity/bin"
         - "/Users/mtsh/.rbenv/shims"
         - "/Users/mtsh/.rbenv/bin"
@@ -2096,6 +2163,7 @@ events:
       - "/Users/mtsh/.rbenv/shims/"
       - "/Users/mtsh/.pyenv/shims/"
       - "/usr/local/bin/"
+      - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin/"
       - "/opt/homebrew/bin/"
       - "/opt/homebrew/sbin/"
       - "/System/Cryptexes/App/usr/bin/"
@@ -2127,6 +2195,7 @@ events:
         - "/Users/mtsh/.pyenv/shims"
         - "/Users/mtsh/.pyenv/bin"
         - "/usr/local/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/opt/homebrew/bin"
         - "/opt/homebrew/sbin"
         - "/usr/local/bin"
@@ -2139,6 +2208,7 @@ events:
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
         - "/Library/Apple/usr/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/Users/mtsh/.antigravity/antigravity/bin"
         - "/Users/mtsh/.rbenv/shims"
         - "/Users/mtsh/.rbenv/bin"
@@ -2195,6 +2265,7 @@ events:
       - "/Users/mtsh/.rbenv/shims/"
       - "/Users/mtsh/.pyenv/shims/"
       - "/usr/local/bin/"
+      - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin/"
       - "/opt/homebrew/bin/"
       - "/opt/homebrew/sbin/"
       - "/System/Cryptexes/App/usr/bin/"
@@ -2226,6 +2297,7 @@ events:
         - "/Users/mtsh/.pyenv/shims"
         - "/Users/mtsh/.pyenv/bin"
         - "/usr/local/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/opt/homebrew/bin"
         - "/opt/homebrew/sbin"
         - "/usr/local/bin"
@@ -2238,6 +2310,7 @@ events:
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
         - "/Library/Apple/usr/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/Users/mtsh/.antigravity/antigravity/bin"
         - "/Users/mtsh/.rbenv/shims"
         - "/Users/mtsh/.rbenv/bin"
@@ -2294,6 +2367,7 @@ events:
       - "/Users/mtsh/.rbenv/shims/"
       - "/Users/mtsh/.pyenv/shims/"
       - "/usr/local/bin/"
+      - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin/"
       - "/opt/homebrew/bin/"
       - "/opt/homebrew/sbin/"
       - "/System/Cryptexes/App/usr/bin/"
@@ -2325,6 +2399,7 @@ events:
         - "/Users/mtsh/.pyenv/shims"
         - "/Users/mtsh/.pyenv/bin"
         - "/usr/local/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/opt/homebrew/bin"
         - "/opt/homebrew/sbin"
         - "/usr/local/bin"
@@ -2337,6 +2412,7 @@ events:
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
         - "/Library/Apple/usr/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/Users/mtsh/.antigravity/antigravity/bin"
         - "/Users/mtsh/.rbenv/shims"
         - "/Users/mtsh/.rbenv/bin"
@@ -2392,6 +2468,7 @@ events:
       - "/Users/mtsh/.rbenv/shims/"
       - "/Users/mtsh/.pyenv/shims/"
       - "/usr/local/bin/"
+      - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin/"
       - "/opt/homebrew/bin/"
       - "/opt/homebrew/sbin/"
       - "/System/Cryptexes/App/usr/bin/"
@@ -2423,6 +2500,7 @@ events:
         - "/Users/mtsh/.pyenv/shims"
         - "/Users/mtsh/.pyenv/bin"
         - "/usr/local/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/opt/homebrew/bin"
         - "/opt/homebrew/sbin"
         - "/usr/local/bin"
@@ -2435,6 +2513,7 @@ events:
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
         - "/Library/Apple/usr/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/Users/mtsh/.antigravity/antigravity/bin"
         - "/Users/mtsh/.rbenv/shims"
         - "/Users/mtsh/.rbenv/bin"
@@ -2490,6 +2569,7 @@ events:
       - "/Users/mtsh/.rbenv/shims/"
       - "/Users/mtsh/.pyenv/shims/"
       - "/usr/local/bin/"
+      - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin/"
       - "/opt/homebrew/bin/"
       - "/opt/homebrew/sbin/"
       - "/System/Cryptexes/App/usr/bin/"
@@ -2521,6 +2601,7 @@ events:
         - "/Users/mtsh/.pyenv/shims"
         - "/Users/mtsh/.pyenv/bin"
         - "/usr/local/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/opt/homebrew/bin"
         - "/opt/homebrew/sbin"
         - "/usr/local/bin"
@@ -2533,6 +2614,7 @@ events:
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
         - "/Library/Apple/usr/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/Users/mtsh/.antigravity/antigravity/bin"
         - "/Users/mtsh/.rbenv/shims"
         - "/Users/mtsh/.rbenv/bin"
@@ -2588,6 +2670,7 @@ events:
       - "/Users/mtsh/.rbenv/shims/"
       - "/Users/mtsh/.pyenv/shims/"
       - "/usr/local/bin/"
+      - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin/"
       - "/opt/homebrew/bin/"
       - "/opt/homebrew/sbin/"
       - "/System/Cryptexes/App/usr/bin/"
@@ -2619,6 +2702,7 @@ events:
         - "/Users/mtsh/.pyenv/shims"
         - "/Users/mtsh/.pyenv/bin"
         - "/usr/local/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/opt/homebrew/bin"
         - "/opt/homebrew/sbin"
         - "/usr/local/bin"
@@ -2631,6 +2715,7 @@ events:
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
         - "/Library/Apple/usr/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/Users/mtsh/.antigravity/antigravity/bin"
         - "/Users/mtsh/.rbenv/shims"
         - "/Users/mtsh/.rbenv/bin"
@@ -2686,6 +2771,7 @@ events:
       - "/Users/mtsh/.rbenv/shims/"
       - "/Users/mtsh/.pyenv/shims/"
       - "/usr/local/bin/"
+      - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin/"
       - "/opt/homebrew/bin/"
       - "/opt/homebrew/sbin/"
       - "/System/Cryptexes/App/usr/bin/"
@@ -2717,6 +2803,7 @@ events:
         - "/Users/mtsh/.pyenv/shims"
         - "/Users/mtsh/.pyenv/bin"
         - "/usr/local/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/opt/homebrew/bin"
         - "/opt/homebrew/sbin"
         - "/usr/local/bin"
@@ -2729,6 +2816,7 @@ events:
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
         - "/Library/Apple/usr/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/Users/mtsh/.antigravity/antigravity/bin"
         - "/Users/mtsh/.rbenv/shims"
         - "/Users/mtsh/.rbenv/bin"
@@ -2784,6 +2872,7 @@ events:
       - "/Users/mtsh/.rbenv/shims/"
       - "/Users/mtsh/.pyenv/shims/"
       - "/usr/local/bin/"
+      - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin/"
       - "/opt/homebrew/bin/"
       - "/opt/homebrew/sbin/"
       - "/System/Cryptexes/App/usr/bin/"
@@ -2815,6 +2904,7 @@ events:
         - "/Users/mtsh/.pyenv/shims"
         - "/Users/mtsh/.pyenv/bin"
         - "/usr/local/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/opt/homebrew/bin"
         - "/opt/homebrew/sbin"
         - "/usr/local/bin"
@@ -2827,6 +2917,7 @@ events:
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
         - "/Library/Apple/usr/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/Users/mtsh/.antigravity/antigravity/bin"
         - "/Users/mtsh/.rbenv/shims"
         - "/Users/mtsh/.rbenv/bin"
@@ -2882,6 +2973,7 @@ events:
       - "/Users/mtsh/.rbenv/shims/"
       - "/Users/mtsh/.pyenv/shims/"
       - "/usr/local/bin/"
+      - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin/"
       - "/opt/homebrew/bin/"
       - "/opt/homebrew/sbin/"
       - "/System/Cryptexes/App/usr/bin/"
@@ -2913,6 +3005,7 @@ events:
         - "/Users/mtsh/.pyenv/shims"
         - "/Users/mtsh/.pyenv/bin"
         - "/usr/local/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/opt/homebrew/bin"
         - "/opt/homebrew/sbin"
         - "/usr/local/bin"
@@ -2925,6 +3018,7 @@ events:
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
         - "/Library/Apple/usr/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/Users/mtsh/.antigravity/antigravity/bin"
         - "/Users/mtsh/.rbenv/shims"
         - "/Users/mtsh/.rbenv/bin"
@@ -2980,6 +3074,7 @@ events:
       - "/Users/mtsh/.rbenv/shims/"
       - "/Users/mtsh/.pyenv/shims/"
       - "/usr/local/bin/"
+      - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin/"
       - "/opt/homebrew/bin/"
       - "/opt/homebrew/sbin/"
       - "/System/Cryptexes/App/usr/bin/"
@@ -3011,6 +3106,7 @@ events:
         - "/Users/mtsh/.pyenv/shims"
         - "/Users/mtsh/.pyenv/bin"
         - "/usr/local/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/opt/homebrew/bin"
         - "/opt/homebrew/sbin"
         - "/usr/local/bin"
@@ -3023,6 +3119,7 @@ events:
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
         - "/Library/Apple/usr/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/Users/mtsh/.antigravity/antigravity/bin"
         - "/Users/mtsh/.rbenv/shims"
         - "/Users/mtsh/.rbenv/bin"
@@ -3078,6 +3175,7 @@ events:
       - "/Users/mtsh/.rbenv/shims/"
       - "/Users/mtsh/.pyenv/shims/"
       - "/usr/local/bin/"
+      - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin/"
       - "/opt/homebrew/bin/"
       - "/opt/homebrew/sbin/"
       - "/System/Cryptexes/App/usr/bin/"
@@ -3109,6 +3207,7 @@ events:
         - "/Users/mtsh/.pyenv/shims"
         - "/Users/mtsh/.pyenv/bin"
         - "/usr/local/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/opt/homebrew/bin"
         - "/opt/homebrew/sbin"
         - "/usr/local/bin"
@@ -3121,6 +3220,7 @@ events:
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
         - "/Library/Apple/usr/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/Users/mtsh/.antigravity/antigravity/bin"
         - "/Users/mtsh/.rbenv/shims"
         - "/Users/mtsh/.rbenv/bin"
@@ -3176,6 +3276,7 @@ events:
       - "/Users/mtsh/.rbenv/shims/"
       - "/Users/mtsh/.pyenv/shims/"
       - "/usr/local/bin/"
+      - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin/"
       - "/opt/homebrew/bin/"
       - "/opt/homebrew/sbin/"
       - "/System/Cryptexes/App/usr/bin/"
@@ -3207,6 +3308,7 @@ events:
         - "/Users/mtsh/.pyenv/shims"
         - "/Users/mtsh/.pyenv/bin"
         - "/usr/local/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/opt/homebrew/bin"
         - "/opt/homebrew/sbin"
         - "/usr/local/bin"
@@ -3219,6 +3321,7 @@ events:
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
         - "/Library/Apple/usr/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/Users/mtsh/.antigravity/antigravity/bin"
         - "/Users/mtsh/.rbenv/shims"
         - "/Users/mtsh/.rbenv/bin"
@@ -3274,6 +3377,7 @@ events:
       - "/Users/mtsh/.rbenv/shims/"
       - "/Users/mtsh/.pyenv/shims/"
       - "/usr/local/bin/"
+      - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin/"
       - "/opt/homebrew/bin/"
       - "/opt/homebrew/sbin/"
       - "/System/Cryptexes/App/usr/bin/"
@@ -3305,6 +3409,7 @@ events:
         - "/Users/mtsh/.pyenv/shims"
         - "/Users/mtsh/.pyenv/bin"
         - "/usr/local/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/opt/homebrew/bin"
         - "/opt/homebrew/sbin"
         - "/usr/local/bin"
@@ -3317,6 +3422,7 @@ events:
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
         - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
         - "/Library/Apple/usr/bin"
+        - "/Users/mtsh/.antigravity/extensions/vadimcn.vscode-lldb-1.12.0/bin"
         - "/Users/mtsh/.antigravity/antigravity/bin"
         - "/Users/mtsh/.rbenv/shims"
         - "/Users/mtsh/.rbenv/bin"

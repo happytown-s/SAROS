@@ -12,7 +12,7 @@ if(NOT DEFINED CMAKE_INSTALL_CONFIG_NAME)
     string(REGEX REPLACE "^[^A-Za-z0-9_]+" ""
            CMAKE_INSTALL_CONFIG_NAME "${BUILD_TYPE}")
   else()
-    set(CMAKE_INSTALL_CONFIG_NAME "Debug")
+    set(CMAKE_INSTALL_CONFIG_NAME "")
   endif()
   message(STATUS "Install configuration: \"${CMAKE_INSTALL_CONFIG_NAME}\"")
 endif()
@@ -39,18 +39,18 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/Users/mtsh/書類/code/JUCE/Looper/build/JUCE_build/modules/cmake_install.cmake")
+  include("/Users/mtsh/書類/code/JUCE/ORAS/build/JUCE_build/modules/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/Users/mtsh/書類/code/JUCE/Looper/build/JUCE_build/extras/Build/cmake_install.cmake")
+  include("/Users/mtsh/書類/code/JUCE/ORAS/build/JUCE_build/extras/Build/cmake_install.cmake")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/cmake/JUCE-8.0.10" TYPE FILE FILES
-    "/Users/mtsh/書類/code/JUCE/Looper/build/JUCE_build/JUCEConfigVersion.cmake"
-    "/Users/mtsh/書類/code/JUCE/Looper/build/JUCE_build/JUCEConfig.cmake"
+    "/Users/mtsh/書類/code/JUCE/ORAS/build/JUCE_build/JUCEConfigVersion.cmake"
+    "/Users/mtsh/書類/code/JUCE/ORAS/build/JUCE_build/JUCEConfig.cmake"
     "/Users/mtsh/JUCE/extras/Build/CMake/JUCECheckAtomic.cmake"
     "/Users/mtsh/JUCE/extras/Build/CMake/JUCEHelperTargets.cmake"
     "/Users/mtsh/JUCE/extras/Build/CMake/JUCEModuleSupport.cmake"
@@ -73,6 +73,6 @@ endif()
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
 if(CMAKE_INSTALL_LOCAL_ONLY)
-  file(WRITE "/Users/mtsh/書類/code/JUCE/Looper/build/JUCE_build/install_local_manifest.txt"
+  file(WRITE "/Users/mtsh/書類/code/JUCE/ORAS/build/JUCE_build/install_local_manifest.txt"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
 endif()

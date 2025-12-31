@@ -10,10 +10,10 @@ MainComponent::MainComponent()
 {
 	// 設定ファイルを初期化
 	juce::PropertiesFile::Options options;
-	options.applicationName = "Looper";
+	options.applicationName = "ORAS";
 	options.filenameSuffix = ".settings";
 	options.osxLibrarySubFolder = "Application Support";
-	options.folderName = "Looper";
+	options.folderName = "ORAS";
 	
 	appProperties.reset(new juce::PropertiesFile(options));
 	

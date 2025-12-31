@@ -1,4 +1,4 @@
-# Looper
+# ORAS
 
 A futuristic, high-tech looper built with JUCE.
 

@@ -3,7 +3,7 @@
 
 # Relative path conversion top directories.
 set(CMAKE_RELATIVE_PATH_TOP_SOURCE "/Users/mtsh/JUCE")
-set(CMAKE_RELATIVE_PATH_TOP_BINARY "/Users/mtsh/書類/code/JUCE/Looper/build")
+set(CMAKE_RELATIVE_PATH_TOP_BINARY "/Users/mtsh/書類/code/JUCE/ORAS/build")
 
 # Force unix paths in dependencies.
 set(CMAKE_FORCE_UNIX_PATHS 1)
