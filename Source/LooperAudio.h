@@ -55,6 +55,9 @@ class LooperAudio
 	bool isRecordingActive() const;
 	bool isLastTrackRecording() const;
 	void allClear();
+	
+	// テスト用: 120BPM 4拍のクリック音を生成してトラックに入れる
+	void generateTestClick(int trackId);
 
 	void stopAllTracks();
 

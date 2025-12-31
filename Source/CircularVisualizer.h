@@ -12,8 +12,12 @@ public:
         : forwardFFT(fftOrder),
           window(fftSize, juce::dsp::WindowingFunction<float>::hann)
     {
-        setOpaque(false); // Make transparent!
+        setOpaque(false); 
         startTimerHz(60);
+        
+        // Initialize particles
+        for (int i = 0; i < numParticles; ++i)
+            resetParticle(i);
     }
 
     void pushBuffer(const juce::AudioBuffer<float>& buffer)
@@ -35,17 +39,19 @@ public:
                      int trackLengthSamples, int masterLengthSamples, 
                      int recordStartGlobal = 0, int masterStartGlobal = 0)
     {
-        // ⚠️ trackLengthSamplesを使用（buffer.getNumSamples()ではない！）
-        // buffer.getNumSamples()はバッファ全体のサイズで、実際の録音長ではない
-        const int numSamples = trackLengthSamples;
+        // 実際のバッファサイズを使用（渡されたtrackLengthSamplesと異なる可能性あり）
+        const int actualBufferSize = buffer.getNumSamples();
+        // 描画に使用するサンプル数：バッファサイズとtrackLengthSamplesの小さい方
+        const int numSamples = juce::jmin(actualBufferSize, trackLengthSamples);
         if (numSamples == 0 || masterLengthSamples == 0) return;
 
         const auto* data = buffer.getReadPointer(0);
         const int points = 1024; 
         
-        // マスターループに対して、波形が円の何割を占めるか
-        // 通常、最初のトラック（マスター）は 1.0 になるべき
-        double loopRatio = (double)trackLengthSamples / (double)masterLengthSamples;
+        // マスターループに対する比率
+        double loopRatio = 0.0;
+        if (masterLengthSamples > 0)
+            loopRatio = (double)trackLengthSamples / (double)masterLengthSamples;
         
         // マスターとほぼ同じ長さなら、誤差を許容して 1.0 に丸める
         if (loopRatio > 0.95 && loopRatio < 1.05) loopRatio = 1.0;
@@ -61,37 +67,53 @@ public:
             startAngleRatio = (double)relativeStartSample / (double)masterLengthSamples;
         }
 
-        const int samplesPerPoint = numSamples / points;
-        if (samplesPerPoint < 1) return;
+        // 🔍 DEBUG LOGGING (バッファサイズ確認追加)
+        DBG("🌊 AddWaveform T" << trackId 
+            << " | BufferSize: " << actualBufferSize
+            << " | TrackLen: " << trackLengthSamples 
+            << " | MasterLen: " << masterLengthSamples 
+            << " | loopRatio: " << loopRatio
+            << " | StartAngleRatio: " << startAngleRatio);
 
         juce::Path newPath;
-        const float maxAmpWidth = 0.3f; // Increased for more visible waves
+        const float maxAmpWidth = 0.3f;
+
+        // ポイント間の正確なサンプル数ステップ（浮動小数点）
+        // ★ numSamples (実際読み取る範囲) を基準にする
+        double sampleStep = (double)numSamples / (double)points;
+        // マニュアルオフセット: なし（JUCEは時計回り座標なので0=3時、-pi=9時）
+        // 波形は0度(3時)から時計回りで描画し、表示時に回転させる
+        double manualOffset = 0.0;
 
         for (int i = 0; i <= points; ++i)
         {
             float rms = 0.0f;
-            int startSample = i * samplesPerPoint;
-            for (int j = 0; j < samplesPerPoint; ++j)
+             // 浮動小数点ステップで開始位置を決定
+            double startSampleRaw = i * sampleStep;
+            int startSample = (int)startSampleRaw;
+            
+            // 平均化する範囲も正確に計算 (最低1サンプル)
+            int samplesToAverage = (int)sampleStep;
+            if (samplesToAverage < 1) samplesToAverage = 1;
+
+            for (int j = 0; j < samplesToAverage; ++j)
             {
                 if (startSample + j < numSamples)
                     rms += std::abs(data[startSample + j]);
             }
-            rms /= (float)samplesPerPoint;
+            rms /= (float)samplesToAverage;
             rms = std::pow(rms, 0.6f);
 
-            // 精度向上のため、サンプル数ベースで進行度を計算
-            // `i / points` だと割り切りれない場合に末尾が引き伸ばされてズレる要因になる
-            double currentSamplePos = (double)(i * samplesPerPoint);
-            double progressRaw = currentSamplePos / (double)trackLengthSamples;
+            // 進行度: i / points (直線波形と同じ計算)
+            // ★ 直線波形は i / linearPoints で位置を決定している
+            double progressRaw = (double)i / (double)points;
             
-            // 角度計算: 
-            // 開始角(startAngleRatio) + 進行角(progress * loopRatio)
+            // 角度計算: startAngle + (progressRaw * loopRatio)
             double currentAngleRatio = startAngleRatio + (progressRaw * loopRatio);
-
-            // 3時(0度)開始 + レイテンシー補正
-            // レイテンシー補正: 出力バッファ分(約512サンプル)だけ波形を時計回りにずらす
-            double latencyDelay = 1024.0 / (double)trackLengthSamples;
-            float angle = (float)(juce::MathConstants<double>::twoPi * (currentAngleRatio + latencyDelay));
+            
+            // オフセット適用
+            double angleVal = juce::MathConstants<double>::twoPi * currentAngleRatio + manualOffset;
+            float angle = (float)angleVal;
             
             float rInner = 1.0f - (rms * maxAmpWidth);
             float xIn = rInner * std::cos(angle);
@@ -104,23 +126,28 @@ public:
         // 外側の点を逆順に追加
         for (int i = points; i >= 0; --i)
         {
+            // 同じロジックで再計算
+            double startSampleRaw = i * sampleStep;
+            int startSample = (int)startSampleRaw;
+            int samplesToAverage = (int)sampleStep;
+            if (samplesToAverage < 1) samplesToAverage = 1;
+
             float rms = 0.0f;
-            int startSample = i * samplesPerPoint;
-            for (int j = 0; j < samplesPerPoint; ++j)
+            for (int j = 0; j < samplesToAverage; ++j)
             {
                 if (startSample + j < numSamples)
                     rms += std::abs(data[startSample + j]);
             }
-            rms /= (float)samplesPerPoint;
+            rms /= (float)samplesToAverage;
             rms = std::pow(rms, 0.6f);
 
-            double currentSamplePos = (double)(i * samplesPerPoint);
-            double progressRaw = currentSamplePos / (double)trackLengthSamples;
+            // ★ 同様に i / points で計算
+            double progressRaw = (double)i / (double)points;
             
             double currentAngleRatio = startAngleRatio + (progressRaw * loopRatio);
             
-            double latencyDelay = 1024.0 / (double)trackLengthSamples;
-            float angle = (float)(juce::MathConstants<double>::twoPi * (currentAngleRatio + latencyDelay));
+            double angleVal = juce::MathConstants<double>::twoPi * currentAngleRatio + manualOffset;
+            float angle = (float)angleVal;
             
             float rOuter = 1.0f + (rms * maxAmpWidth);
             float xOut = rOuter * std::cos(angle);
@@ -136,17 +163,45 @@ public:
         wp.path = newPath;
         wp.trackId = trackId;
         
-        // 色の決定 (とりあえず簡易的なプリセット)
-        switch ((trackId - 1) % 4) {
-            case 0: wp.colour = ThemeColours::NeonCyan; break;
-            case 1: wp.colour = ThemeColours::NeonMagenta; break;
-            case 2: wp.colour = juce::Colours::orange; break;
-            case 3: wp.colour = juce::Colours::lime; break;
+        // 8色のネオンカラー
+        switch ((trackId - 1) % 8) {
+            case 0: wp.colour = ThemeColours::NeonCyan; break;      // シアン
+            case 1: wp.colour = ThemeColours::NeonMagenta; break;   // マゼンタ
+            case 2: wp.colour = juce::Colour::fromRGB(255, 165, 0); break;   // ネオンオレンジ
+            case 3: wp.colour = juce::Colour::fromRGB(57, 255, 20); break;   // ネオングリーン
+            case 4: wp.colour = juce::Colour::fromRGB(255, 255, 0); break;   // ネオンイエロー
+            case 5: wp.colour = juce::Colour::fromRGB(77, 77, 255); break;   // エレクトリックブルー
+            case 6: wp.colour = juce::Colour::fromRGB(191, 0, 255); break;   // ネオンパープル
+            case 7: wp.colour = juce::Colour::fromRGB(255, 20, 147); break;  // ネオンピンク
             default: wp.colour = ThemeColours::NeonCyan; break;
         }
 
         waveformPaths.insert(waveformPaths.begin(), wp);
         if (waveformPaths.size() > 5) waveformPaths.resize(5);
+        
+        // デバッグ用：リニア波形データを保存
+        LinearWaveformData lwd;
+        lwd.trackId = trackId;
+        lwd.colour = wp.colour;
+        lwd.lengthSamples = trackLengthSamples;
+        // サンプリング（表示用に間引き）
+        const int linearPoints = 512;
+        lwd.samples.resize(linearPoints);
+        int samplesPerLinearPoint = trackLengthSamples / linearPoints;
+        if (samplesPerLinearPoint < 1) samplesPerLinearPoint = 1;
+        for (int i = 0; i < linearPoints; ++i)
+        {
+            float rms = 0.0f;
+            int startSample = i * samplesPerLinearPoint;
+            for (int j = 0; j < samplesPerLinearPoint && startSample + j < numSamples; ++j)
+            {
+                rms += std::abs(data[startSample + j]);
+            }
+            rms /= (float)samplesPerLinearPoint;
+            lwd.samples[i] = rms;
+        }
+        linearWaveforms.insert(linearWaveforms.begin(), lwd);
+        if (linearWaveforms.size() > 5) linearWaveforms.resize(5);
         
         repaint();
     }
@@ -167,6 +222,23 @@ public:
         // Background circle
         g.setColour(ThemeColours::MetalGray.withAlpha(0.1f));
         g.fillEllipse(bounds.withSizeKeepingCentre(radius * 2.0f, radius * 2.0f));
+
+        // --- 1. Particle Field (Stars) ---
+        drawParticles(g, centre, radius);
+
+        // --- 2. Pulsating Core ---
+        float bassLevel = scopeData[0] * 0.5f + scopeData[1] * 0.3f + scopeData[2] * 0.2f;
+        float coreRadius = radius * (0.15f + bassLevel * 0.15f);
+        
+        juce::ColourGradient coreGrad(ThemeColours::NeonCyan.withAlpha(0.6f * (0.5f + bassLevel)), centre.x, centre.y,
+                                     ThemeColours::NeonCyan.withAlpha(0.0f), centre.x + coreRadius, centre.y + coreRadius, true);
+        g.setGradientFill(coreGrad);
+        g.fillEllipse(centre.x - coreRadius, centre.y - coreRadius, coreRadius * 2.0f, coreRadius * 2.0f);
+        
+        // Core center light
+        g.setColour(juce::Colours::white.withAlpha(0.4f * (0.3f + bassLevel)));
+        g.fillEllipse(centre.x - 2.0f, centre.y - 2.0f, 4.0f, 4.0f);
+
         g.setColour(ThemeColours::MetalGray.withAlpha(0.3f));
         g.drawEllipse(bounds.withSizeKeepingCentre(radius * 2.1f, radius * 2.1f), 1.0f);
 
@@ -188,30 +260,30 @@ public:
             p.applyTransform(transform);
             
             // Outer glow layers (luminous effect)
-            for (int glow = 3; glow >= 1; --glow)
+            for (int glow = 4; glow >= 1; --glow)
             {
-                float glowAlpha = baseAlpha * 0.15f / (float)glow;
-                g.setColour(wp.colour.withAlpha(juce::jlimit(0.05f, 0.4f, glowAlpha)));
-                g.strokePath(p, juce::PathStrokeType(glow * 3.0f));
+                float glowAlpha = baseAlpha * 0.2f / (float)glow;
+                g.setColour(wp.colour.withAlpha(juce::jlimit(0.05f, 0.45f, glowAlpha)));
+                g.strokePath(p, juce::PathStrokeType(glow * 4.0f));
             }
             
-            // Main fill with gradient-like brightness
-            g.setColour(wp.colour.withAlpha(juce::jlimit(0.3f, 0.85f, baseAlpha)));
+            // Main fill
+            g.setColour(wp.colour.withAlpha(juce::jlimit(0.2f, 0.75f, baseAlpha)));
             g.fillPath(p);
             
-            // Inner bright stroke (core light)
-            g.setColour(wp.colour.brighter(0.4f).withAlpha(juce::jlimit(0.4f, 1.0f, baseAlpha + 0.3f)));
-            g.strokePath(p, juce::PathStrokeType(1.5f));
+            // Inner bright core stroke
+            g.setColour(wp.colour.brighter(0.6f).withAlpha(juce::jlimit(0.5f, 1.0f, baseAlpha + 0.35f)));
+            g.strokePath(p, juce::PathStrokeType(1.0f));
             
-            // Hot center line (brightest)
-            g.setColour(juce::Colours::white.withAlpha(juce::jlimit(0.1f, 0.5f, baseAlpha * 0.6f)));
-            g.strokePath(p, juce::PathStrokeType(0.5f));
+            // Neon edge (extra bright)
+            g.setColour(juce::Colours::white.withAlpha(juce::jlimit(0.1f, 0.6f, baseAlpha * 0.7f)));
+            g.strokePath(p, juce::PathStrokeType(0.3f));
         }
         
         // --- Draw Playhead ---
         if (currentPlayHeadPos >= 0.0f)
         {
-            // 3時(0度)開始
+            // オフセットなし - 波形と同じ座標系
             float angle = currentPlayHeadPos * juce::MathConstants<float>::twoPi;
             
             // プレイヘッドライン (レーダーのように中心から外へ)
@@ -230,11 +302,16 @@ public:
 
 
         // Draw spinning accent rings
-        float rotation = (float)juce::Time::getMillisecondCounterHiRes() * 0.001f;
+        float time = (float)juce::Time::getMillisecondCounterHiRes() * 0.001f;
+        
+        // Secondary data rings
         g.setColour(ThemeColours::NeonCyan.withAlpha(0.15f));
-        drawRotatingRing(g, centre, radius * 1.05f, rotation, 0.4f);
+        drawRotatingRing(g, centre, radius * 1.05f, time, 0.4f);
         g.setColour(ThemeColours::NeonMagenta.withAlpha(0.1f));
-        drawRotatingRing(g, centre, radius * 1.1f, -rotation * 0.7f, 0.3f);
+        drawRotatingRing(g, centre, radius * 1.1f, -time * 0.7f, 0.3f);
+        
+        // Dynamic Segmented Ring
+        drawSegmentedRing(g, centre, radius * 0.98f, time * 0.5f);
         
         // Outer ring
         g.setColour(ThemeColours::NeonCyan.withAlpha(0.4f));
@@ -260,9 +337,83 @@ public:
             // Color gradient from cyan to magenta based on position
             float hue = 0.5f + (float)i / (float)numBars * 0.3f; // Cyan to purple range
             auto barColor = juce::Colour::fromHSV(hue, 0.8f, 0.9f, juce::jlimit(0.3f, 0.9f, level + 0.3f));
+
+            // Gradient from base color to bright tip
+            juce::ColourGradient barGrad(barColor.withAlpha(0.4f), innerPoint.x, innerPoint.y,
+                                         barColor.brighter(0.8f).withAlpha(0.9f), outerPoint.x, outerPoint.y, false);
+            g.setGradientFill(barGrad);
+            g.drawLine(innerPoint.x, innerPoint.y, outerPoint.x, outerPoint.y, 2.5f);
             
-            g.setColour(barColor);
-            g.drawLine(innerPoint.x, innerPoint.y, outerPoint.x, outerPoint.y, 2.0f);
+            // Small bright tip point
+            g.setColour(juce::Colours::white.withAlpha(level * 0.8f));
+            g.fillEllipse(outerPoint.x - 1.5f, outerPoint.y - 1.5f, 3.0f, 3.0f);
+        }
+        
+        // ========================================
+        // 🔍 DEBUG: Linear Waveform View (Right Side)
+        // ========================================
+        const float linearAreaX = bounds.getWidth() * 0.68f;
+        const float linearAreaY = 20.0f;
+        const float linearAreaWidth = bounds.getWidth() * 0.30f;
+        const float linearAreaHeight = bounds.getHeight() - 40.0f;
+        const float trackRowHeight = linearAreaHeight / (float)juce::jmax(1, (int)linearWaveforms.size());
+        
+        // 背景
+        g.setColour(juce::Colours::black.withAlpha(0.7f));
+        g.fillRoundedRectangle(linearAreaX, linearAreaY, linearAreaWidth, linearAreaHeight, 5.0f);
+        g.setColour(ThemeColours::NeonCyan.withAlpha(0.5f));
+        g.drawRoundedRectangle(linearAreaX, linearAreaY, linearAreaWidth, linearAreaHeight, 5.0f, 1.0f);
+        
+        // 各トラックの波形を描画
+        for (size_t t = 0; t < linearWaveforms.size(); ++t)
+        {
+            const auto& lwd = linearWaveforms[t];
+            float rowY = linearAreaY + (float)t * trackRowHeight;
+            float waveHeight = trackRowHeight * 0.8f;
+            float centerY = rowY + trackRowHeight * 0.5f;
+            float waveWidth = linearAreaWidth - 10.0f;
+            float startX = linearAreaX + 5.0f;
+            
+            // 波形描画
+            juce::Path linearPath;
+            for (size_t i = 0; i < lwd.samples.size(); ++i)
+            {
+                float x = startX + (float)i / (float)lwd.samples.size() * waveWidth;
+                float amplitude = lwd.samples[i] * waveHeight * 2.0f;
+                float y1 = centerY - amplitude * 0.5f;
+                float y2 = centerY + amplitude * 0.5f;
+                
+                if (i == 0)
+                    linearPath.startNewSubPath(x, y1);
+                else
+                    linearPath.lineTo(x, y1);
+            }
+            // 折り返し
+            for (int i = (int)lwd.samples.size() - 1; i >= 0; --i)
+            {
+                float x = startX + (float)i / (float)lwd.samples.size() * waveWidth;
+                float amplitude = lwd.samples[i] * waveHeight * 2.0f;
+                float y2 = centerY + amplitude * 0.5f;
+                linearPath.lineTo(x, y2);
+            }
+            linearPath.closeSubPath();
+            
+            g.setColour(lwd.colour.withAlpha(0.6f));
+            g.fillPath(linearPath);
+            g.setColour(lwd.colour);
+            g.strokePath(linearPath, juce::PathStrokeType(1.0f));
+            
+            // トラックID表示
+            g.setColour(juce::Colours::white);
+            g.drawText("T" + juce::String(lwd.trackId), (int)startX, (int)rowY, 30, 15, juce::Justification::left);
+        }
+        
+        // プレイヘッド（縦線）
+        if (currentPlayHeadPos >= 0.0f && !linearWaveforms.empty())
+        {
+            float playheadX = linearAreaX + 5.0f + currentPlayHeadPos * (linearAreaWidth - 10.0f);
+            g.setColour(juce::Colours::white);
+            g.drawLine(playheadX, linearAreaY + 5.0f, playheadX, linearAreaY + linearAreaHeight - 5.0f, 2.0f);
         }
     }
 
@@ -271,6 +422,7 @@ public:
     void clear()
     {
         waveformPaths.clear();
+        linearWaveforms.clear();
         currentPlayHeadPos = -1.0f;
         juce::zeromem(scopeData, sizeof(scopeData));
         repaint();
@@ -278,6 +430,7 @@ public:
 
     void timerCallback() override
     {
+        updateParticles();
         repaint(); // Always repaint for animations
         
         if (nextFFTBlockReady)
@@ -296,6 +449,17 @@ private:
         juce::Colour colour;
     };
     std::vector<WaveformPath> waveformPaths;
+    
+    // デバッグ用リニア波形データ
+    struct LinearWaveformData
+    {
+        int trackId = 0;
+        int lengthSamples = 0;
+        juce::Colour colour;
+        std::vector<float> samples; // RMS値の配列
+    };
+    std::vector<LinearWaveformData> linearWaveforms;
+    
     float currentPlayHeadPos = -1.0f;
 
     void drawRotatingRing(juce::Graphics& g, juce::Point<float> centre, float radius, float rotation, float arcLength)
@@ -303,6 +467,117 @@ private:
         juce::Path ring;
         ring.addCentredArc(centre.x, centre.y, radius, radius, rotation, 0.0f, juce::MathConstants<float>::twoPi * arcLength, true);
         g.strokePath(ring, juce::PathStrokeType(1.5f));
+    }
+
+    void drawSegmentedRing(juce::Graphics& g, juce::Point<float> centre, float radius, float rotation)
+    {
+        const int segments = 12;
+        const float gap = 0.1f;
+        const float segmentLen = (juce::MathConstants<float>::twoPi / (float)segments) * (1.0f - gap);
+        
+        for (int i = 0; i < segments; ++i)
+        {
+            float startAngle = rotation + (float)i * (juce::MathConstants<float>::twoPi / (float)segments);
+            juce::Path seg;
+            seg.addCentredArc(centre.x, centre.y, radius, radius, 0.0f, startAngle, startAngle + segmentLen, true);
+            g.setColour(ThemeColours::NeonCyan.withAlpha(i % 3 == 0 ? 0.4f : 0.15f));
+            g.strokePath(seg, juce::PathStrokeType(1.0f));
+            
+            // Ticks
+            auto tickPos = centre.getPointOnCircumference(radius, startAngle);
+            auto tickEnd = centre.getPointOnCircumference(radius + 3.0f, startAngle);
+            g.drawLine(tickPos.x, tickPos.y, tickEnd.x, tickEnd.y, 0.5f);
+        }
+    }
+
+    struct Particle
+    {
+        float x, y;
+        float vx, vy;
+        float alpha;
+        float size;
+        float life;
+    };
+    static constexpr int numParticles = 40;
+    Particle particles[numParticles];
+
+    void resetParticle(int i)
+    {
+        // 外周からスタートして中心に向かう
+        float angle = juce::Random::getSystemRandom().nextFloat() * juce::MathConstants<float>::twoPi;
+        float startRadius = 80.0f + juce::Random::getSystemRandom().nextFloat() * 40.0f; // 外周からスタート
+        particles[i].x = std::cos(angle) * startRadius;
+        particles[i].y = std::sin(angle) * startRadius;
+        particles[i].vx = 0; // 速度は updateParticles で計算
+        particles[i].vy = 0;
+        particles[i].alpha = 0.3f + juce::Random::getSystemRandom().nextFloat() * 0.5f;
+        particles[i].size = 1.0f + juce::Random::getSystemRandom().nextFloat() * 2.0f;
+        particles[i].life = 1.0f;
+    }
+
+    void updateParticles()
+    {
+        float bassLevel = scopeData[0] * 0.5f + scopeData[1] * 0.5f;
+        float attractStrength = 0.3f + bassLevel * 0.5f; // 低音に反応して吸引力が強くなる
+        
+        for (int i = 0; i < numParticles; ++i)
+        {
+            float dist = std::sqrt(particles[i].x * particles[i].x + particles[i].y * particles[i].y);
+            
+            if (dist > 1.0f)
+            {
+                // 中心に向かうベクトルを計算
+                float dirX = -particles[i].x / dist;
+                float dirY = -particles[i].y / dist;
+                
+                // 優しく加速（イージング効果）
+                particles[i].vx += dirX * attractStrength * 0.1f;
+                particles[i].vy += dirY * attractStrength * 0.1f;
+                
+                // 速度を適用
+                particles[i].x += particles[i].vx;
+                particles[i].y += particles[i].vy;
+                
+                // 減衰（軌道を柔らかく）
+                particles[i].vx *= 0.98f;
+                particles[i].vy *= 0.98f;
+            }
+            
+            // 中心に到達したらリセット
+            if (dist < 5.0f)
+            {
+                particles[i].life -= 0.1f;
+                particles[i].alpha *= 0.9f;
+            }
+            
+            if (particles[i].life <= 0 || dist < 2.0f)
+                resetParticle(i);
+        }
+    }
+
+    void drawParticles(juce::Graphics& g, juce::Point<float> centre, float maxRadius)
+    {
+        for (int i = 0; i < numParticles; ++i)
+        {
+            float px = centre.x + particles[i].x;
+            float py = centre.y + particles[i].y;
+            float dist = std::sqrt(particles[i].x * particles[i].x + particles[i].y * particles[i].y);
+            
+            if (dist > maxRadius * 1.5f) continue;
+            
+            // 中心に近いほど明るく、光の収束を表現
+            float proximityBonus = juce::jlimit(0.0f, 1.0f, 1.0f - (dist / maxRadius));
+            float alpha = juce::jlimit(0.0f, 1.0f, particles[i].alpha * particles[i].life * (0.3f + proximityBonus * 0.7f));
+            
+            // パーティクル本体
+            g.setColour(juce::Colours::white.withAlpha(alpha));
+            g.fillEllipse(px - particles[i].size*0.5f, py - particles[i].size*0.5f, particles[i].size, particles[i].size);
+            
+            // グロウ（中心に近いほど強い）
+            float glowAlpha = juce::jlimit(0.0f, 1.0f, alpha * 0.4f * (0.5f + proximityBonus * 0.5f));
+            g.setColour(ThemeColours::NeonCyan.withAlpha(glowAlpha));
+            g.fillEllipse(px - particles[i].size, py - particles[i].size, particles[i].size*2.0f, particles[i].size*2.0f);
+        }
     }
     void pushSampleIntoFifo(float sample) noexcept
     {

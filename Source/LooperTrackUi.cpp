@@ -83,7 +83,7 @@ void LooperTrackUi::paint(juce::Graphics& g)
 
 	// Track Number
 	g.setColour(ThemeColours::Silver);
-	g.setFont(juce::Font("Inter", 20.0f, juce::Font::bold));
+	g.setFont(juce::Font(juce::FontOptions("Inter", 20.0f, juce::Font::bold)));
 	g.drawText(juce::String(trackId), buttonArea, juce::Justification::centred, true);
 
 

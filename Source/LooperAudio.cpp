@@ -536,3 +536,66 @@ void LooperAudio::setTrackGain(int trackId, float gain)
     if (auto it = tracks.find(trackId); it != tracks.end())
         it->second.gain = gain;
 }
+
+void LooperAudio::generateTestClick(int trackId)
+{
+    auto it = tracks.find(trackId);
+    if (it == tracks.end()) return;
+    
+    auto& track = it->second;
+    
+    // 120BPM = 0.5秒/ビート = sampleRate * 0.5 サンプル/ビート
+    const int samplesPerBeat = static_cast<int>(sampleRate * 0.5);
+    const int numBeats = 4;
+    const int totalSamples = samplesPerBeat * numBeats;
+    
+    // クリック音のパラメータ
+    const float clickFrequency = 1000.0f;  // 1kHz
+    const int clickDuration = static_cast<int>(sampleRate * 0.02);  // 20ms
+    
+    // バッファをクリア
+    track.buffer.clear();
+    
+    // 4拍のクリックを生成
+    for (int beat = 0; beat < numBeats; ++beat)
+    {
+        int beatStart = beat * samplesPerBeat;
+        
+        for (int i = 0; i < clickDuration && (beatStart + i) < track.buffer.getNumSamples(); ++i)
+        {
+            // エンベロープ（急激なアタック、すぐに減衰）
+            float envelope = std::exp(-5.0f * (float)i / (float)clickDuration);
+            
+            // サイン波
+            float phase = juce::MathConstants<float>::twoPi * clickFrequency * (float)i / (float)sampleRate;
+            float sample = std::sin(phase) * envelope * 0.8f;
+            
+            // 両チャンネルに書き込み
+            for (int ch = 0; ch < track.buffer.getNumChannels(); ++ch)
+            {
+                track.buffer.setSample(ch, beatStart + i, sample);
+            }
+        }
+    }
+    
+    // トラックの状態を設定
+    track.recordLength = totalSamples;
+    track.lengthInSample = totalSamples;
+    track.readPosition = 0;
+    track.isPlaying = true;
+    track.isRecording = false;
+    
+    // マスターループが設定されていない場合は設定
+    if (masterLoopLength == 0)
+    {
+        masterLoopLength = totalSamples;
+        masterStartSample = 0;
+        masterReadPosition = 0;
+        DBG("🎛 Master loop set from test click: " << totalSamples << " samples");
+    }
+    
+    DBG("🔊 Test click generated for track " << trackId << " | " << numBeats << " beats @ 120BPM");
+    
+    // リスナーに通知（波形表示のため）
+    listeners.call([trackId](Listener& l) { l.onRecordingStopped(trackId); });
+}

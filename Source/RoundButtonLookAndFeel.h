@@ -93,13 +93,14 @@ public:
 		else if (text == "CLEAR") labelText = "CLEAR";
 		else if (text == "SETUP") labelText = "SETUP";
 		
-		if (labelText.isNotEmpty())
-		{
-			g.setColour(ThemeColours::Silver.withAlpha(0.7f));
-			g.setFont(juce::Font(juce::FontOptions("Inter", 9.0f, juce::Font::plain)));
-			juce::Rectangle<float> labelBounds(bounds.getX(), circleBounds.getBottom() + 3.0f, bounds.getWidth(), 12.0f);
-			g.drawText(labelText, labelBounds, juce::Justification::centred, true);
-		}
+		// Label below button (removed for compact UI)
+		// if (labelText.isNotEmpty())
+		// {
+		// 	g.setColour(ThemeColours::Silver.withAlpha(0.7f));
+		// 	g.setFont(juce::Font(juce::FontOptions("Inter", 9.0f, juce::Font::plain)));
+		// 	juce::Rectangle<float> labelBounds(bounds.getX(), circleBounds.getBottom() + 3.0f, bounds.getWidth(), 12.0f);
+		// 	g.drawText(labelText, labelBounds, juce::Justification::centred, true);
+		// }
 	}
 	
 	void drawButtonText(juce::Graphics& g, juce::TextButton& button, bool isMouseOver, bool isButtonDown) override

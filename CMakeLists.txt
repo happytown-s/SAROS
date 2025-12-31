@@ -16,6 +16,13 @@ juce_add_gui_app(Looper
     OUTPUT_NAME "Looper"
     OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/LooperApp"
 )
+
+# バイナリデータ（フォントなど）の定義
+juce_add_binary_data(Assets
+    SOURCES
+        Source/Assets/Orbitron-Bold.ttf
+)
+
 set_target_properties(Looper PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/LooperApp")
 
 # ソースファイル
@@ -48,6 +55,7 @@ target_sources(Looper PRIVATE ${SOURCE_FILES} ${HEADER_FILES})
 
 # 使用モジュール
 target_link_libraries(Looper PRIVATE
+    Assets
     juce::juce_gui_basics
     juce::juce_gui_extra
     juce::juce_audio_basics

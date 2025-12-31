@@ -27,6 +27,7 @@ public:
 
 	std::function<void(const juce::String&)> onAction;
 	std::function<void()> onSettingsRequested;
+	std::function<void()> onTestClick;  // テストクリック用
 
 
 	void paint(juce::Graphics& g)override;
@@ -50,6 +51,8 @@ private:
 	juce::TextButton undoButton {juce::String::fromUTF8("\xE2\x86\xB6")};     // ↶
 	juce::TextButton clearButton {juce::String::fromUTF8("\xE2\x8C\xAB")};    // ⌫
 	juce::TextButton settingButton {juce::String::fromUTF8("\xE2\x9A\x99")};  // ⚙
+	juce::TextButton testButton {"TEST"};  // テスト用
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(TransportPanel);
 };
+

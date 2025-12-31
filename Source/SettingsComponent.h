@@ -155,7 +155,7 @@ public:
             
             // Text Warning
             g.setColour(ThemeColours::RecordingRed);
-            g.setFont(juce::Font("Arial", 14.0f, juce::Font::bold));
+            g.setFont(juce::Font(juce::FontOptions("Arial", 14.0f, juce::Font::bold)));
             g.drawText("TRIGGER DETECTED", meterRect.getRight() + 10, meterRect.getY(), 140, 24, juce::Justification::left);
         }
     }

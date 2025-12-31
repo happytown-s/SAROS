@@ -137,6 +137,27 @@ MainComponent::MainComponent()
 	{
 		showDeviceSettings();
 	};
+	transportPanel.onTestClick = [this]()
+	{
+		// 選択されているトラックにテストクリックを生成
+		for (auto& t : trackUIs)
+		{
+			if (t->getIsSelected())
+			{
+				looper.generateTestClick(t->getTrackId());
+				t->setState(LooperTrackUi::TrackState::Playing);
+				break;
+			}
+		}
+		// 選択されていない場合はトラック1に
+		if (!selectedTrackId)
+		{
+			looper.generateTestClick(1);
+			if (!trackUIs.empty())
+				trackUIs[0]->setState(LooperTrackUi::TrackState::Playing);
+		}
+		updateStateVisual();
+	};
 
 
 
@@ -302,7 +323,7 @@ void MainComponent::paint(juce::Graphics& g)
     
 
     // Top Header with Neon Accent
-    juce::Rectangle<float> topBar(0, 0, getWidth(), 60.0f);
+    juce::Rectangle<float> topBar(0, 0, getWidth(), 40.0f);
     // Darker header background for readability
     g.setColour(juce::Colours::black.withAlpha(0.4f)); 
     g.fillRect(topBar);
@@ -312,22 +333,79 @@ void MainComponent::paint(juce::Graphics& g)
         ThemeColours::NeonMagenta.withAlpha(0.1f), (float)getWidth()));
     g.fillRect(topBar);
 
-    // Title
-    g.setColour(ThemeColours::Silver);
-    g.setFont(juce::Font("Inter", 28.0f, juce::Font::bold));
-    if (g.getCurrentFont().getTypefaceName() == "Sans-Serif") // Fallback
-        g.setFont(juce::Font("Arial", 28.0f, juce::Font::bold));
-        
-    g.drawText("SAROS", topBar.reduced(20, 0), juce::Justification::centred);
+    // --- Title Logo Rendering ---
+    juce::String titleText = "SAROS";
+    float titleFontSize = 32.0f;
     
+    // システムフォントを使用 (Futura または Arial)
+    juce::Font titleFont(juce::FontOptions("Futura", titleFontSize, juce::Font::bold));
+    if (titleFont.getTypefaceName() == "Sans-Serif") 
+        titleFont = juce::Font(juce::FontOptions("Arial", titleFontSize, juce::Font::bold));
+        
+    titleFont.setHeight(titleFontSize);
+    titleFont.setBold(true);
+
+    juce::GlyphArrangement ga;
+    ga.addLineOfText(titleFont, titleText, 0, 0);
+    juce::Path titlePath;
+    ga.createPath(titlePath);
+    auto titlePathBounds = titlePath.getBounds();
+    
+    // Center the path in the top bar
+    titlePath.applyTransform(juce::AffineTransform::translation(centre.x - titlePathBounds.getCentreX(), 
+                                                                topBar.getCentreY() - titlePathBounds.getCentreY()));
+
+    // 1. Neon Glow Layers (Soft Blur)
+    for (int glow = 5; glow >= 1; --glow)
+    {
+        g.setColour(ThemeColours::NeonCyan.withAlpha(0.12f / (float)glow));
+        g.strokePath(titlePath, juce::PathStrokeType((float)glow * 2.5f));
+    }
+
+    // 2. Main Title Gradient Fill
+    juce::ColourGradient titleGrad(ThemeColours::NeonCyan, centre.x - 50.0f, 0.0f,
+                                   ThemeColours::NeonMagenta, centre.x + 50.0f, 0.0f, false);
+    g.setGradientFill(titleGrad);
+    g.fillPath(titlePath);
+
+    // 3. Bright Inner Core
+    g.setColour(juce::Colours::white.withAlpha(0.4f));
+    g.strokePath(titlePath, juce::PathStrokeType(0.5f));
+
+    // --- Futuristic Accents ---
+    float accentW = 80.0f;
+    float accentH = 24.0f;
+    juce::Rectangle<float> accentRect(centre.x - accentW, topBar.getCentreY() - accentH*0.5f, accentW * 2.0f, accentH);
+    
+    g.setColour(ThemeColours::NeonCyan.withAlpha(0.5f));
+    // Corner Brackets
+    float bracketSize = 10.0f;
+    // Top Left
+    g.drawLine(accentRect.getX(), accentRect.getY(), accentRect.getX() + bracketSize, accentRect.getY(), 1.5f);
+    g.drawLine(accentRect.getX(), accentRect.getY(), accentRect.getX(), accentRect.getY() + bracketSize, 1.5f);
+    // Top Right
+    g.drawLine(accentRect.getRight(), accentRect.getY(), accentRect.getRight() - bracketSize, accentRect.getY(), 1.5f);
+    g.drawLine(accentRect.getRight(), accentRect.getY(), accentRect.getRight(), accentRect.getY() + bracketSize, 1.5f);
+    // Bottom Left
+    g.drawLine(accentRect.getX(), accentRect.getBottom(), accentRect.getX() + bracketSize, accentRect.getBottom(), 1.5f);
+    g.drawLine(accentRect.getX(), accentRect.getBottom(), accentRect.getX(), accentRect.getBottom() - bracketSize, 1.5f);
+    // Bottom Right
+    g.drawLine(accentRect.getRight(), accentRect.getBottom(), accentRect.getRight() - bracketSize, accentRect.getBottom(), 1.5f);
+    g.drawLine(accentRect.getRight(), accentRect.getBottom(), accentRect.getRight(), accentRect.getBottom() - bracketSize, 1.5f);
+
+    // Subtle decorative scanline in header
+    g.setColour(juce::Colours::white.withAlpha(0.05f));
+    for (float lx = 0; lx < getWidth(); lx += 4.0f)
+        g.drawLine(lx, 0.0f, lx, 40.0f, 0.5f);
+
     // Top border line
     g.setColour(ThemeColours::NeonCyan.withAlpha(0.6f));
-    g.drawLine(0, 60.0f, (float)getWidth(), 60.0f, 2.0f);
+    g.drawLine(0, 40.0f, (float)getWidth(), 40.0f, 2.0f);
 
     // --- Track Area Background ---
-    // Start below the Transport Panel (approx calculation based on layout)
-    // Layout: 50 (margin) + 280 (visual) + 100 (transport) = 430
-    float trackStartY = 430.0f; 
+    // Start below the Transport Panel
+    // Layout: 15 (reduce) + 30 (header skip) + 280 (visual) + 70 (transport) + 15 = 410
+    float trackStartY = 400.0f; 
     juce::Rectangle<float> trackArea(0, trackStartY, (float)getWidth(), (float)getHeight() - trackStartY);
     
     // Darken the track area significantly to make UI controls stand out
@@ -343,15 +421,15 @@ void MainComponent::resized()
 {
 	auto area = getLocalBounds().reduced(15);
 	
-	// ⬇️ Top margin for layout (skip past the 60px header bar)
-	area.removeFromTop(50);
+	// ⬇️ Top margin for layout (skip past the 40px header bar)
+	area.removeFromTop(30);
 
 	// Visual Area (Place for future waveform or visualizer)
 	auto visualArea = area.removeFromTop(headerVisualArea);
     visualizer.setBounds(visualArea.reduced(10));
 
 	// 🎛 トランスポートエリア
-	auto transportArea = area.removeFromTop(100);  // 70 → 100 (ラベル用スペース)
+	auto transportArea = area.removeFromTop(70);  // 100 → 70 (ラベル不要)
 	transportPanel.setBounds(transportArea);
 	// 🎚 トラック群
 	int x = 0, y = 0;

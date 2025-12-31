@@ -35,6 +35,13 @@ TransportPanel::TransportPanel(LooperAudio& looperRef)
 		btn->addListener(this);
 		btn->setLookAndFeel(&roundLookAndFeel);  // カスタムLookAndFeelを適用
 	}
+	
+	// テストボタン（シンプルなスタイル）
+	addAndMakeVisible(testButton);
+	testButton.addListener(this);
+	testButton.setColour(juce::TextButton::buttonColourId, ThemeColours::NeonCyan.withAlpha(0.3f));
+	testButton.setColour(juce::TextButton::textColourOnId, ThemeColours::Silver);
+	testButton.setColour(juce::TextButton::textColourOffId, ThemeColours::Silver);
 }
 
 TransportPanel::~TransportPanel()
@@ -45,6 +52,7 @@ TransportPanel::~TransportPanel()
 		btn->setLookAndFeel(nullptr);
 		btn->removeListener(this);
 	}
+	testButton.removeListener(this);
 }
 
 void TransportPanel::paint(juce::Graphics& g)
@@ -58,8 +66,8 @@ void TransportPanel::resized()
 {
 	auto area = getLocalBounds().reduced(10);
 	const int spacing = 10;
-	const int buttonWidth = 50;  // 幅を50pxに固定（大きくなりすぎないように）
-	const int buttonHeight = buttonWidth + 20;      // 高さ（ラベル用スペース追加）
+	const int buttonWidth = 50;  // 幅を50pxに固定
+	const int buttonHeight = buttonWidth;  // ラベルなしなので正方形
 	
 	std::vector<juce::TextButton*> buttons =
 	{
@@ -76,9 +84,12 @@ void TransportPanel::resized()
 	
 	for (auto* btn : buttons)
 	{
-		btn->setBounds(startX, y, buttonWidth, buttonHeight);  // 縦長
+		btn->setBounds(startX, y, buttonWidth, buttonHeight);
 		startX += buttonWidth + spacing;
 	}
+	
+	// テストボタンは右端に小さく配置
+	testButton.setBounds(area.getRight() - 50, y + 10, 45, 30);
 }
 
 
@@ -119,6 +130,11 @@ void TransportPanel::buttonClicked(juce::Button* button)
 	{
 		DBG("⚙️ Device settings open requested");
 		onSettingsRequested();
+	}
+	else if (button == &testButton)
+	{
+		DBG("🔊 Test click requested");
+		if (onTestClick) onTestClick();
 	}
 }
 
