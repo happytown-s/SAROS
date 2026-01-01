@@ -276,6 +276,8 @@ public:
         channelListHeader.setBounds(area.removeFromTop(30));
         viewport.setBounds(area);
         
+        // ChannelListの幅をViewportの可視領域に合わせる
+        channelList.setSize(viewport.getMaximumVisibleWidth(), channelList.getHeight());
         channelList.resized();
     }
     
