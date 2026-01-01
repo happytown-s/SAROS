@@ -183,18 +183,15 @@ private:
 };
 
 // =====================================================
-// SettingsComponent
-// =====================================
-class SettingsComponent : public juce::Component, public juce::Timer
+// デバイス設定タブのコンテンツ
+// =====================================================
+class DeviceTabContent : public juce::Component
 {
 public:
-    SettingsComponent(juce::AudioDeviceManager& dm, InputManager& im)
-        : inputManager(im), deviceManager(dm), channelPairGrid(im)
+    DeviceTabContent(juce::AudioDeviceManager& dm)
     {
-        // Apply Dark Theme
         darkLAF.setColourScheme(juce::LookAndFeel_V4::getMidnightColourScheme());
         
-        // 1. Audio Device Selector
         audioSelector.reset(new juce::AudioDeviceSelectorComponent(dm,
                                                                    0, MAX_CHANNELS,
                                                                    0, 2,
@@ -202,13 +199,44 @@ public:
                                                                    true, true));
         audioSelector->setLookAndFeel(&darkLAF);
         addAndMakeVisible(audioSelector.get());
+    }
+    
+    ~DeviceTabContent() override
+    {
+        audioSelector->setLookAndFeel(nullptr);
+    }
+    
+    void paint(juce::Graphics& g) override
+    {
+        g.fillAll(juce::Colour(0xff151515));
+    }
+    
+    void resized() override
+    {
+        audioSelector->setBounds(getLocalBounds().reduced(10));
+    }
 
-        // 2. Global Controls Header
-        globalControlsHeader.setText("Global Trigger Settings", juce::dontSendNotification);
+private:
+    std::unique_ptr<juce::AudioDeviceSelectorComponent> audioSelector;
+    juce::LookAndFeel_V4 darkLAF;
+};
+
+// =====================================================
+// トリガー設定タブのコンテンツ
+// =====================================================
+class TriggerTabContent : public juce::Component, public juce::Timer
+{
+public:
+    TriggerTabContent(juce::AudioDeviceManager& dm, InputManager& im)
+        : inputManager(im), deviceManager(dm), channelPairGrid(im)
+    {
+        // Global Controls Header
+        globalControlsHeader.setText("Trigger Sensitivity", juce::dontSendNotification);
         globalControlsHeader.setFont(juce::FontOptions(16.0f, juce::Font::bold));
+        globalControlsHeader.setColour(juce::Label::textColourId, ThemeColours::Silver);
         addAndMakeVisible(globalControlsHeader);
         
-        // 3. Calibration Controls
+        // Calibration Controls
         useCalibrationButton.setButtonText("Use Auto Calibration");
         useCalibrationButton.setClickingTogglesState(true);
         useCalibrationButton.setToggleState(im.isCalibrationEnabled(), juce::dontSendNotification);
@@ -224,13 +252,13 @@ public:
         };
         addAndMakeVisible(calibrateButton);
         
-        // 4. Threshold Slider
+        // Threshold Slider
         thresholdSlider.setSliderStyle(juce::Slider::LinearHorizontal);
         thresholdSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
         thresholdSlider.setRange(0.001, 1.0, 0.001); 
         thresholdSlider.setSkewFactorFromMidPoint(0.1);
         thresholdSlider.setColour(juce::Slider::thumbColourId, ThemeColours::NeonCyan);
-        thresholdSlider.setValue(inputManager.getConfig().userThreshold, juce::dontSendNotification);
+        thresholdSlider.setValue(im.getConfig().userThreshold, juce::dontSendNotification);
         thresholdSlider.onValueChange = [this]() {
             auto conf = inputManager.getConfig();
             conf.userThreshold = (float)thresholdSlider.getValue();
@@ -240,31 +268,26 @@ public:
         addAndMakeVisible(thresholdSlider);
         
         threshLabel.setText("Sensitivity", juce::dontSendNotification);
+        threshLabel.setColour(juce::Label::textColourId, ThemeColours::Silver);
         threshLabel.attachToComponent(&thresholdSlider, true);
         addAndMakeVisible(threshLabel);
 
-        // 5. Channel Detail List
+        // Channel Detail Header
         channelListHeader.setText("Input Channel Details", juce::dontSendNotification);
         channelListHeader.setFont(juce::FontOptions(16.0f, juce::Font::bold));
+        channelListHeader.setColour(juce::Label::textColourId, ThemeColours::Silver);
         addAndMakeVisible(channelListHeader);
         
         viewport.setViewedComponent(&channelPairGrid);
         viewport.setScrollBarsShown(true, false);
         addAndMakeVisible(viewport);
 
-        updateChannelUI(true); // Force refresh initially
+        updateChannelUI(true);
         startTimerHz(30);
-        setSize(700, 900);
     }
     
-    ~SettingsComponent() override
-    {
-         audioSelector->setLookAndFeel(nullptr);
-    }
-
     void paint(juce::Graphics& g) override
     {
-        // Viewportの外側の背景を埋める
         g.fillAll(juce::Colour(0xff151515));
 
         // マスターメーターの描画
@@ -284,7 +307,6 @@ public:
                 g.fillRect(masterMeterRect.withWidth(width));
             }
             
-            // 閾値ライン
             float threshX = masterMeterRect.getX() + masterMeterRect.getWidth() * threshold;
             g.setColour(juce::Colours::white);
             g.drawLine(threshX, masterMeterRect.getY() - 2, threshX, masterMeterRect.getBottom() + 2, 2.0f);
@@ -296,36 +318,27 @@ public:
 
     void resized() override
     {
-        auto area = getLocalBounds().reduced(20);
+        auto area = getLocalBounds().reduced(15);
         
-        // Device Selector (Top)
-        if (audioSelector)
-            audioSelector->setBounds(area.removeFromTop(200));
-            
-        area.removeFromTop(10);
+        // Global Controls
+        globalControlsHeader.setBounds(area.removeFromTop(30));
         
-        // Global Controls (Middle)
-        auto globalArea = area.removeFromTop(120);
-        globalControlsHeader.setBounds(globalArea.removeFromTop(30));
+        auto row1 = area.removeFromTop(35);
+        useCalibrationButton.setBounds(row1.removeFromLeft(180).reduced(3));
+        calibrateButton.setBounds(row1.removeFromLeft(180).reduced(3));
         
-        auto row1 = globalArea.removeFromTop(40);
-        useCalibrationButton.setBounds(row1.removeFromLeft(180).reduced(5));
-        calibrateButton.setBounds(row1.removeFromLeft(180).reduced(5));
+        auto row2 = area.removeFromTop(35);
+        row2.removeFromLeft(90);
+        thresholdSlider.setBounds(row2.reduced(3));
         
-        auto row2 = globalArea.removeFromTop(40);
-        row2.removeFromLeft(100); // offset for label
-        thresholdSlider.setBounds(row2.reduced(5));
-        
-        // Row 3: Master Meter
-        masterMeterRect = globalArea.removeFromTop(30).reduced(100, 5).toFloat();
+        masterMeterRect = area.removeFromTop(25).reduced(90, 3).toFloat();
         
         area.removeFromTop(10);
         
-        // Channel List (Bottom)
+        // Channel List
         channelListHeader.setBounds(area.removeFromTop(30));
         viewport.setBounds(area);
         
-        // ChannelPairGridの幅をViewportの可視領域に合わせる
         channelPairGrid.setSize(viewport.getMaximumVisibleWidth(), channelPairGrid.getHeight());
         channelPairGrid.resized();
     }
@@ -355,7 +368,6 @@ public:
     }
 
 private:
-    std::unique_ptr<juce::AudioDeviceSelectorComponent> audioSelector;
     juce::Label globalControlsHeader;
     juce::TextButton useCalibrationButton;
     juce::TextButton calibrateButton;
@@ -367,9 +379,49 @@ private:
     juce::Viewport viewport;
     ChannelPairGridContainer channelPairGrid;
     
-    juce::LookAndFeel_V4 darkLAF;
     InputManager& inputManager;
     juce::AudioDeviceManager& deviceManager;
+};
+
+// =====================================================
+// SettingsComponent（タブ形式）
+// =====================================================
+class SettingsComponent : public juce::Component
+{
+public:
+    SettingsComponent(juce::AudioDeviceManager& dm, InputManager& im)
+        : tabs(juce::TabbedButtonBar::TabsAtTop)
+    {
+        // ダークテーマ適用
+        darkLAF.setColourScheme(juce::LookAndFeel_V4::getMidnightColourScheme());
+        tabs.setLookAndFeel(&darkLAF);
+        
+        // タブカラー設定
+        tabs.setColour(juce::TabbedComponent::backgroundColourId, juce::Colour(0xff151515));
+        tabs.setColour(juce::TabbedComponent::outlineColourId, juce::Colours::transparentBlack);
+        
+        // タブ追加
+        tabs.addTab("Device", juce::Colour(0xff1a1a1a), new DeviceTabContent(dm), true);
+        tabs.addTab("Trigger", juce::Colour(0xff1a1a1a), new TriggerTabContent(dm, im), true);
+        
+        addAndMakeVisible(tabs);
+        setSize(650, 600);
+    }
+    
+    ~SettingsComponent() override
+    {
+        tabs.setLookAndFeel(nullptr);
+    }
+
+    void resized() override
+    {
+        tabs.setBounds(getLocalBounds());
+    }
+
+private:
+    juce::TabbedComponent tabs;
+    juce::LookAndFeel_V4 darkLAF;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SettingsComponent)
 };
+
