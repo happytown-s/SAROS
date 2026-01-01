@@ -5,28 +5,21 @@
 #include "ThemeColours.h"
 
 // =====================================================
-// 個別チャンネル設定行コンポーネント
+// 個別チャンネル設定カードコンポーネント（縦型コンパクト）
 // =====================================================
-class ChannelSettingRow : public juce::Component
+class ChannelSettingCard : public juce::Component
 {
 public:
-    ChannelSettingRow(int chIndex, InputManager& im) 
+    ChannelSettingCard(int chIndex, InputManager& im) 
         : index(chIndex), inputManager(im)
     {
         auto& settings = im.getChannelManager().getSettings(chIndex);
         
-        // Ch Label
-        label.setText("CH " + juce::String(chIndex + 1), juce::dontSendNotification);
-        label.setFont(juce::FontOptions(13.0f, juce::Font::bold));
-        label.setColour(juce::Label::textColourId, ThemeColours::Silver);
-        addAndMakeVisible(label);
-        
-        // Active Toggle
-        activeToggle.setButtonText("ACTIVE");
+        // Active Toggle（小さいトグル）
         activeToggle.setClickingTogglesState(true);
         activeToggle.setToggleState(settings.isActive, juce::dontSendNotification);
+        activeToggle.setColour(juce::TextButton::buttonColourId, juce::Colours::darkgrey.darker());
         activeToggle.setColour(juce::TextButton::buttonOnColourId, ThemeColours::NeonCyan);
-        activeToggle.setColour(juce::TextButton::textColourOnId, juce::Colours::black);
         activeToggle.onClick = [this, &settings]() {
             settings.isActive = activeToggle.getToggleState();
         };
@@ -35,15 +28,14 @@ public:
         // Stereo Link Toggle (Even channels only)
         if (chIndex % 2 == 0)
         {
-            linkToggle.setButtonText("LINK");
+            linkToggle.setButtonText("L");
             linkToggle.setClickingTogglesState(true);
             linkToggle.setToggleState(settings.isStereoLinked, juce::dontSendNotification);
+            linkToggle.setColour(juce::TextButton::buttonColourId, juce::Colours::darkgrey.darker());
             linkToggle.setColour(juce::TextButton::buttonOnColourId, ThemeColours::NeonMagenta);
-            linkToggle.setColour(juce::TextButton::textColourOnId, juce::Colours::black);
             linkToggle.onClick = [this, &settings, chIndex]() {
                 bool linked = linkToggle.getToggleState();
                 settings.isStereoLinked = linked;
-                // ペアのもう片方にも反映（ロジック上の都合）
                 if (chIndex + 1 < inputManager.getNumChannels())
                     inputManager.getChannelManager().getSettings(chIndex + 1).isStereoLinked = linked;
             };
@@ -55,82 +47,102 @@ public:
     {
         auto bounds = getLocalBounds().reduced(2);
         
-        // チャンネルごとの背景
+        // カード背景
         g.setColour(juce::Colour(0xff1a1a1a));
         g.fillRoundedRectangle(bounds.toFloat(), 4.0f);
         
-        // メーター
-        auto meterArea = getLocalBounds().removeFromRight(150).reduced(10, 12);
+        // チャンネル番号
+        g.setColour(ThemeColours::Silver);
+        g.setFont(juce::FontOptions(11.0f, juce::Font::bold));
+        g.drawText(juce::String(index + 1), bounds.removeFromTop(16), juce::Justification::centred);
+        
+        // 縦型メーター（カード中央）
+        auto meterArea = bounds.reduced(8, 4);
+        meterArea = meterArea.removeFromTop(meterArea.getHeight() - 24);
+        
         g.setColour(juce::Colours::black);
         g.fillRect(meterArea);
         
         float level = inputManager.getChannelLevel(index);
-        float width = meterArea.getWidth() * juce::jlimit(0.0f, 1.0f, level);
+        int meterHeight = (int)(meterArea.getHeight() * juce::jlimit(0.0f, 1.0f, level));
         
-        if (width > 0)
+        if (meterHeight > 0)
         {
             auto& settings = inputManager.getChannelManager().getSettings(index);
             bool isTriggering = level > settings.getEffectiveThreshold();
             
             g.setColour(isTriggering ? ThemeColours::RecordingRed : ThemeColours::NeonCyan);
-            g.fillRect(meterArea.withWidth(width).toFloat());
+            g.fillRect(meterArea.getX(), meterArea.getBottom() - meterHeight, 
+                       meterArea.getWidth(), meterHeight);
         }
         
-        g.setColour(juce::Colours::white.withAlpha(0.1f));
-        g.drawRect(meterArea, 1.0f);
+        g.setColour(juce::Colours::white.withAlpha(0.15f));
+        g.drawRect(meterArea, 1);
     }
     
     void resized() override
     {
-        auto area = getLocalBounds().reduced(5);
-        label.setBounds(area.removeFromLeft(50));
-        activeToggle.setBounds(area.removeFromLeft(70).reduced(2));
+        auto area = getLocalBounds().reduced(2);
+        area.removeFromTop(16); // ch番号のスペース
+        area = area.removeFromBottom(24).reduced(2);
+        
+        int btnWidth = (getWidth() - 8) / 2;
+        activeToggle.setBounds(area.removeFromLeft(btnWidth).reduced(1));
         
         if (index % 2 == 0)
-            linkToggle.setBounds(area.removeFromLeft(60).reduced(2));
+            linkToggle.setBounds(area.removeFromLeft(btnWidth).reduced(1));
     }
 
 private:
     int index;
     InputManager& inputManager;
-    juce::Label label;
     juce::TextButton activeToggle;
     juce::TextButton linkToggle;
 };
 
 // =====================================================
-// チャンネルリストコンテナ
+// チャンネルグリッドコンテナ（横並び）
 // =====================================================
-class ChannelListContainer : public juce::Component
+class ChannelGridContainer : public juce::Component
 {
 public:
-    ChannelListContainer(InputManager& im) : inputManager(im) {}
+    ChannelGridContainer(InputManager& im) : inputManager(im) {}
     
     void refresh()
     {
-        rows.clear();
+        cards.clear();
         int numCh = inputManager.getNumChannels();
         for (int i = 0; i < numCh; ++i)
         {
-            auto row = std::make_unique<ChannelSettingRow>(i, inputManager);
-            addAndMakeVisible(*row);
-            rows.add(std::move(row));
+            auto card = std::make_unique<ChannelSettingCard>(i, inputManager);
+            addAndMakeVisible(*card);
+            cards.add(std::move(card));
         }
         resized();
     }
     
     void resized() override
     {
-        int rowHeight = 40;
-        for (int i = 0; i < rows.size(); ++i)
-            rows[i]->setBounds(0, i * rowHeight, getWidth(), rowHeight);
+        if (cards.isEmpty()) return;
         
-        setSize(getWidth(), rows.size() * rowHeight);
+        int cardWidth = 55;
+        int cardHeight = 90;
+        int cols = juce::jmax(1, getWidth() / cardWidth);
+        int numRows = (cards.size() + cols - 1) / cols;
+        
+        for (int i = 0; i < cards.size(); ++i)
+        {
+            int col = i % cols;
+            int row = i / cols;
+            cards[i]->setBounds(col * cardWidth, row * cardHeight, cardWidth, cardHeight);
+        }
+        
+        setSize(getWidth(), numRows * cardHeight);
     }
 
 private:
     InputManager& inputManager;
-    juce::OwnedArray<ChannelSettingRow> rows;
+    juce::OwnedArray<ChannelSettingCard> cards;
 };
 
 // =====================================================
@@ -140,7 +152,7 @@ class SettingsComponent : public juce::Component, public juce::Timer
 {
 public:
     SettingsComponent(juce::AudioDeviceManager& dm, InputManager& im)
-        : inputManager(im), deviceManager(dm), channelList(im)
+        : inputManager(im), deviceManager(dm), channelGrid(im)
     {
         // Apply Dark Theme
         darkLAF.setColourScheme(juce::LookAndFeel_V4::getMidnightColourScheme());
@@ -199,7 +211,7 @@ public:
         channelListHeader.setFont(juce::FontOptions(16.0f, juce::Font::bold));
         addAndMakeVisible(channelListHeader);
         
-        viewport.setViewedComponent(&channelList);
+        viewport.setViewedComponent(&channelGrid);
         viewport.setScrollBarsShown(true, false);
         addAndMakeVisible(viewport);
 
@@ -276,9 +288,9 @@ public:
         channelListHeader.setBounds(area.removeFromTop(30));
         viewport.setBounds(area);
         
-        // ChannelListの幅をViewportの可視領域に合わせる
-        channelList.setSize(viewport.getMaximumVisibleWidth(), channelList.getHeight());
-        channelList.resized();
+        // ChannelGridの幅をViewportの可視領域に合わせる
+        channelGrid.setSize(viewport.getMaximumVisibleWidth(), channelGrid.getHeight());
+        channelGrid.resized();
     }
     
     void timerCallback() override
@@ -300,7 +312,7 @@ public:
             if (forceRefresh || inputManager.getNumChannels() != numInputChannels)
             {
                 inputManager.setNumChannels(numInputChannels);
-                channelList.refresh();
+                channelGrid.refresh();
             }
         }
     }
@@ -316,7 +328,7 @@ private:
     
     juce::Label channelListHeader;
     juce::Viewport viewport;
-    ChannelListContainer channelList;
+    ChannelGridContainer channelGrid;
     
     juce::LookAndFeel_V4 darkLAF;
     InputManager& inputManager;
