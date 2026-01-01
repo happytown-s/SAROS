@@ -1,35 +1,22 @@
-# マルチチャンネル入力トリガーシステム実装タスク
+# 16チャンネル対応と個別ステレオリンク実装タスク
 
-## Phase 1: データ構造
-
-- [x] `ChannelTriggerSettings.h` 新規作成
-- [x] `SmartRecConfig` に新しい設定項目を追加
+## Phase 1: データ構造の拡張 (16ch & 個別リンク)
+- [x] `ChannelTriggerSettings.h` の `MAX_CHANNELS` を 16 に定義
+- [x] `MultiChannelTriggerManager` の `setNumChannels` 制限緩和
 
 ## Phase 2: InputManager 改修
+- [x] `InputManager.h` の配列サイズを 16 に拡張
+- [x] `InputManager.cpp` のゲインブースト判定を個別設定参照に変更
+- [x] 多チャンネルトリガー検出ロジックの動作確認
 
-- [x] `InputManager.h` にチャンネル設定管理を追加
-- [x] マルチチャンネル対応の `analyze` メソッド実装
-- [x] モノラルモード時のゲインブースト処理
-- [x] キャリブレーション機能実装
+## Phase 3: SettingsComponent UI刷新
+- [x] `juce::Viewport` によるスクロール可能なチャンネルリストの実装
+- [x] `ChannelSettingRow` による個別設定（Active/Link/Meter）の実装
+- [x] 最大16チャンネル表示時のレイアウト最適化
 
-## Phase 3: AudioInputBuffer 拡張
+## Phase 4: 設定の永続化
+- [x] 個別の設定がJSONに保存・復元されることを確認（既存ロジックで対応）
 
-- [x] マルチチャンネル対応のリングバッファ
-- [x] チャンネルごとの閾値によるトランジェント検出
-
-## Phase 4: SettingsComponent UI改修
-
-- [x] チャンネル情報表示
-- [x] モノ/ステレオ切替UI
-- [x] キャリブレーションボタン
-- [x] キャリブレーションON/OFF切替
-
-## Phase 5: 設定の永続化
-
-- [x] チャンネル設定のJSON形式定義
-- [x] MainComponent での保存/読み込み実装
-
-## Phase 6: 検証
-
-- [x] ビルド確認
-- [ ] 動作確認（ユーザー側）
+## Phase 5: 検証
+- [x] ビルド成功確認
+- [ ] 16ch等の多チャンネル環境での実機確認（ユーザー側）

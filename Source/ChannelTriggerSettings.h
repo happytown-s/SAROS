@@ -13,6 +13,8 @@
 #pragma once
 #include <juce_core/juce_core.h>
 
+#define MAX_CHANNELS 16
+
 // =====================================================
 // チャンネルごとのトリガー設定
 // =====================================================
@@ -93,7 +95,7 @@ public:
     // チャンネル数を設定（デバイス変更時に呼び出す）
     void setNumChannels(int numChannels)
     {
-        jassert(numChannels >= 0 && numChannels <= 8);
+        jassert(numChannels >= 0 && numChannels <= MAX_CHANNELS);
         channelSettings.resize(static_cast<size_t>(numChannels));
         this->numChannels = numChannels;
     }

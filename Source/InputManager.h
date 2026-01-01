@@ -121,18 +121,16 @@ public:
     
     float getCurrentLevel() const { return currentLevel.load(); }
     
-    // チャンネルごとのレベル取得（最大8ch）
+    // チャンネルごとのレベル取得（最大16ch）
     float getChannelLevel(int channel) const
     {
         if (channel >= 0 && channel < MAX_CHANNELS)
             return channelLevels[static_cast<size_t>(channel)].load();
         return 0.0f;
     }
-    
-    static constexpr int MAX_CHANNELS = 8;
 
 private:
     std::atomic<float> currentLevel { 0.0f };
-    std::array<std::atomic<float>, 8> channelLevels {};  // チャンネルごとのレベル（最大8ch）
+    std::array<std::atomic<float>, MAX_CHANNELS> channelLevels {};  // チャンネルごとのレベル
 };
 

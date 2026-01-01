@@ -66,7 +66,7 @@ void InputManager::analyze(const juce::AudioBuffer<float>& input)
         }
         
         // ステレオリンクOFF（モノラルモード）の場合、ゲインブーストを適用
-        if (channelManager.getNumChannels() > 0 && !channelManager.isStereoLinked())
+        if (ch < channelManager.getNumChannels() && !channelManager.getSettings(ch).isStereoLinked)
         {
             chMax *= ChannelTriggerSettings::getMonoGainBoostLinear();
         }

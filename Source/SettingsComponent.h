@@ -4,284 +4,285 @@
 #include "InputManager.h"
 #include "ThemeColours.h"
 
+// =====================================================
+// 個別チャンネル設定行コンポーネント
+// =====================================================
+class ChannelSettingRow : public juce::Component
+{
+public:
+    ChannelSettingRow(int chIndex, InputManager& im) 
+        : index(chIndex), inputManager(im)
+    {
+        auto& settings = im.getChannelManager().getSettings(chIndex);
+        
+        // Ch Label
+        label.setText("CH " + juce::String(chIndex + 1), juce::dontSendNotification);
+        label.setFont(juce::FontOptions(13.0f, juce::Font::bold));
+        label.setColour(juce::Label::textColourId, ThemeColours::Silver);
+        addAndMakeVisible(label);
+        
+        // Active Toggle
+        activeToggle.setButtonText("ACTIVE");
+        activeToggle.setClickingTogglesState(true);
+        activeToggle.setToggleState(settings.isActive, juce::dontSendNotification);
+        activeToggle.setColour(juce::TextButton::buttonOnColourId, ThemeColours::NeonCyan);
+        activeToggle.setColour(juce::TextButton::textColourOnId, juce::Colours::black);
+        activeToggle.onClick = [this, &settings]() {
+            settings.isActive = activeToggle.getToggleState();
+        };
+        addAndMakeVisible(activeToggle);
+        
+        // Stereo Link Toggle (Even channels only)
+        if (chIndex % 2 == 0)
+        {
+            linkToggle.setButtonText("LINK");
+            linkToggle.setClickingTogglesState(true);
+            linkToggle.setToggleState(settings.isStereoLinked, juce::dontSendNotification);
+            linkToggle.setColour(juce::TextButton::buttonOnColourId, ThemeColours::NeonMagenta);
+            linkToggle.setColour(juce::TextButton::textColourOnId, juce::Colours::black);
+            linkToggle.onClick = [this, &settings, chIndex]() {
+                bool linked = linkToggle.getToggleState();
+                settings.isStereoLinked = linked;
+                // ペアのもう片方にも反映（ロジック上の都合）
+                if (chIndex + 1 < inputManager.getNumChannels())
+                    inputManager.getChannelManager().getSettings(chIndex + 1).isStereoLinked = linked;
+            };
+            addAndMakeVisible(linkToggle);
+        }
+    }
+    
+    void paint(juce::Graphics& g) override
+    {
+        auto bounds = getLocalBounds().reduced(2);
+        
+        // チャンネルごとの背景
+        g.setColour(juce::Colour(0xff1a1a1a));
+        g.fillRoundedRectangle(bounds.toFloat(), 4.0f);
+        
+        // メーター
+        auto meterArea = getLocalBounds().removeFromRight(150).reduced(10, 12);
+        g.setColour(juce::Colours::black);
+        g.fillRect(meterArea);
+        
+        float level = inputManager.getChannelLevel(index);
+        float width = meterArea.getWidth() * juce::jlimit(0.0f, 1.0f, level);
+        
+        if (width > 0)
+        {
+            auto& settings = inputManager.getChannelManager().getSettings(index);
+            bool isTriggering = level > settings.getEffectiveThreshold();
+            
+            g.setColour(isTriggering ? ThemeColours::RecordingRed : ThemeColours::NeonCyan);
+            g.fillRect(meterArea.withWidth(width).toFloat());
+        }
+        
+        g.setColour(juce::Colours::white.withAlpha(0.1f));
+        g.drawRect(meterArea, 1.0f);
+    }
+    
+    void resized() override
+    {
+        auto area = getLocalBounds().reduced(5);
+        label.setBounds(area.removeFromLeft(50));
+        activeToggle.setBounds(area.removeFromLeft(70).reduced(2));
+        
+        if (index % 2 == 0)
+            linkToggle.setBounds(area.removeFromLeft(60).reduced(2));
+    }
+
+private:
+    int index;
+    InputManager& inputManager;
+    juce::Label label;
+    juce::TextButton activeToggle;
+    juce::TextButton linkToggle;
+};
+
+// =====================================================
+// チャンネルリストコンテナ
+// =====================================================
+class ChannelListContainer : public juce::Component
+{
+public:
+    ChannelListContainer(InputManager& im) : inputManager(im) {}
+    
+    void refresh()
+    {
+        rows.clear();
+        int numCh = inputManager.getNumChannels();
+        for (int i = 0; i < numCh; ++i)
+        {
+            auto row = std::make_unique<ChannelSettingRow>(i, inputManager);
+            addAndMakeVisible(*row);
+            rows.add(std::move(row));
+        }
+        resized();
+    }
+    
+    void resized() override
+    {
+        int rowHeight = 40;
+        for (int i = 0; i < rows.size(); ++i)
+            rows[i]->setBounds(0, i * rowHeight, getWidth(), rowHeight);
+        
+        setSize(getWidth(), rows.size() * rowHeight);
+    }
+
+private:
+    InputManager& inputManager;
+    juce::OwnedArray<ChannelSettingRow> rows;
+};
+
+// =====================================================
+// SettingsComponent
+// =====================================
 class SettingsComponent : public juce::Component, public juce::Timer
 {
 public:
     SettingsComponent(juce::AudioDeviceManager& dm, InputManager& im)
-        : inputManager(im), deviceManager(dm)
+        : inputManager(im), deviceManager(dm), channelList(im)
     {
         // Apply Dark Theme
         darkLAF.setColourScheme(juce::LookAndFeel_V4::getMidnightColourScheme());
         
         // 1. Audio Device Selector
         audioSelector.reset(new juce::AudioDeviceSelectorComponent(dm,
-                                                                   0, 8,   // min/max input（8chまで対応）
-                                                                   0, 2,   // min/max output
+                                                                   0, MAX_CHANNELS,
+                                                                   0, 2,
                                                                    false, false,
                                                                    true, true));
         audioSelector->setLookAndFeel(&darkLAF);
         addAndMakeVisible(audioSelector.get());
 
-        // 2. チャンネル情報ラベル
-        channelInfoLabel.setColour(juce::Label::textColourId, ThemeColours::Silver);
-        channelInfoLabel.setFont(juce::FontOptions(14.0f));
-        addAndMakeVisible(channelInfoLabel);
+        // 2. Global Controls Header
+        globalControlsHeader.setText("Global Trigger Settings", juce::dontSendNotification);
+        globalControlsHeader.setFont(juce::FontOptions(16.0f, juce::Font::bold));
+        addAndMakeVisible(globalControlsHeader);
         
-        // 3. ステレオ/モノ切替
-        stereoModeButton.setButtonText("Stereo Linked");
-        stereoModeButton.setClickingTogglesState(true);
-        stereoModeButton.setToggleState(true, juce::dontSendNotification);
-        stereoModeButton.setColour(juce::TextButton::buttonColourId, juce::Colours::darkgrey);
-        stereoModeButton.setColour(juce::TextButton::buttonOnColourId, ThemeColours::NeonCyan);
-        stereoModeButton.onClick = [this]() {
-            bool isStereo = stereoModeButton.getToggleState();
-            stereoModeButton.setButtonText(isStereo ? "Stereo Linked" : "Mono (L/R Separate)");
-            inputManager.setStereoLinked(isStereo);
-        };
-        addAndMakeVisible(stereoModeButton);
-        
-        // 4. キャリブレーションボタン
-        calibrateButton.setButtonText("Calibrate");
-        calibrateButton.setColour(juce::TextButton::buttonColourId, juce::Colours::darkgrey);
-        calibrateButton.onClick = [this]() {
-            if (inputManager.isCalibrating())
-            {
-                inputManager.stopCalibration();
-                calibrateButton.setButtonText("Calibrate");
-            }
-            else
-            {
-                inputManager.startCalibration();
-                calibrateButton.setButtonText("Stop (2s)");
-            }
-        };
-        addAndMakeVisible(calibrateButton);
-        
-        // 5. キャリブレーションON/OFF
-        useCalibrationButton.setButtonText("Use Calibration");
+        // 3. Calibration Controls
+        useCalibrationButton.setButtonText("Use Auto Calibration");
         useCalibrationButton.setClickingTogglesState(true);
-        useCalibrationButton.setToggleState(true, juce::dontSendNotification);
-        useCalibrationButton.setColour(juce::TextButton::buttonColourId, juce::Colours::darkgrey);
+        useCalibrationButton.setToggleState(im.isCalibrationEnabled(), juce::dontSendNotification);
         useCalibrationButton.setColour(juce::TextButton::buttonOnColourId, ThemeColours::PlayingGreen);
         useCalibrationButton.onClick = [this]() {
-            bool useCalib = useCalibrationButton.getToggleState();
-            inputManager.setCalibrationEnabled(useCalib);
-            useCalibrationButton.setButtonText(useCalib ? "Use Calibration" : "Calibration OFF");
+            inputManager.setCalibrationEnabled(useCalibrationButton.getToggleState());
         };
         addAndMakeVisible(useCalibrationButton);
         
-        // 6. Threshold Slider
+        calibrateButton.setButtonText("Run Calibration (2s)");
+        calibrateButton.onClick = [this]() {
+            if (!inputManager.isCalibrating()) inputManager.startCalibration();
+        };
+        addAndMakeVisible(calibrateButton);
+        
+        // 4. Threshold Slider
         thresholdSlider.setSliderStyle(juce::Slider::LinearHorizontal);
         thresholdSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
         thresholdSlider.setRange(0.001, 1.0, 0.001); 
         thresholdSlider.setSkewFactorFromMidPoint(0.1);
-        thresholdSlider.setColour(juce::Slider::trackColourId, juce::Colours::grey);
         thresholdSlider.setColour(juce::Slider::thumbColourId, ThemeColours::NeonCyan);
-        
-        // Initial config
-        float currentThresh = im.getConfig().userThreshold;
-        thresholdSlider.setValue(currentThresh, juce::dontSendNotification);
-        
+        thresholdSlider.setValue(inputManager.getConfig().userThreshold, juce::dontSendNotification);
         thresholdSlider.onValueChange = [this]() {
             auto conf = inputManager.getConfig();
             conf.userThreshold = (float)thresholdSlider.getValue();
             inputManager.setConfig(conf);
-            // 全チャンネルに閾値を設定
             inputManager.getChannelManager().setGlobalThreshold((float)thresholdSlider.getValue());
         };
         addAndMakeVisible(thresholdSlider);
-
-        // Label
-        threshLabel.setText("Trigger Threshold", juce::dontSendNotification);
+        
+        threshLabel.setText("Sensitivity", juce::dontSendNotification);
         threshLabel.attachToComponent(&thresholdSlider, true);
-        threshLabel.setJustificationType(juce::Justification::right);
-        threshLabel.setColour(juce::Label::textColourId, juce::Colours::white);
         addAndMakeVisible(threshLabel);
 
-        startTimerHz(60); // Animation rate
-        setSize(600, 600);
+        // 5. Channel Detail List
+        channelListHeader.setText("Input Channel Details", juce::dontSendNotification);
+        channelListHeader.setFont(juce::FontOptions(16.0f, juce::Font::bold));
+        addAndMakeVisible(channelListHeader);
+        
+        viewport.setViewedComponent(&channelList);
+        viewport.setScrollBarsShown(true, false);
+        addAndMakeVisible(viewport);
+
+        updateChannelUI();
+        startTimerHz(30);
+        setSize(700, 750);
     }
     
     ~SettingsComponent() override
     {
-         audioSelector->setLookAndFeel(nullptr); // clear before destruction
+         audioSelector->setLookAndFeel(nullptr);
     }
 
     void resized() override
     {
         auto area = getLocalBounds().reduced(20);
-
+        
+        // Device Selector (Top)
         if (audioSelector)
-            audioSelector->setBounds(area.removeFromTop(280));
-
-        area.removeFromTop(15);
-
-        // チャンネル情報行
-        auto infoRow = area.removeFromTop(30);
-        channelInfoLabel.setBounds(infoRow.removeFromLeft(200));
-        stereoModeButton.setBounds(infoRow.removeFromLeft(150).reduced(5, 0));
+            audioSelector->setBounds(area.removeFromTop(250));
+            
+        area.removeFromTop(10);
+        
+        // Global Controls (Middle)
+        auto globalArea = area.removeFromTop(120);
+        globalControlsHeader.setBounds(globalArea.removeFromTop(30));
+        
+        auto row1 = globalArea.removeFromTop(40);
+        useCalibrationButton.setBounds(row1.removeFromLeft(180).reduced(5));
+        calibrateButton.setBounds(row1.removeFromLeft(180).reduced(5));
+        
+        auto row2 = globalArea.removeFromTop(40);
+        row2.removeFromLeft(100); // offset for label
+        thresholdSlider.setBounds(row2.reduced(5));
         
         area.removeFromTop(10);
         
-        // キャリブレーション行
-        auto calibRow = area.removeFromTop(35);
-        useCalibrationButton.setBounds(calibRow.removeFromLeft(150).reduced(5, 0));
-        calibrateButton.setBounds(calibRow.removeFromLeft(100).reduced(5, 0));
-
-        area.removeFromTop(10);
-
-        // Slider
-        auto sliderArea = area.removeFromTop(40);
-        thresholdSlider.setBounds(sliderArea.reduced(20, 0).removeFromRight(350));
+        // Channel List (Bottom)
+        channelListHeader.setBounds(area.removeFromTop(30));
+        viewport.setBounds(area);
         
-        // Meter Area is drawn in paint below the slider
+        channelList.resized();
     }
     
     void timerCallback() override
     {
-        // チャンネル情報を更新
-        updateChannelInfo();
-        
-        // キャリブレーション状態を更新
         if (inputManager.isCalibrating())
-        {
-            calibrateButton.setButtonText("Measuring...");
-        }
-        else if (calibrateButton.getButtonText() == "Measuring...")
-        {
-            calibrateButton.setButtonText("Calibrate");
-        }
-        
+            calibrateButton.setButtonText("Calibrating...");
+        else
+            calibrateButton.setButtonText("Run Calibration (2s)");
+            
+        updateChannelUI();
         repaint();
     }
     
-    void updateChannelInfo()
+    void updateChannelUI()
     {
         if (auto* device = deviceManager.getCurrentAudioDevice())
         {
             int numInputChannels = device->getActiveInputChannels().countNumberOfSetBits();
-            channelInfoLabel.setText("Input Channels: " + juce::String(numInputChannels), 
-                                     juce::dontSendNotification);
-            
-            // InputManagerにチャンネル数を設定
             if (inputManager.getNumChannels() != numInputChannels)
             {
                 inputManager.setNumChannels(numInputChannels);
+                channelList.refresh();
             }
-        }
-        else
-        {
-            channelInfoLabel.setText("Input Channels: --", juce::dontSendNotification);
-        }
-    }
-    
-    void paint(juce::Graphics& g) override
-    {
-        // Dark Background for the whole panel
-        g.fillAll(juce::Colour(0xff151515)); 
-
-        // Draw Meter below slider
-        juce::Rectangle<float> meterRect(150, 460, 350, 24);
-        
-        // 1. Meter Channel Background (Deep indented look)
-        g.setColour(juce::Colour(0xff0a0a0a));
-        g.fillRect(meterRect);
-        g.setColour(juce::Colours::white.withAlpha(0.1f));
-        g.drawRect(meterRect, 1.0f);
-        
-        // Get Levels
-        float currentLevel = inputManager.getCurrentLevel();
-        float threshold = (float)thresholdSlider.getValue();
-        
-        // 2. Calculate Meter Width
-        float normalizedLevel = juce::jlimit(0.0f, 1.0f, currentLevel);
-        float meterWidth = meterRect.getWidth() * normalizedLevel;
-        
-        juce::Rectangle<float> barRect = meterRect.withWidth(meterWidth);
-        
-        // 3. Futuristic Gradient Fill
-        if (meterWidth > 0)
-        {
-            bool isTriggering = currentLevel > threshold;
-            
-            juce::ColourGradient gradient(ThemeColours::NeonCyan, meterRect.getX(), meterRect.getY(),
-                                          isTriggering ? ThemeColours::RecordingRed : ThemeColours::NeonMagenta, 
-                                          meterRect.getRight(), meterRect.getY(), false);
-            
-            // Add intermediate color for richness
-            gradient.addColour(0.5, ThemeColours::ElectricBlue);
-            
-            g.setGradientFill(gradient);
-            g.fillRect(barRect);
-        }
-
-        // 4. Grid Lines (Digital Look)
-        g.setColour(juce::Colours::black.withAlpha(0.5f));
-        for (int i = 1; i < 20; ++i)
-        {
-            float x = meterRect.getX() + meterRect.getWidth() * (i / 20.0f);
-            g.drawLine(x, meterRect.getY(), x, meterRect.getBottom(), 1.0f);
-        }
-
-        // 5. Draw Threshold Line (Bright & Clear)
-        float threshX = meterRect.getX() + meterRect.getWidth() * threshold;
-        g.setColour(juce::Colours::white);
-        g.drawLine(threshX, meterRect.getY() - 4, threshX, meterRect.getBottom() + 4, 3.0f);
-        
-        // 6. キャリブレーション状態表示
-        if (inputManager.isCalibrating())
-        {
-            g.setColour(ThemeColours::ElectricBlue.withAlpha(0.8f));
-            g.drawRect(meterRect.expanded(3), 2.0f);
-            g.setFont(juce::Font(juce::FontOptions("Arial", 12.0f, juce::Font::plain)));
-            g.drawText("CALIBRATING...", meterRect.getRight() + 10, meterRect.getY(), 120, 24, juce::Justification::left);
-        }
-        
-        // モノラルモード表示
-        if (!inputManager.isStereoLinked())
-        {
-            g.setColour(ThemeColours::NeonMagenta);
-            g.setFont(juce::Font(juce::FontOptions("Arial", 10.0f, juce::Font::plain)));
-            g.drawText("+3dB Boost", meterRect.getX(), meterRect.getBottom() + 5, 80, 16, juce::Justification::left);
-        }
-        
-        // 7. Peak Hold / Trigger Indicator
-        bool isTriggering = currentLevel > threshold;
-        if (isTriggering && !inputManager.isCalibrating())
-        {
-            // Flash Effect Frame
-            g.setColour(ThemeColours::RecordingRed.withAlpha(0.8f));
-            g.drawRect(meterRect.expanded(3), 2.0f);
-            
-            // Text Warning
-            g.setColour(ThemeColours::RecordingRed);
-            g.setFont(juce::Font(juce::FontOptions("Arial", 14.0f, juce::Font::bold)));
-            g.drawText("TRIGGER", meterRect.getRight() + 10, meterRect.getY(), 80, 24, juce::Justification::left);
-        }
-        
-        // 8. キャリブレーション無効時の表示
-        if (!inputManager.isCalibrationEnabled())
-        {
-            g.setColour(juce::Colours::orange);
-            g.setFont(juce::Font(juce::FontOptions("Arial", 10.0f, juce::Font::plain)));
-            g.drawText("Gate Open (No Calibration)", meterRect.getX(), meterRect.getY() - 18, 200, 16, juce::Justification::left);
         }
     }
 
 private:
     std::unique_ptr<juce::AudioDeviceSelectorComponent> audioSelector;
+    juce::Label globalControlsHeader;
+    juce::TextButton useCalibrationButton;
+    juce::TextButton calibrateButton;
     juce::Slider thresholdSlider;
     juce::Label threshLabel;
-    juce::Label channelInfoLabel;
-    juce::TextButton stereoModeButton;
-    juce::TextButton calibrateButton;
-    juce::TextButton useCalibrationButton;
+    
+    juce::Label channelListHeader;
+    juce::Viewport viewport;
+    ChannelListContainer channelList;
     
     juce::LookAndFeel_V4 darkLAF;
-    
     InputManager& inputManager;
     juce::AudioDeviceManager& deviceManager;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SettingsComponent)
 };
-
