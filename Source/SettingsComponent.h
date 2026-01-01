@@ -213,6 +213,38 @@ public:
          audioSelector->setLookAndFeel(nullptr);
     }
 
+    void paint(juce::Graphics& g) override
+    {
+        // Viewportの外側の背景を埋める
+        g.fillAll(juce::Colour(0xff151515));
+
+        // マスターメーターの描画
+        if (!masterMeterRect.isEmpty())
+        {
+            g.setColour(juce::Colours::black);
+            g.fillRect(masterMeterRect);
+            
+            float level = inputManager.getCurrentLevel();
+            float threshold = (float)thresholdSlider.getValue();
+            float width = masterMeterRect.getWidth() * juce::jlimit(0.0f, 1.0f, level);
+            
+            if (width > 0)
+            {
+                bool isTriggering = level > threshold;
+                g.setColour(isTriggering ? ThemeColours::RecordingRed : ThemeColours::NeonCyan);
+                g.fillRect(masterMeterRect.withWidth(width));
+            }
+            
+            // 閾値ライン
+            float threshX = masterMeterRect.getX() + masterMeterRect.getWidth() * threshold;
+            g.setColour(juce::Colours::white);
+            g.drawLine(threshX, masterMeterRect.getY() - 2, threshX, masterMeterRect.getBottom() + 2, 2.0f);
+            
+            g.setColour(juce::Colours::white.withAlpha(0.2f));
+            g.drawRect(masterMeterRect, 1.0f);
+        }
+    }
+
     void resized() override
     {
         auto area = getLocalBounds().reduced(20);
@@ -224,7 +256,7 @@ public:
         area.removeFromTop(10);
         
         // Global Controls (Middle)
-        auto globalArea = area.removeFromTop(120);
+        auto globalArea = area.removeFromTop(150);
         globalControlsHeader.setBounds(globalArea.removeFromTop(30));
         
         auto row1 = globalArea.removeFromTop(40);
@@ -234,6 +266,9 @@ public:
         auto row2 = globalArea.removeFromTop(40);
         row2.removeFromLeft(100); // offset for label
         thresholdSlider.setBounds(row2.reduced(5));
+        
+        // Row 3: Master Meter
+        masterMeterRect = globalArea.removeFromTop(30).reduced(100, 5).toFloat();
         
         area.removeFromTop(10);
         
@@ -275,6 +310,7 @@ private:
     juce::TextButton calibrateButton;
     juce::Slider thresholdSlider;
     juce::Label threshLabel;
+    juce::Rectangle<float> masterMeterRect;
     
     juce::Label channelListHeader;
     juce::Viewport viewport;
