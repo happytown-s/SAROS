@@ -517,10 +517,12 @@ private:
     float currentPlayHeadPos = -1.0f;
     
     // ズーム機能用
+    // ズーム機能用
     float zoomScale = 1.0f;           // 1.0 = 通常、>1.0 = ズームイン
     float targetZoomScale = 1.0f;     // スムーズなアニメーション用
     bool isDragging = false;
     juce::Point<float> lastDragPos;
+    float dragVelocityRemaining = 0.0f; 
     
     void mouseDrag(const juce::MouseEvent& e) override
     {
@@ -536,6 +538,12 @@ private:
         targetZoomScale += deltaY * 0.01f;
         // 0.2倍まで縮小可能にして、外側の波形も見えるようにする
         targetZoomScale = juce::jlimit(0.2f, 5.0f, targetZoomScale);
+        
+        // アニメーション制御: ドラッグ量に応じて加速/逆回転
+        // 上ドラッグ(deltaY > 0) -> 拡大 -> 拡散(反対方向) -> 負の力
+        // 下ドラッグ(deltaY < 0) -> 縮小 -> 収束加速(通常方向) -> 正の力
+        // 係数は感度調整
+        dragVelocityRemaining = -deltaY * 5.0f; 
         
         lastDragPos = e.position;
     }
@@ -622,6 +630,10 @@ private:
         float bassLevel = scopeData[0] * 0.5f + scopeData[1] * 0.5f;
         float attractStrength = 0.3f + bassLevel * 0.5f; // 低音に反応して吸引力が強くなる
         
+        // ベースの力 (通常時ゆっくり) + ドラッグによる追加力
+        // dragVelocityRemainingが正なら収束加速、負なら拡散
+        float currentAdditionalForce = dragVelocityRemaining * 0.05f;
+        
         for (int i = 0; i < numParticles; ++i)
         {
             float dist = std::sqrt(particles[i].x * particles[i].x + particles[i].y * particles[i].y);
@@ -632,9 +644,12 @@ private:
                 float dirX = -particles[i].x / dist;
                 float dirY = -particles[i].y / dist;
                 
-                // 優しく加速（イージング効果）- ゆっくりにするため係数を大幅に下げる
-                particles[i].vx += dirX * attractStrength * 0.015f; // 0.1 -> 0.015
-                particles[i].vy += dirY * attractStrength * 0.015f;
+                // 力の合成: 通常引力(正) + 追加力(正or負)
+                // 追加力が強烈な負の場合、全体として負(拡散)になる
+                float totalForce = (attractStrength * 0.015f) + currentAdditionalForce;
+                
+                particles[i].vx += dirX * totalForce;
+                particles[i].vy += dirY * totalForce;
                 
                 // 速度を適用
                 particles[i].x += particles[i].vx;
@@ -645,16 +660,22 @@ private:
                 particles[i].vy *= 0.99f;
             }
             
-            // 中心に到達したらリセット
-            if (dist < 5.0f)
+            // 中心に到達したらリセット (ただし拡散中はリセットしない方が自然かもだが、画面外に出たらリセットしたい)
+            // 拡散中は dist が大きくなるのでここには来ない
+            if (dist < 5.0f && dragVelocityRemaining > -1.0f) // 拡散中は中心リセットを抑制
             {
                 particles[i].life -= 0.1f;
                 particles[i].alpha *= 0.9f;
             }
             
-            if (particles[i].life <= 0 || dist < 2.0f)
+            // 画面外(遠すぎ)に出たらリセット
+            if (particles[i].life <= 0 || dist < 2.0f || dist > juce::jmax(getWidth(), getHeight()) * 1.5f)
                 resetParticle(i);
         }
+        
+        // ドラッグ力の減衰 (慣性)
+        dragVelocityRemaining *= 0.92f;
+        if (std::abs(dragVelocityRemaining) < 0.001f) dragVelocityRemaining = 0.0f;
     }
 
     void drawParticles(juce::Graphics& g, juce::Point<float> centre, float maxRadius)
