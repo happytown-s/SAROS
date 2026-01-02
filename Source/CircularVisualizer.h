@@ -650,11 +650,11 @@ private:
         
         // ベースの力 (通常時ゆっくり) + ドラッグによる追加力
         // dragVelocityRemainingが正なら収束加速、負なら拡散
-        // 拡散時は係数を小さくしてゆっくり広がるようにする
-        float forceMultiplier = (dragVelocityRemaining < 0) ? 0.01f : 0.05f;
+        // 拡散時は係数を小さく、収束時も半分にしてゆっくりに
+        float forceMultiplier = (dragVelocityRemaining < 0) ? 0.02f : 0.025f;
         float currentAdditionalForce = dragVelocityRemaining * forceMultiplier;
         // 極端な値にならないようクランプ
-        currentAdditionalForce = juce::jlimit(-0.3f, 1.5f, currentAdditionalForce);
+        currentAdditionalForce = juce::jlimit(-0.5f, 0.8f, currentAdditionalForce);
         
         // ループ外でキャッシュ（パフォーマンス最適化）
         bool isDiffusing = (dragVelocityRemaining < -0.1f);
