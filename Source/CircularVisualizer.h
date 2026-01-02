@@ -669,6 +669,14 @@ private:
                 particles[i].vx += dirX * totalForce;
                 particles[i].vy += dirY * totalForce;
                 
+                // 速度制限 (描画飛び防止)
+                float speedSq = particles[i].vx * particles[i].vx + particles[i].vy * particles[i].vy;
+                if (speedSq > 2500.0f) { // Max speed 50.0
+                    float scale = 50.0f / std::sqrt(speedSq);
+                    particles[i].vx *= scale;
+                    particles[i].vy *= scale;
+                }
+
                 // 速度を適用
                 particles[i].x += particles[i].vx;
                 particles[i].y += particles[i].vy;
@@ -689,9 +697,9 @@ private:
                     // 中心を通り過ぎて外へ向かっているかチェック (内積 > 0)
                     bool movingAway = (particles[i].x * particles[i].vx + particles[i].y * particles[i].vy) > 0;
                     
-                    // 1. 中心にかなり近づいた (killRadius拡大)
-                    // 2. 中心付近(150px以内)で外向きに移動している (通り過ぎた)
-                    if (dist < 30.0f || (movingAway && dist < 150.0f))
+                    // 外に向かっていたら距離に関係なく即座にリセット (散らばり完全防止)
+                    // または極端に中心に近い場合もリセット
+                    if (movingAway || dist < 30.0f)
                     {
                         resetParticle(i);
                         continue; 
