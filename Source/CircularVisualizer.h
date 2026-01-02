@@ -568,6 +568,9 @@ private:
         // マウスホイールでもズーム
         targetZoomScale += wheel.deltaY * 0.5f;
         targetZoomScale = juce::jlimit(0.2f, 5.0f, targetZoomScale);
+        
+        // ホイール操作もアニメーション連動 (感度高めに)
+        dragVelocityRemaining = -wheel.deltaY * 60.0f;
     }
 
     void drawRotatingRing(juce::Graphics& g, juce::Point<float> centre, float radius, float rotation, float arcLength)
@@ -617,8 +620,19 @@ private:
         if (radiusMax < 100.0f) radiusMax = 400.0f; // 初期化時などサイズ未定時のフォールバック
 
         float angle = juce::Random::getSystemRandom().nextFloat() * juce::MathConstants<float>::twoPi;
-        // 半径もランダムだが、遠くから来るように少しバイアス
-        float startRadius = radiusMax * (0.5f + juce::Random::getSystemRandom().nextFloat() * 0.5f); 
+        
+        float startRadius = 0.0f;
+        
+        // 拡散モード(逆再生)のときは、中心付近から湧き出るようにする
+        if (dragVelocityRemaining < -5.0f) // 閾値
+        {
+             startRadius = juce::Random::getSystemRandom().nextFloat() * 50.0f;
+        }
+        else
+        {
+            // 通常モード: 外周から湧き出る
+            startRadius = radiusMax * (0.5f + juce::Random::getSystemRandom().nextFloat() * 0.5f); 
+        }
         
         particles[i].x = std::cos(angle) * startRadius;
         particles[i].y = std::sin(angle) * startRadius;
