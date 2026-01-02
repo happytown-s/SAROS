@@ -207,9 +207,9 @@ bool InputManager::detectMultiChannelTrigger(const juce::AudioBuffer<float>& inp
         }
     }
     
-    // 🔥 鎮火ロジック: 全チャンネルが閾値の半分未満なら PreRoll をリセット
+    // 🔥 鎮火ロジック: 録音中でなく、全チャンネルが閾値の半分未満なら PreRoll をリセット
     // （次のトリガーを受け付けられるようにする）
-    if (inputBuffer.isInPreRoll() && maxLevelOverall < lowestThreshold * 0.5f)
+    if (!recordingActive && inputBuffer.isInPreRoll() && maxLevelOverall < lowestThreshold * 0.5f)
     {
         inputBuffer.resetPreRoll();
         DBG("🔄 PreRoll reset (silence detected, level: " << maxLevelOverall << ")");

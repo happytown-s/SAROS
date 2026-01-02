@@ -78,6 +78,10 @@ class InputManager
 	void startCalibration();
 	void stopCalibration();
 	bool isCalibrating() const { return calibrating; }
+	
+	// 録音状態（鎮火抑制用）
+	void setRecordingActive(bool active) { recordingActive = active; }
+	bool isRecordingActive() const { return recordingActive; }
 
 private:
 
@@ -113,6 +117,9 @@ private:
 	bool calibrating = false;
 	int calibrationSampleCount = 0;
 	std::vector<float> calibrationPeaks;  // チャンネルごとのピーク値
+	
+	// 録音状態（鎮火抑制用）
+	bool recordingActive = false;
 
 public:
     // Lookback wrapper

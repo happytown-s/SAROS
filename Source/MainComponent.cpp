@@ -340,6 +340,9 @@ void MainComponent::getNextAudioBlock(const juce::AudioSourceChannelInfo& buffer
             // Prepare lookback data from buffer
             juce::AudioBuffer<float> lookback;
             inputTap.getManager().getLookbackData(lookback);
+            
+            // 🔒 録音中フラグを立てる（鎮火抑制）
+            inputTap.getManager().setRecordingActive(true);
 
 			for (auto& t : trackUIs)
 			{
@@ -881,6 +884,9 @@ void MainComponent::onRecordingStarted(int trackID)
 
 void MainComponent::onRecordingStopped(int trackID)
 {
+    // 🔓 録音中フラグを解除（鎮火許可）
+    inputTap.getManager().setRecordingActive(false);
+    
     // UIスレッドで安全に一括更新
     util::safeUi([this, trackID]()
     {
