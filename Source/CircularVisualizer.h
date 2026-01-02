@@ -678,16 +678,37 @@ private:
                 particles[i].vy *= 0.99f;
             }
             
-            // 中心に到達したらリセット (ただし拡散中はリセットしない方が自然かもだが、画面外に出たらリセットしたい)
-            // 拡散中は dist が大きくなるのでここには来ない
-            if (dist < 5.0f && dragVelocityRemaining > -1.0f) // 拡散中は中心リセットを抑制
+            // リセットロジック: 加速時の散らばり(オーバーシュート)防止
+            bool isDiffusing = (dragVelocityRemaining < -1.0f);
+            
+            if (!isDiffusing)
             {
-                particles[i].life -= 0.1f;
-                particles[i].alpha *= 0.9f;
+                // 収束モード
+                if (dragVelocityRemaining > 5.0f) // 高速収束中
+                {
+                    // 中心を通り過ぎて外へ向かっているかチェック (内積 > 0)
+                    bool movingAway = (particles[i].x * particles[i].vx + particles[i].y * particles[i].vy) > 0;
+                    
+                    // 1. 中心にかなり近づいた (killRadius拡大)
+                    // 2. 中心付近(150px以内)で外向きに移動している (通り過ぎた)
+                    if (dist < 30.0f || (movingAway && dist < 150.0f))
+                    {
+                        resetParticle(i);
+                        continue; 
+                    }
+                }
+                else // 通常速度
+                {
+                    // 中心付近でフェードアウト
+                    if (dist < 5.0f) {
+                        particles[i].life -= 0.1f;
+                        particles[i].alpha *= 0.9f;
+                    }
+                }
             }
             
-            // 画面外(遠すぎ)に出たらリセット
-            if (particles[i].life <= 0 || dist < 2.0f || dist > juce::jmax(getWidth(), getHeight()) * 1.5f)
+            // 画面外(遠すぎ) or 寿命尽きたらリセット
+            if (particles[i].life <= 0 || (!isDiffusing && dist < 2.0f) || dist > juce::jmax(getWidth(), getHeight()) * 1.5f)
                 resetParticle(i);
         }
         
