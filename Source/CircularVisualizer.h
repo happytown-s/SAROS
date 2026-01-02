@@ -693,34 +693,35 @@ private:
                 particles[i].vy *= 0.99f;
             }
             
-            // 収束モードの判定: totalForce が正で実際に引力が働いているときのみ
-            // かつ、ドラッグ操作で加速されていないとき
-            bool isActuallyAttracting = (totalForce > 0.01f) && (currentAdditionalForce > -0.01f);
+            // ========================================
+            // シンプルなリセットロジック
+            // ========================================
             
-            if (isActuallyAttracting)
+            // 中心到達でリセット
+            if (dist < 10.0f)
             {
-                // 収束モード: 外に向かっているか、中心付近ならリセット
-                bool movingAway = (particles[i].x * particles[i].vx + particles[i].y * particles[i].vy) > 0;
-                if (movingAway || dist < 20.0f)
-                {
-                    resetParticle(i);
-                    continue; 
-                }
-            }
-            else if (isDiffusing)
-            {
-                // 拡散モード: フェードアウト
-                particles[i].life -= 0.005f;
-                particles[i].alpha = juce::jmax(0.0f, particles[i].alpha * 0.995f);
-            }
-            
-            // サイズとアルファの安全クランプ（描画エラー防止）
-            particles[i].size = juce::jmax(0.5f, particles[i].size);
-            particles[i].alpha = juce::jlimit(0.0f, 1.0f, particles[i].alpha);
-            
-            // 画面外 or 寿命尽きたらリセット
-            if (particles[i].life <= 0 || (isActuallyAttracting && dist < 2.0f) || dist > outOfBoundsRadius)
                 resetParticle(i);
+                continue;
+            }
+            
+            // 画面外到達でリセット
+            if (dist > screenMax * 1.2f)
+            {
+                resetParticle(i);
+                continue;
+            }
+            
+            // ========================================
+            // 距離ベースの透明度
+            // 中心に近いほど透明、画面端に近いほど透明
+            // 中間地点で最も不透明
+            // ========================================
+            float centerFade = juce::jlimit(0.0f, 1.0f, dist / 100.0f); // 中心から100pxで完全不透明
+            float edgeFade = juce::jlimit(0.0f, 1.0f, 1.0f - (dist / (screenMax * 1.2f))); // 端から200pxでフェード開始
+            particles[i].alpha = juce::jlimit(0.0f, 1.0f, centerFade * edgeFade * 0.8f);
+            
+            // サイズの安全クランプ
+            particles[i].size = juce::jmax(0.5f, particles[i].size);
         }
         
         // ドラッグ力の減衰 (慣性)
