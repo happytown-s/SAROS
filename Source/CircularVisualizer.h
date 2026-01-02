@@ -717,6 +717,9 @@ private:
 
     void drawParticles(juce::Graphics& g, juce::Point<float> centre, float maxRadius)
     {
+        // 0 除算防止
+        if (maxRadius < 1.0f) maxRadius = 400.0f;
+        
         for (int i = 0; i < numParticles; ++i)
         {
             float px = centre.x + particles[i].x;
