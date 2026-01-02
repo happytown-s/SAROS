@@ -163,17 +163,17 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named ORAS
+# Target rules for targets named SAROS
 
 # Build rule for target.
-ORAS: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 ORAS
-.PHONY : ORAS
+SAROS: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 SAROS
+.PHONY : SAROS
 
 # fast build rule for target.
-ORAS/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/build
-.PHONY : ORAS/fast
+SAROS/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/build
+.PHONY : SAROS/fast
 
 #=============================================================================
 # Target rules for targets named Assets
@@ -193,7 +193,7 @@ Source/FXPanel.o: Source/FXPanel.cpp.o
 
 # target to build an object file
 Source/FXPanel.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Source/FXPanel.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Source/FXPanel.cpp.o
 .PHONY : Source/FXPanel.cpp.o
 
 Source/FXPanel.i: Source/FXPanel.cpp.i
@@ -201,7 +201,7 @@ Source/FXPanel.i: Source/FXPanel.cpp.i
 
 # target to preprocess a source file
 Source/FXPanel.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Source/FXPanel.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Source/FXPanel.cpp.i
 .PHONY : Source/FXPanel.cpp.i
 
 Source/FXPanel.s: Source/FXPanel.cpp.s
@@ -209,7 +209,7 @@ Source/FXPanel.s: Source/FXPanel.cpp.s
 
 # target to generate assembly for a file
 Source/FXPanel.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Source/FXPanel.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Source/FXPanel.cpp.s
 .PHONY : Source/FXPanel.cpp.s
 
 Source/InputManager.o: Source/InputManager.cpp.o
@@ -217,7 +217,7 @@ Source/InputManager.o: Source/InputManager.cpp.o
 
 # target to build an object file
 Source/InputManager.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Source/InputManager.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Source/InputManager.cpp.o
 .PHONY : Source/InputManager.cpp.o
 
 Source/InputManager.i: Source/InputManager.cpp.i
@@ -225,7 +225,7 @@ Source/InputManager.i: Source/InputManager.cpp.i
 
 # target to preprocess a source file
 Source/InputManager.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Source/InputManager.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Source/InputManager.cpp.i
 .PHONY : Source/InputManager.cpp.i
 
 Source/InputManager.s: Source/InputManager.cpp.s
@@ -233,7 +233,7 @@ Source/InputManager.s: Source/InputManager.cpp.s
 
 # target to generate assembly for a file
 Source/InputManager.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Source/InputManager.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Source/InputManager.cpp.s
 .PHONY : Source/InputManager.cpp.s
 
 Source/LooperAudio.o: Source/LooperAudio.cpp.o
@@ -241,7 +241,7 @@ Source/LooperAudio.o: Source/LooperAudio.cpp.o
 
 # target to build an object file
 Source/LooperAudio.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Source/LooperAudio.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Source/LooperAudio.cpp.o
 .PHONY : Source/LooperAudio.cpp.o
 
 Source/LooperAudio.i: Source/LooperAudio.cpp.i
@@ -249,7 +249,7 @@ Source/LooperAudio.i: Source/LooperAudio.cpp.i
 
 # target to preprocess a source file
 Source/LooperAudio.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Source/LooperAudio.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Source/LooperAudio.cpp.i
 .PHONY : Source/LooperAudio.cpp.i
 
 Source/LooperAudio.s: Source/LooperAudio.cpp.s
@@ -257,7 +257,7 @@ Source/LooperAudio.s: Source/LooperAudio.cpp.s
 
 # target to generate assembly for a file
 Source/LooperAudio.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Source/LooperAudio.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Source/LooperAudio.cpp.s
 .PHONY : Source/LooperAudio.cpp.s
 
 Source/LooperTrackUi.o: Source/LooperTrackUi.cpp.o
@@ -265,7 +265,7 @@ Source/LooperTrackUi.o: Source/LooperTrackUi.cpp.o
 
 # target to build an object file
 Source/LooperTrackUi.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Source/LooperTrackUi.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Source/LooperTrackUi.cpp.o
 .PHONY : Source/LooperTrackUi.cpp.o
 
 Source/LooperTrackUi.i: Source/LooperTrackUi.cpp.i
@@ -273,7 +273,7 @@ Source/LooperTrackUi.i: Source/LooperTrackUi.cpp.i
 
 # target to preprocess a source file
 Source/LooperTrackUi.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Source/LooperTrackUi.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Source/LooperTrackUi.cpp.i
 .PHONY : Source/LooperTrackUi.cpp.i
 
 Source/LooperTrackUi.s: Source/LooperTrackUi.cpp.s
@@ -281,7 +281,7 @@ Source/LooperTrackUi.s: Source/LooperTrackUi.cpp.s
 
 # target to generate assembly for a file
 Source/LooperTrackUi.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Source/LooperTrackUi.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Source/LooperTrackUi.cpp.s
 .PHONY : Source/LooperTrackUi.cpp.s
 
 Source/Main.o: Source/Main.cpp.o
@@ -289,7 +289,7 @@ Source/Main.o: Source/Main.cpp.o
 
 # target to build an object file
 Source/Main.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Source/Main.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Source/Main.cpp.o
 .PHONY : Source/Main.cpp.o
 
 Source/Main.i: Source/Main.cpp.i
@@ -297,7 +297,7 @@ Source/Main.i: Source/Main.cpp.i
 
 # target to preprocess a source file
 Source/Main.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Source/Main.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Source/Main.cpp.i
 .PHONY : Source/Main.cpp.i
 
 Source/Main.s: Source/Main.cpp.s
@@ -305,7 +305,7 @@ Source/Main.s: Source/Main.cpp.s
 
 # target to generate assembly for a file
 Source/Main.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Source/Main.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Source/Main.cpp.s
 .PHONY : Source/Main.cpp.s
 
 Source/MainComponent.o: Source/MainComponent.cpp.o
@@ -313,7 +313,7 @@ Source/MainComponent.o: Source/MainComponent.cpp.o
 
 # target to build an object file
 Source/MainComponent.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Source/MainComponent.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Source/MainComponent.cpp.o
 .PHONY : Source/MainComponent.cpp.o
 
 Source/MainComponent.i: Source/MainComponent.cpp.i
@@ -321,7 +321,7 @@ Source/MainComponent.i: Source/MainComponent.cpp.i
 
 # target to preprocess a source file
 Source/MainComponent.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Source/MainComponent.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Source/MainComponent.cpp.i
 .PHONY : Source/MainComponent.cpp.i
 
 Source/MainComponent.s: Source/MainComponent.cpp.s
@@ -329,7 +329,7 @@ Source/MainComponent.s: Source/MainComponent.cpp.s
 
 # target to generate assembly for a file
 Source/MainComponent.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Source/MainComponent.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Source/MainComponent.cpp.s
 .PHONY : Source/MainComponent.cpp.s
 
 Source/PlanetKnobLookAndFeel.o: Source/PlanetKnobLookAndFeel.cpp.o
@@ -337,7 +337,7 @@ Source/PlanetKnobLookAndFeel.o: Source/PlanetKnobLookAndFeel.cpp.o
 
 # target to build an object file
 Source/PlanetKnobLookAndFeel.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Source/PlanetKnobLookAndFeel.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Source/PlanetKnobLookAndFeel.cpp.o
 .PHONY : Source/PlanetKnobLookAndFeel.cpp.o
 
 Source/PlanetKnobLookAndFeel.i: Source/PlanetKnobLookAndFeel.cpp.i
@@ -345,7 +345,7 @@ Source/PlanetKnobLookAndFeel.i: Source/PlanetKnobLookAndFeel.cpp.i
 
 # target to preprocess a source file
 Source/PlanetKnobLookAndFeel.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Source/PlanetKnobLookAndFeel.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Source/PlanetKnobLookAndFeel.cpp.i
 .PHONY : Source/PlanetKnobLookAndFeel.cpp.i
 
 Source/PlanetKnobLookAndFeel.s: Source/PlanetKnobLookAndFeel.cpp.s
@@ -353,7 +353,7 @@ Source/PlanetKnobLookAndFeel.s: Source/PlanetKnobLookAndFeel.cpp.s
 
 # target to generate assembly for a file
 Source/PlanetKnobLookAndFeel.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Source/PlanetKnobLookAndFeel.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Source/PlanetKnobLookAndFeel.cpp.s
 .PHONY : Source/PlanetKnobLookAndFeel.cpp.s
 
 Source/TransportPanel.o: Source/TransportPanel.cpp.o
@@ -361,7 +361,7 @@ Source/TransportPanel.o: Source/TransportPanel.cpp.o
 
 # target to build an object file
 Source/TransportPanel.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Source/TransportPanel.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Source/TransportPanel.cpp.o
 .PHONY : Source/TransportPanel.cpp.o
 
 Source/TransportPanel.i: Source/TransportPanel.cpp.i
@@ -369,7 +369,7 @@ Source/TransportPanel.i: Source/TransportPanel.cpp.i
 
 # target to preprocess a source file
 Source/TransportPanel.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Source/TransportPanel.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Source/TransportPanel.cpp.i
 .PHONY : Source/TransportPanel.cpp.i
 
 Source/TransportPanel.s: Source/TransportPanel.cpp.s
@@ -377,7 +377,7 @@ Source/TransportPanel.s: Source/TransportPanel.cpp.s
 
 # target to generate assembly for a file
 Source/TransportPanel.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Source/TransportPanel.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Source/TransportPanel.cpp.s
 .PHONY : Source/TransportPanel.cpp.s
 
 Users/mtsh/JUCE/modules/juce_audio_basics/juce_audio_basics.o: Users/mtsh/JUCE/modules/juce_audio_basics/juce_audio_basics.mm.o
@@ -385,7 +385,7 @@ Users/mtsh/JUCE/modules/juce_audio_basics/juce_audio_basics.o: Users/mtsh/JUCE/m
 
 # target to build an object file
 Users/mtsh/JUCE/modules/juce_audio_basics/juce_audio_basics.mm.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Users/mtsh/JUCE/modules/juce_audio_basics/juce_audio_basics.mm.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Users/mtsh/JUCE/modules/juce_audio_basics/juce_audio_basics.mm.o
 .PHONY : Users/mtsh/JUCE/modules/juce_audio_basics/juce_audio_basics.mm.o
 
 Users/mtsh/JUCE/modules/juce_audio_basics/juce_audio_basics.i: Users/mtsh/JUCE/modules/juce_audio_basics/juce_audio_basics.mm.i
@@ -393,7 +393,7 @@ Users/mtsh/JUCE/modules/juce_audio_basics/juce_audio_basics.i: Users/mtsh/JUCE/m
 
 # target to preprocess a source file
 Users/mtsh/JUCE/modules/juce_audio_basics/juce_audio_basics.mm.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Users/mtsh/JUCE/modules/juce_audio_basics/juce_audio_basics.mm.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Users/mtsh/JUCE/modules/juce_audio_basics/juce_audio_basics.mm.i
 .PHONY : Users/mtsh/JUCE/modules/juce_audio_basics/juce_audio_basics.mm.i
 
 Users/mtsh/JUCE/modules/juce_audio_basics/juce_audio_basics.s: Users/mtsh/JUCE/modules/juce_audio_basics/juce_audio_basics.mm.s
@@ -401,7 +401,7 @@ Users/mtsh/JUCE/modules/juce_audio_basics/juce_audio_basics.s: Users/mtsh/JUCE/m
 
 # target to generate assembly for a file
 Users/mtsh/JUCE/modules/juce_audio_basics/juce_audio_basics.mm.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Users/mtsh/JUCE/modules/juce_audio_basics/juce_audio_basics.mm.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Users/mtsh/JUCE/modules/juce_audio_basics/juce_audio_basics.mm.s
 .PHONY : Users/mtsh/JUCE/modules/juce_audio_basics/juce_audio_basics.mm.s
 
 Users/mtsh/JUCE/modules/juce_audio_devices/juce_audio_devices.o: Users/mtsh/JUCE/modules/juce_audio_devices/juce_audio_devices.mm.o
@@ -409,7 +409,7 @@ Users/mtsh/JUCE/modules/juce_audio_devices/juce_audio_devices.o: Users/mtsh/JUCE
 
 # target to build an object file
 Users/mtsh/JUCE/modules/juce_audio_devices/juce_audio_devices.mm.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Users/mtsh/JUCE/modules/juce_audio_devices/juce_audio_devices.mm.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Users/mtsh/JUCE/modules/juce_audio_devices/juce_audio_devices.mm.o
 .PHONY : Users/mtsh/JUCE/modules/juce_audio_devices/juce_audio_devices.mm.o
 
 Users/mtsh/JUCE/modules/juce_audio_devices/juce_audio_devices.i: Users/mtsh/JUCE/modules/juce_audio_devices/juce_audio_devices.mm.i
@@ -417,7 +417,7 @@ Users/mtsh/JUCE/modules/juce_audio_devices/juce_audio_devices.i: Users/mtsh/JUCE
 
 # target to preprocess a source file
 Users/mtsh/JUCE/modules/juce_audio_devices/juce_audio_devices.mm.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Users/mtsh/JUCE/modules/juce_audio_devices/juce_audio_devices.mm.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Users/mtsh/JUCE/modules/juce_audio_devices/juce_audio_devices.mm.i
 .PHONY : Users/mtsh/JUCE/modules/juce_audio_devices/juce_audio_devices.mm.i
 
 Users/mtsh/JUCE/modules/juce_audio_devices/juce_audio_devices.s: Users/mtsh/JUCE/modules/juce_audio_devices/juce_audio_devices.mm.s
@@ -425,7 +425,7 @@ Users/mtsh/JUCE/modules/juce_audio_devices/juce_audio_devices.s: Users/mtsh/JUCE
 
 # target to generate assembly for a file
 Users/mtsh/JUCE/modules/juce_audio_devices/juce_audio_devices.mm.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Users/mtsh/JUCE/modules/juce_audio_devices/juce_audio_devices.mm.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Users/mtsh/JUCE/modules/juce_audio_devices/juce_audio_devices.mm.s
 .PHONY : Users/mtsh/JUCE/modules/juce_audio_devices/juce_audio_devices.mm.s
 
 Users/mtsh/JUCE/modules/juce_audio_formats/juce_audio_formats.o: Users/mtsh/JUCE/modules/juce_audio_formats/juce_audio_formats.mm.o
@@ -433,7 +433,7 @@ Users/mtsh/JUCE/modules/juce_audio_formats/juce_audio_formats.o: Users/mtsh/JUCE
 
 # target to build an object file
 Users/mtsh/JUCE/modules/juce_audio_formats/juce_audio_formats.mm.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Users/mtsh/JUCE/modules/juce_audio_formats/juce_audio_formats.mm.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Users/mtsh/JUCE/modules/juce_audio_formats/juce_audio_formats.mm.o
 .PHONY : Users/mtsh/JUCE/modules/juce_audio_formats/juce_audio_formats.mm.o
 
 Users/mtsh/JUCE/modules/juce_audio_formats/juce_audio_formats.i: Users/mtsh/JUCE/modules/juce_audio_formats/juce_audio_formats.mm.i
@@ -441,7 +441,7 @@ Users/mtsh/JUCE/modules/juce_audio_formats/juce_audio_formats.i: Users/mtsh/JUCE
 
 # target to preprocess a source file
 Users/mtsh/JUCE/modules/juce_audio_formats/juce_audio_formats.mm.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Users/mtsh/JUCE/modules/juce_audio_formats/juce_audio_formats.mm.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Users/mtsh/JUCE/modules/juce_audio_formats/juce_audio_formats.mm.i
 .PHONY : Users/mtsh/JUCE/modules/juce_audio_formats/juce_audio_formats.mm.i
 
 Users/mtsh/JUCE/modules/juce_audio_formats/juce_audio_formats.s: Users/mtsh/JUCE/modules/juce_audio_formats/juce_audio_formats.mm.s
@@ -449,7 +449,7 @@ Users/mtsh/JUCE/modules/juce_audio_formats/juce_audio_formats.s: Users/mtsh/JUCE
 
 # target to generate assembly for a file
 Users/mtsh/JUCE/modules/juce_audio_formats/juce_audio_formats.mm.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Users/mtsh/JUCE/modules/juce_audio_formats/juce_audio_formats.mm.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Users/mtsh/JUCE/modules/juce_audio_formats/juce_audio_formats.mm.s
 .PHONY : Users/mtsh/JUCE/modules/juce_audio_formats/juce_audio_formats.mm.s
 
 Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors.o: Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors.mm.o
@@ -457,7 +457,7 @@ Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors.o: Users/mts
 
 # target to build an object file
 Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors.mm.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors.mm.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors.mm.o
 .PHONY : Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors.mm.o
 
 Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors.i: Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors.mm.i
@@ -465,7 +465,7 @@ Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors.i: Users/mts
 
 # target to preprocess a source file
 Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors.mm.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors.mm.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors.mm.i
 .PHONY : Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors.mm.i
 
 Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors.s: Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors.mm.s
@@ -473,7 +473,7 @@ Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors.s: Users/mts
 
 # target to generate assembly for a file
 Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors.mm.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors.mm.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors.mm.s
 .PHONY : Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors.mm.s
 
 Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_ara.o: Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_ara.cpp.o
@@ -481,7 +481,7 @@ Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_ara.o: Users
 
 # target to build an object file
 Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_ara.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_ara.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_ara.cpp.o
 .PHONY : Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_ara.cpp.o
 
 Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_ara.i: Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_ara.cpp.i
@@ -489,7 +489,7 @@ Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_ara.i: Users
 
 # target to preprocess a source file
 Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_ara.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_ara.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_ara.cpp.i
 .PHONY : Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_ara.cpp.i
 
 Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_ara.s: Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_ara.cpp.s
@@ -497,7 +497,7 @@ Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_ara.s: Users
 
 # target to generate assembly for a file
 Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_ara.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_ara.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_ara.cpp.s
 .PHONY : Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_ara.cpp.s
 
 Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_lv2_libs.o: Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_lv2_libs.cpp.o
@@ -505,7 +505,7 @@ Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_lv2_libs.o: 
 
 # target to build an object file
 Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_lv2_libs.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_lv2_libs.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_lv2_libs.cpp.o
 .PHONY : Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_lv2_libs.cpp.o
 
 Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_lv2_libs.i: Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_lv2_libs.cpp.i
@@ -513,7 +513,7 @@ Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_lv2_libs.i: 
 
 # target to preprocess a source file
 Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_lv2_libs.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_lv2_libs.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_lv2_libs.cpp.i
 .PHONY : Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_lv2_libs.cpp.i
 
 Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_lv2_libs.s: Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_lv2_libs.cpp.s
@@ -521,7 +521,7 @@ Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_lv2_libs.s: 
 
 # target to generate assembly for a file
 Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_lv2_libs.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_lv2_libs.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_lv2_libs.cpp.s
 .PHONY : Users/mtsh/JUCE/modules/juce_audio_processors/juce_audio_processors_lv2_libs.cpp.s
 
 Users/mtsh/JUCE/modules/juce_audio_utils/juce_audio_utils.o: Users/mtsh/JUCE/modules/juce_audio_utils/juce_audio_utils.mm.o
@@ -529,7 +529,7 @@ Users/mtsh/JUCE/modules/juce_audio_utils/juce_audio_utils.o: Users/mtsh/JUCE/mod
 
 # target to build an object file
 Users/mtsh/JUCE/modules/juce_audio_utils/juce_audio_utils.mm.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Users/mtsh/JUCE/modules/juce_audio_utils/juce_audio_utils.mm.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Users/mtsh/JUCE/modules/juce_audio_utils/juce_audio_utils.mm.o
 .PHONY : Users/mtsh/JUCE/modules/juce_audio_utils/juce_audio_utils.mm.o
 
 Users/mtsh/JUCE/modules/juce_audio_utils/juce_audio_utils.i: Users/mtsh/JUCE/modules/juce_audio_utils/juce_audio_utils.mm.i
@@ -537,7 +537,7 @@ Users/mtsh/JUCE/modules/juce_audio_utils/juce_audio_utils.i: Users/mtsh/JUCE/mod
 
 # target to preprocess a source file
 Users/mtsh/JUCE/modules/juce_audio_utils/juce_audio_utils.mm.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Users/mtsh/JUCE/modules/juce_audio_utils/juce_audio_utils.mm.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Users/mtsh/JUCE/modules/juce_audio_utils/juce_audio_utils.mm.i
 .PHONY : Users/mtsh/JUCE/modules/juce_audio_utils/juce_audio_utils.mm.i
 
 Users/mtsh/JUCE/modules/juce_audio_utils/juce_audio_utils.s: Users/mtsh/JUCE/modules/juce_audio_utils/juce_audio_utils.mm.s
@@ -545,7 +545,7 @@ Users/mtsh/JUCE/modules/juce_audio_utils/juce_audio_utils.s: Users/mtsh/JUCE/mod
 
 # target to generate assembly for a file
 Users/mtsh/JUCE/modules/juce_audio_utils/juce_audio_utils.mm.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Users/mtsh/JUCE/modules/juce_audio_utils/juce_audio_utils.mm.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Users/mtsh/JUCE/modules/juce_audio_utils/juce_audio_utils.mm.s
 .PHONY : Users/mtsh/JUCE/modules/juce_audio_utils/juce_audio_utils.mm.s
 
 Users/mtsh/JUCE/modules/juce_core/juce_core.o: Users/mtsh/JUCE/modules/juce_core/juce_core.mm.o
@@ -553,7 +553,7 @@ Users/mtsh/JUCE/modules/juce_core/juce_core.o: Users/mtsh/JUCE/modules/juce_core
 
 # target to build an object file
 Users/mtsh/JUCE/modules/juce_core/juce_core.mm.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Users/mtsh/JUCE/modules/juce_core/juce_core.mm.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Users/mtsh/JUCE/modules/juce_core/juce_core.mm.o
 .PHONY : Users/mtsh/JUCE/modules/juce_core/juce_core.mm.o
 
 Users/mtsh/JUCE/modules/juce_core/juce_core.i: Users/mtsh/JUCE/modules/juce_core/juce_core.mm.i
@@ -561,7 +561,7 @@ Users/mtsh/JUCE/modules/juce_core/juce_core.i: Users/mtsh/JUCE/modules/juce_core
 
 # target to preprocess a source file
 Users/mtsh/JUCE/modules/juce_core/juce_core.mm.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Users/mtsh/JUCE/modules/juce_core/juce_core.mm.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Users/mtsh/JUCE/modules/juce_core/juce_core.mm.i
 .PHONY : Users/mtsh/JUCE/modules/juce_core/juce_core.mm.i
 
 Users/mtsh/JUCE/modules/juce_core/juce_core.s: Users/mtsh/JUCE/modules/juce_core/juce_core.mm.s
@@ -569,7 +569,7 @@ Users/mtsh/JUCE/modules/juce_core/juce_core.s: Users/mtsh/JUCE/modules/juce_core
 
 # target to generate assembly for a file
 Users/mtsh/JUCE/modules/juce_core/juce_core.mm.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Users/mtsh/JUCE/modules/juce_core/juce_core.mm.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Users/mtsh/JUCE/modules/juce_core/juce_core.mm.s
 .PHONY : Users/mtsh/JUCE/modules/juce_core/juce_core.mm.s
 
 Users/mtsh/JUCE/modules/juce_core/juce_core_CompilationTime.o: Users/mtsh/JUCE/modules/juce_core/juce_core_CompilationTime.cpp.o
@@ -577,7 +577,7 @@ Users/mtsh/JUCE/modules/juce_core/juce_core_CompilationTime.o: Users/mtsh/JUCE/m
 
 # target to build an object file
 Users/mtsh/JUCE/modules/juce_core/juce_core_CompilationTime.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Users/mtsh/JUCE/modules/juce_core/juce_core_CompilationTime.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Users/mtsh/JUCE/modules/juce_core/juce_core_CompilationTime.cpp.o
 .PHONY : Users/mtsh/JUCE/modules/juce_core/juce_core_CompilationTime.cpp.o
 
 Users/mtsh/JUCE/modules/juce_core/juce_core_CompilationTime.i: Users/mtsh/JUCE/modules/juce_core/juce_core_CompilationTime.cpp.i
@@ -585,7 +585,7 @@ Users/mtsh/JUCE/modules/juce_core/juce_core_CompilationTime.i: Users/mtsh/JUCE/m
 
 # target to preprocess a source file
 Users/mtsh/JUCE/modules/juce_core/juce_core_CompilationTime.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Users/mtsh/JUCE/modules/juce_core/juce_core_CompilationTime.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Users/mtsh/JUCE/modules/juce_core/juce_core_CompilationTime.cpp.i
 .PHONY : Users/mtsh/JUCE/modules/juce_core/juce_core_CompilationTime.cpp.i
 
 Users/mtsh/JUCE/modules/juce_core/juce_core_CompilationTime.s: Users/mtsh/JUCE/modules/juce_core/juce_core_CompilationTime.cpp.s
@@ -593,7 +593,7 @@ Users/mtsh/JUCE/modules/juce_core/juce_core_CompilationTime.s: Users/mtsh/JUCE/m
 
 # target to generate assembly for a file
 Users/mtsh/JUCE/modules/juce_core/juce_core_CompilationTime.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Users/mtsh/JUCE/modules/juce_core/juce_core_CompilationTime.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Users/mtsh/JUCE/modules/juce_core/juce_core_CompilationTime.cpp.s
 .PHONY : Users/mtsh/JUCE/modules/juce_core/juce_core_CompilationTime.cpp.s
 
 Users/mtsh/JUCE/modules/juce_data_structures/juce_data_structures.o: Users/mtsh/JUCE/modules/juce_data_structures/juce_data_structures.mm.o
@@ -601,7 +601,7 @@ Users/mtsh/JUCE/modules/juce_data_structures/juce_data_structures.o: Users/mtsh/
 
 # target to build an object file
 Users/mtsh/JUCE/modules/juce_data_structures/juce_data_structures.mm.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Users/mtsh/JUCE/modules/juce_data_structures/juce_data_structures.mm.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Users/mtsh/JUCE/modules/juce_data_structures/juce_data_structures.mm.o
 .PHONY : Users/mtsh/JUCE/modules/juce_data_structures/juce_data_structures.mm.o
 
 Users/mtsh/JUCE/modules/juce_data_structures/juce_data_structures.i: Users/mtsh/JUCE/modules/juce_data_structures/juce_data_structures.mm.i
@@ -609,7 +609,7 @@ Users/mtsh/JUCE/modules/juce_data_structures/juce_data_structures.i: Users/mtsh/
 
 # target to preprocess a source file
 Users/mtsh/JUCE/modules/juce_data_structures/juce_data_structures.mm.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Users/mtsh/JUCE/modules/juce_data_structures/juce_data_structures.mm.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Users/mtsh/JUCE/modules/juce_data_structures/juce_data_structures.mm.i
 .PHONY : Users/mtsh/JUCE/modules/juce_data_structures/juce_data_structures.mm.i
 
 Users/mtsh/JUCE/modules/juce_data_structures/juce_data_structures.s: Users/mtsh/JUCE/modules/juce_data_structures/juce_data_structures.mm.s
@@ -617,7 +617,7 @@ Users/mtsh/JUCE/modules/juce_data_structures/juce_data_structures.s: Users/mtsh/
 
 # target to generate assembly for a file
 Users/mtsh/JUCE/modules/juce_data_structures/juce_data_structures.mm.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Users/mtsh/JUCE/modules/juce_data_structures/juce_data_structures.mm.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Users/mtsh/JUCE/modules/juce_data_structures/juce_data_structures.mm.s
 .PHONY : Users/mtsh/JUCE/modules/juce_data_structures/juce_data_structures.mm.s
 
 Users/mtsh/JUCE/modules/juce_dsp/juce_dsp.o: Users/mtsh/JUCE/modules/juce_dsp/juce_dsp.mm.o
@@ -625,7 +625,7 @@ Users/mtsh/JUCE/modules/juce_dsp/juce_dsp.o: Users/mtsh/JUCE/modules/juce_dsp/ju
 
 # target to build an object file
 Users/mtsh/JUCE/modules/juce_dsp/juce_dsp.mm.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Users/mtsh/JUCE/modules/juce_dsp/juce_dsp.mm.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Users/mtsh/JUCE/modules/juce_dsp/juce_dsp.mm.o
 .PHONY : Users/mtsh/JUCE/modules/juce_dsp/juce_dsp.mm.o
 
 Users/mtsh/JUCE/modules/juce_dsp/juce_dsp.i: Users/mtsh/JUCE/modules/juce_dsp/juce_dsp.mm.i
@@ -633,7 +633,7 @@ Users/mtsh/JUCE/modules/juce_dsp/juce_dsp.i: Users/mtsh/JUCE/modules/juce_dsp/ju
 
 # target to preprocess a source file
 Users/mtsh/JUCE/modules/juce_dsp/juce_dsp.mm.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Users/mtsh/JUCE/modules/juce_dsp/juce_dsp.mm.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Users/mtsh/JUCE/modules/juce_dsp/juce_dsp.mm.i
 .PHONY : Users/mtsh/JUCE/modules/juce_dsp/juce_dsp.mm.i
 
 Users/mtsh/JUCE/modules/juce_dsp/juce_dsp.s: Users/mtsh/JUCE/modules/juce_dsp/juce_dsp.mm.s
@@ -641,7 +641,7 @@ Users/mtsh/JUCE/modules/juce_dsp/juce_dsp.s: Users/mtsh/JUCE/modules/juce_dsp/ju
 
 # target to generate assembly for a file
 Users/mtsh/JUCE/modules/juce_dsp/juce_dsp.mm.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Users/mtsh/JUCE/modules/juce_dsp/juce_dsp.mm.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Users/mtsh/JUCE/modules/juce_dsp/juce_dsp.mm.s
 .PHONY : Users/mtsh/JUCE/modules/juce_dsp/juce_dsp.mm.s
 
 Users/mtsh/JUCE/modules/juce_events/juce_events.o: Users/mtsh/JUCE/modules/juce_events/juce_events.mm.o
@@ -649,7 +649,7 @@ Users/mtsh/JUCE/modules/juce_events/juce_events.o: Users/mtsh/JUCE/modules/juce_
 
 # target to build an object file
 Users/mtsh/JUCE/modules/juce_events/juce_events.mm.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Users/mtsh/JUCE/modules/juce_events/juce_events.mm.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Users/mtsh/JUCE/modules/juce_events/juce_events.mm.o
 .PHONY : Users/mtsh/JUCE/modules/juce_events/juce_events.mm.o
 
 Users/mtsh/JUCE/modules/juce_events/juce_events.i: Users/mtsh/JUCE/modules/juce_events/juce_events.mm.i
@@ -657,7 +657,7 @@ Users/mtsh/JUCE/modules/juce_events/juce_events.i: Users/mtsh/JUCE/modules/juce_
 
 # target to preprocess a source file
 Users/mtsh/JUCE/modules/juce_events/juce_events.mm.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Users/mtsh/JUCE/modules/juce_events/juce_events.mm.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Users/mtsh/JUCE/modules/juce_events/juce_events.mm.i
 .PHONY : Users/mtsh/JUCE/modules/juce_events/juce_events.mm.i
 
 Users/mtsh/JUCE/modules/juce_events/juce_events.s: Users/mtsh/JUCE/modules/juce_events/juce_events.mm.s
@@ -665,7 +665,7 @@ Users/mtsh/JUCE/modules/juce_events/juce_events.s: Users/mtsh/JUCE/modules/juce_
 
 # target to generate assembly for a file
 Users/mtsh/JUCE/modules/juce_events/juce_events.mm.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Users/mtsh/JUCE/modules/juce_events/juce_events.mm.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Users/mtsh/JUCE/modules/juce_events/juce_events.mm.s
 .PHONY : Users/mtsh/JUCE/modules/juce_events/juce_events.mm.s
 
 Users/mtsh/JUCE/modules/juce_graphics/juce_graphics.o: Users/mtsh/JUCE/modules/juce_graphics/juce_graphics.mm.o
@@ -673,7 +673,7 @@ Users/mtsh/JUCE/modules/juce_graphics/juce_graphics.o: Users/mtsh/JUCE/modules/j
 
 # target to build an object file
 Users/mtsh/JUCE/modules/juce_graphics/juce_graphics.mm.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Users/mtsh/JUCE/modules/juce_graphics/juce_graphics.mm.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Users/mtsh/JUCE/modules/juce_graphics/juce_graphics.mm.o
 .PHONY : Users/mtsh/JUCE/modules/juce_graphics/juce_graphics.mm.o
 
 Users/mtsh/JUCE/modules/juce_graphics/juce_graphics.i: Users/mtsh/JUCE/modules/juce_graphics/juce_graphics.mm.i
@@ -681,7 +681,7 @@ Users/mtsh/JUCE/modules/juce_graphics/juce_graphics.i: Users/mtsh/JUCE/modules/j
 
 # target to preprocess a source file
 Users/mtsh/JUCE/modules/juce_graphics/juce_graphics.mm.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Users/mtsh/JUCE/modules/juce_graphics/juce_graphics.mm.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Users/mtsh/JUCE/modules/juce_graphics/juce_graphics.mm.i
 .PHONY : Users/mtsh/JUCE/modules/juce_graphics/juce_graphics.mm.i
 
 Users/mtsh/JUCE/modules/juce_graphics/juce_graphics.s: Users/mtsh/JUCE/modules/juce_graphics/juce_graphics.mm.s
@@ -689,7 +689,7 @@ Users/mtsh/JUCE/modules/juce_graphics/juce_graphics.s: Users/mtsh/JUCE/modules/j
 
 # target to generate assembly for a file
 Users/mtsh/JUCE/modules/juce_graphics/juce_graphics.mm.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Users/mtsh/JUCE/modules/juce_graphics/juce_graphics.mm.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Users/mtsh/JUCE/modules/juce_graphics/juce_graphics.mm.s
 .PHONY : Users/mtsh/JUCE/modules/juce_graphics/juce_graphics.mm.s
 
 Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Harfbuzz.o: Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Harfbuzz.cpp.o
@@ -697,7 +697,7 @@ Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Harfbuzz.o: Users/mtsh/JUCE/
 
 # target to build an object file
 Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Harfbuzz.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Harfbuzz.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Harfbuzz.cpp.o
 .PHONY : Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Harfbuzz.cpp.o
 
 Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Harfbuzz.i: Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Harfbuzz.cpp.i
@@ -705,7 +705,7 @@ Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Harfbuzz.i: Users/mtsh/JUCE/
 
 # target to preprocess a source file
 Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Harfbuzz.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Harfbuzz.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Harfbuzz.cpp.i
 .PHONY : Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Harfbuzz.cpp.i
 
 Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Harfbuzz.s: Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Harfbuzz.cpp.s
@@ -713,7 +713,7 @@ Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Harfbuzz.s: Users/mtsh/JUCE/
 
 # target to generate assembly for a file
 Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Harfbuzz.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Harfbuzz.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Harfbuzz.cpp.s
 .PHONY : Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Harfbuzz.cpp.s
 
 Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Sheenbidi.o: Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Sheenbidi.c.o
@@ -721,7 +721,7 @@ Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Sheenbidi.o: Users/mtsh/JUCE
 
 # target to build an object file
 Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Sheenbidi.c.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Sheenbidi.c.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Sheenbidi.c.o
 .PHONY : Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Sheenbidi.c.o
 
 Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Sheenbidi.i: Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Sheenbidi.c.i
@@ -729,7 +729,7 @@ Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Sheenbidi.i: Users/mtsh/JUCE
 
 # target to preprocess a source file
 Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Sheenbidi.c.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Sheenbidi.c.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Sheenbidi.c.i
 .PHONY : Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Sheenbidi.c.i
 
 Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Sheenbidi.s: Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Sheenbidi.c.s
@@ -737,7 +737,7 @@ Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Sheenbidi.s: Users/mtsh/JUCE
 
 # target to generate assembly for a file
 Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Sheenbidi.c.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Sheenbidi.c.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Sheenbidi.c.s
 .PHONY : Users/mtsh/JUCE/modules/juce_graphics/juce_graphics_Sheenbidi.c.s
 
 Users/mtsh/JUCE/modules/juce_gui_basics/juce_gui_basics.o: Users/mtsh/JUCE/modules/juce_gui_basics/juce_gui_basics.mm.o
@@ -745,7 +745,7 @@ Users/mtsh/JUCE/modules/juce_gui_basics/juce_gui_basics.o: Users/mtsh/JUCE/modul
 
 # target to build an object file
 Users/mtsh/JUCE/modules/juce_gui_basics/juce_gui_basics.mm.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Users/mtsh/JUCE/modules/juce_gui_basics/juce_gui_basics.mm.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Users/mtsh/JUCE/modules/juce_gui_basics/juce_gui_basics.mm.o
 .PHONY : Users/mtsh/JUCE/modules/juce_gui_basics/juce_gui_basics.mm.o
 
 Users/mtsh/JUCE/modules/juce_gui_basics/juce_gui_basics.i: Users/mtsh/JUCE/modules/juce_gui_basics/juce_gui_basics.mm.i
@@ -753,7 +753,7 @@ Users/mtsh/JUCE/modules/juce_gui_basics/juce_gui_basics.i: Users/mtsh/JUCE/modul
 
 # target to preprocess a source file
 Users/mtsh/JUCE/modules/juce_gui_basics/juce_gui_basics.mm.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Users/mtsh/JUCE/modules/juce_gui_basics/juce_gui_basics.mm.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Users/mtsh/JUCE/modules/juce_gui_basics/juce_gui_basics.mm.i
 .PHONY : Users/mtsh/JUCE/modules/juce_gui_basics/juce_gui_basics.mm.i
 
 Users/mtsh/JUCE/modules/juce_gui_basics/juce_gui_basics.s: Users/mtsh/JUCE/modules/juce_gui_basics/juce_gui_basics.mm.s
@@ -761,7 +761,7 @@ Users/mtsh/JUCE/modules/juce_gui_basics/juce_gui_basics.s: Users/mtsh/JUCE/modul
 
 # target to generate assembly for a file
 Users/mtsh/JUCE/modules/juce_gui_basics/juce_gui_basics.mm.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Users/mtsh/JUCE/modules/juce_gui_basics/juce_gui_basics.mm.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Users/mtsh/JUCE/modules/juce_gui_basics/juce_gui_basics.mm.s
 .PHONY : Users/mtsh/JUCE/modules/juce_gui_basics/juce_gui_basics.mm.s
 
 Users/mtsh/JUCE/modules/juce_gui_extra/juce_gui_extra.o: Users/mtsh/JUCE/modules/juce_gui_extra/juce_gui_extra.mm.o
@@ -769,7 +769,7 @@ Users/mtsh/JUCE/modules/juce_gui_extra/juce_gui_extra.o: Users/mtsh/JUCE/modules
 
 # target to build an object file
 Users/mtsh/JUCE/modules/juce_gui_extra/juce_gui_extra.mm.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Users/mtsh/JUCE/modules/juce_gui_extra/juce_gui_extra.mm.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Users/mtsh/JUCE/modules/juce_gui_extra/juce_gui_extra.mm.o
 .PHONY : Users/mtsh/JUCE/modules/juce_gui_extra/juce_gui_extra.mm.o
 
 Users/mtsh/JUCE/modules/juce_gui_extra/juce_gui_extra.i: Users/mtsh/JUCE/modules/juce_gui_extra/juce_gui_extra.mm.i
@@ -777,7 +777,7 @@ Users/mtsh/JUCE/modules/juce_gui_extra/juce_gui_extra.i: Users/mtsh/JUCE/modules
 
 # target to preprocess a source file
 Users/mtsh/JUCE/modules/juce_gui_extra/juce_gui_extra.mm.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Users/mtsh/JUCE/modules/juce_gui_extra/juce_gui_extra.mm.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Users/mtsh/JUCE/modules/juce_gui_extra/juce_gui_extra.mm.i
 .PHONY : Users/mtsh/JUCE/modules/juce_gui_extra/juce_gui_extra.mm.i
 
 Users/mtsh/JUCE/modules/juce_gui_extra/juce_gui_extra.s: Users/mtsh/JUCE/modules/juce_gui_extra/juce_gui_extra.mm.s
@@ -785,7 +785,7 @@ Users/mtsh/JUCE/modules/juce_gui_extra/juce_gui_extra.s: Users/mtsh/JUCE/modules
 
 # target to generate assembly for a file
 Users/mtsh/JUCE/modules/juce_gui_extra/juce_gui_extra.mm.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/Users/mtsh/JUCE/modules/juce_gui_extra/juce_gui_extra.mm.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/Users/mtsh/JUCE/modules/juce_gui_extra/juce_gui_extra.mm.s
 .PHONY : Users/mtsh/JUCE/modules/juce_gui_extra/juce_gui_extra.mm.s
 
 juce_binarydata_Assets/JuceLibraryCode/BinaryData1.o: juce_binarydata_Assets/JuceLibraryCode/BinaryData1.cpp.o
@@ -825,7 +825,7 @@ help:
 	@echo "... list_install_components"
 	@echo "... rebuild_cache"
 	@echo "... Assets"
-	@echo "... ORAS"
+	@echo "... SAROS"
 	@echo "... Source/FXPanel.o"
 	@echo "... Source/FXPanel.i"
 	@echo "... Source/FXPanel.s"

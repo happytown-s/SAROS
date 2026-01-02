@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-project(ORAS VERSION 1.0.0)
+project(SAROS VERSION 1.0.0)
 
 # 🍏 Apple Silicon 向けビルド設定
 set(CMAKE_OSX_ARCHITECTURES "arm64")
@@ -10,11 +10,11 @@ set(JUCE_DIR "/Users/mtsh/JUCE")
 add_subdirectory(${JUCE_DIR} "${CMAKE_CURRENT_BINARY_DIR}/JUCE_build")
 
 # GUIアプリの定義
-juce_add_gui_app(ORAS
+juce_add_gui_app(SAROS
     COMPANY_NAME "BabyLeaf"
-    PRODUCT_NAME "ORAS"
-    OUTPUT_NAME "ORAS"
-    OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/ORASApp"
+    PRODUCT_NAME "SAROS"
+    OUTPUT_NAME "SAROS"
+    OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/SAROSApp"
 )
 
 # バイナリデータ（フォントなど）の定義
@@ -23,7 +23,7 @@ juce_add_binary_data(Assets
         Source/Assets/Orbitron-Bold.ttf
 )
 
-set_target_properties(ORAS PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/ORASApp")
+set_target_properties(SAROS PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/SAROSApp")
 
 # ソースファイル
 set(SOURCE_FILES
@@ -56,10 +56,10 @@ set(HEADER_FILES
     Source/FilterSpectrumVisualizer.h
 )
 
-target_sources(ORAS PRIVATE ${SOURCE_FILES} ${HEADER_FILES})
+target_sources(SAROS PRIVATE ${SOURCE_FILES} ${HEADER_FILES})
 
 # 使用モジュール
-target_link_libraries(ORAS PRIVATE
+target_link_libraries(SAROS PRIVATE
     Assets
     juce::juce_gui_basics
     juce::juce_gui_extra

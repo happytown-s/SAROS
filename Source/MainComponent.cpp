@@ -10,10 +10,10 @@ MainComponent::MainComponent()
 {
 	// 設定ファイルを初期化
 	juce::PropertiesFile::Options options;
-	options.applicationName = "ORAS";
+	options.applicationName = "SAROS";
 	options.filenameSuffix = ".settings";
 	options.osxLibrarySubFolder = "Application Support";
-	options.folderName = "ORAS";
+	options.folderName = "SAROS";
 	
 	appProperties.reset(new juce::PropertiesFile(options));
 	
@@ -444,7 +444,7 @@ void MainComponent::paint(juce::Graphics& g)
     g.fillRect(topBar);
 
     // --- Title Logo Rendering ---
-    juce::String titleText = "ORAS";
+    juce::String titleText = "SAROS";
     float titleFontSize = 32.0f;
     
     // システムフォントを使用 (Futura または Arial)

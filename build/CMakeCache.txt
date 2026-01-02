@@ -148,7 +148,7 @@ CMAKE_PROJECT_DESCRIPTION:STATIC=
 CMAKE_PROJECT_HOMEPAGE_URL:STATIC=
 
 //Value Computed by CMake
-CMAKE_PROJECT_NAME:STATIC=ORAS
+CMAKE_PROJECT_NAME:STATIC=SAROS
 
 //Value Computed by CMake
 CMAKE_PROJECT_VERSION:STATIC=1.0.0
@@ -275,6 +275,15 @@ ORAS_IS_TOP_LEVEL:STATIC=ON
 
 //Value Computed by CMake
 ORAS_SOURCE_DIR:STATIC=/Users/mtsh/書類/code/JUCE/ORAS
+
+//Value Computed by CMake
+SAROS_BINARY_DIR:STATIC=/Users/mtsh/書類/code/JUCE/ORAS/build
+
+//Value Computed by CMake
+SAROS_IS_TOP_LEVEL:STATIC=ON
+
+//Value Computed by CMake
+SAROS_SOURCE_DIR:STATIC=/Users/mtsh/書類/code/JUCE/ORAS
 
 //Path to a library.
 juce_found_AVFoundation:FILEPATH=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/AVFoundation.framework

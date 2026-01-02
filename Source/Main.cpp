@@ -10,13 +10,13 @@
 #include "MainComponent.h"
 
 //==============================================================================
-class ORASApplication  : public juce::JUCEApplication
+class SarosApplication  : public juce::JUCEApplication
 {
 public:
     //==============================================================================
-    ORASApplication() {}
+    SarosApplication() {}
 
-    const juce::String getApplicationName() override       { return "ORAS"; }
+    const juce::String getApplicationName() override       { return "SAROS"; }
     const juce::String getApplicationVersion() override { return JUCE_STRINGIFY(PROJECT_VERSION); }
 
     bool moreThanOneInstanceAllowed() override             { return true; }
@@ -103,4 +103,4 @@ private:
 
 //==============================================================================
 // This macro generates the main() routine that launches the app.
-START_JUCE_APPLICATION (ORASApplication)
+START_JUCE_APPLICATION (SarosApplication)

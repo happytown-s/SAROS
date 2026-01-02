@@ -63,13 +63,13 @@ CMAKE_BINARY_DIR = /Users/mtsh/書類/code/JUCE/ORAS/build
 # Directory level rules for the build root directory
 
 # The main recursive "all" target.
-all: CMakeFiles/ORAS.dir/all
+all: CMakeFiles/SAROS.dir/all
 all: CMakeFiles/Assets.dir/all
 all: JUCE_build/all
 .PHONY : all
 
 # The main recursive "codegen" target.
-codegen: CMakeFiles/ORAS.dir/codegen
+codegen: CMakeFiles/SAROS.dir/codegen
 codegen: CMakeFiles/Assets.dir/codegen
 codegen: JUCE_build/codegen
 .PHONY : codegen
@@ -79,7 +79,7 @@ preinstall: JUCE_build/preinstall
 .PHONY : preinstall
 
 # The main recursive "clean" target.
-clean: CMakeFiles/ORAS.dir/clean
+clean: CMakeFiles/SAROS.dir/clean
 clean: CMakeFiles/Assets.dir/clean
 clean: JUCE_build/clean
 .PHONY : clean
@@ -165,36 +165,36 @@ JUCE_build/modules/clean:
 .PHONY : JUCE_build/modules/clean
 
 #=============================================================================
-# Target rules for target CMakeFiles/ORAS.dir
+# Target rules for target CMakeFiles/SAROS.dir
 
 # All Build rule for target.
-CMakeFiles/ORAS.dir/all: CMakeFiles/Assets.dir/all
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/depend
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/mtsh/書類/code/JUCE/ORAS/build/CMakeFiles --progress-num=4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30 "Built target ORAS"
-.PHONY : CMakeFiles/ORAS.dir/all
+CMakeFiles/SAROS.dir/all: CMakeFiles/Assets.dir/all
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/mtsh/書類/code/JUCE/ORAS/build/CMakeFiles --progress-num=4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30 "Built target SAROS"
+.PHONY : CMakeFiles/SAROS.dir/all
 
 # Build rule for subdir invocation for target.
-CMakeFiles/ORAS.dir/rule: cmake_check_build_system
+CMakeFiles/SAROS.dir/rule: cmake_check_build_system
 	$(CMAKE_COMMAND) -E cmake_progress_start /Users/mtsh/書類/code/JUCE/ORAS/build/CMakeFiles 30
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/ORAS.dir/all
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/SAROS.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /Users/mtsh/書類/code/JUCE/ORAS/build/CMakeFiles 0
-.PHONY : CMakeFiles/ORAS.dir/rule
+.PHONY : CMakeFiles/SAROS.dir/rule
 
 # Convenience name for target.
-ORAS: CMakeFiles/ORAS.dir/rule
-.PHONY : ORAS
+SAROS: CMakeFiles/SAROS.dir/rule
+.PHONY : SAROS
 
 # codegen rule for target.
-CMakeFiles/ORAS.dir/codegen:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/codegen
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/mtsh/書類/code/JUCE/ORAS/build/CMakeFiles --progress-num=4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30 "Finished codegen for target ORAS"
-.PHONY : CMakeFiles/ORAS.dir/codegen
+CMakeFiles/SAROS.dir/codegen:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/codegen
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/mtsh/書類/code/JUCE/ORAS/build/CMakeFiles --progress-num=4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30 "Finished codegen for target SAROS"
+.PHONY : CMakeFiles/SAROS.dir/codegen
 
 # clean rule for target.
-CMakeFiles/ORAS.dir/clean:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ORAS.dir/build.make CMakeFiles/ORAS.dir/clean
-.PHONY : CMakeFiles/ORAS.dir/clean
+CMakeFiles/SAROS.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/SAROS.dir/build.make CMakeFiles/SAROS.dir/clean
+.PHONY : CMakeFiles/SAROS.dir/clean
 
 #=============================================================================
 # Target rules for target CMakeFiles/Assets.dir

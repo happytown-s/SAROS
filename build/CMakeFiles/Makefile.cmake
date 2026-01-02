@@ -23,7 +23,7 @@ set(CMAKE_MAKEFILE_DEPENDS
   "CMakeFiles/VerifyGlobs.cmake"
   "CMakeFiles/cmake.verify_globs"
   "JUCE_build/tools/JUCEToolsExport.cmake"
-  "ORAS_artefacts/JuceLibraryCode/ORAS/Info.plist"
+  "SAROS_artefacts/JuceLibraryCode/SAROS/Info.plist"
   "/opt/homebrew/share/cmake/Modules/BasicConfigVersion-ExactVersion.cmake.in"
   "/opt/homebrew/share/cmake/Modules/CMakeCInformation.cmake"
   "/opt/homebrew/share/cmake/Modules/CMakeCXXInformation.cmake"
@@ -68,10 +68,10 @@ set(CMAKE_MAKEFILE_OUTPUTS
 
 # Byproducts of CMake generate step:
 set(CMAKE_MAKEFILE_PRODUCTS
-  "ORAS_artefacts/JuceLibraryCode/Debug/Defs.txt"
-  "ORASApp/ORAS.app/Contents/MacOS"
-  "ORASApp/ORAS.app/Contents/Info.plist"
-  "ORASApp/ORAS.app/Contents/Info.plist"
+  "SAROS_artefacts/JuceLibraryCode/Debug/Defs.txt"
+  "SAROSApp/SAROS.app/Contents/MacOS"
+  "SAROSApp/SAROS.app/Contents/Info.plist"
+  "SAROSApp/SAROS.app/Contents/Info.plist"
   "CMakeFiles/CMakeDirectoryInformation.cmake"
   "JUCE_build/JUCEConfigVersion.cmake"
   "JUCE_build/JUCEConfig.cmake"
@@ -84,6 +84,6 @@ set(CMAKE_MAKEFILE_PRODUCTS
 
 # Dependency information for all targets:
 set(CMAKE_DEPEND_INFO_FILES
-  "CMakeFiles/ORAS.dir/DependInfo.cmake"
+  "CMakeFiles/SAROS.dir/DependInfo.cmake"
   "CMakeFiles/Assets.dir/DependInfo.cmake"
   )

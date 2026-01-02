@@ -1,3 +1,4 @@
 # Hashes of file build rules.
 63f37987fe5544b48e9d818b7202c4ea ORAS_artefacts/JuceLibraryCode/ORAS/PkgInfo
+e7bd30253935492a2a15932b1c8d4f8a SAROS_artefacts/JuceLibraryCode/SAROS/PkgInfo
 941d747923745fd06ba0d2954231f5a3 juce_binarydata_Assets/JuceLibraryCode/BinaryData1.cpp
