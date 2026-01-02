@@ -652,6 +652,11 @@ private:
         // dragVelocityRemainingが正なら収束加速、負なら拡散
         float currentAdditionalForce = dragVelocityRemaining * 0.05f;
         
+        // ループ外でキャッシュ（パフォーマンス最適化）
+        bool isDiffusing = (dragVelocityRemaining < -0.1f);
+        float screenMax = (float)juce::jmax(getWidth(), getHeight());
+        float outOfBoundsRadius = isDiffusing ? screenMax * 3.0f : screenMax * 1.5f;
+        
         for (int i = 0; i < numParticles; ++i)
         {
             float dist = std::sqrt(particles[i].x * particles[i].x + particles[i].y * particles[i].y);
@@ -682,22 +687,14 @@ private:
                 particles[i].y += particles[i].vy;
                 
                 // 減衰（慣性を残しつつゆっくり）
-                particles[i].vx *= 0.99f; // 0.98 -> 0.99 (抵抗を減らして滑らかに流す)
+                particles[i].vx *= 0.99f;
                 particles[i].vy *= 0.99f;
             }
             
-            // リセットロジック: 加速時の散らばり(オーバーシュート)防止
-            // 負の値（拡散）が入っているときは、外向き移動を許容する
-            bool isDiffusing = (dragVelocityRemaining < -0.1f);
-            
             if (!isDiffusing)
             {
-                // 収束モード (高速・低速問わず)
-                // 中心を通り過ぎて外へ向かっているかチェック (内積 > 0)
+                // 収束モード: 外に向かっているか、中心付近ならリセット
                 bool movingAway = (particles[i].x * particles[i].vx + particles[i].y * particles[i].vy) > 0;
-                
-                // 1. 外に向かっていたら距離に関係なく即座にリセット (散らばり完全防止)
-                // 2. まだ中心に向かっていても、極端に近い場合は吸い込まれたとみなす
                 if (movingAway || dist < 20.0f)
                 {
                     resetParticle(i);
@@ -706,17 +703,12 @@ private:
             }
             else
             {
-                // 拡散モード: 外へ飛んでいくのを許容しつつ、徐々にフェードアウト
-                particles[i].life -= 0.005f; // ゆっくり消える
+                // 拡散モード: フェードアウト
+                particles[i].life -= 0.005f;
                 particles[i].alpha *= 0.995f;
             }
             
-            // 画面外(遠すぎ) or 寿命尽きたらリセット
-            // 拡散モードでは画面外判定を緩くする（3倍まで許容）
-            float outOfBoundsRadius = isDiffusing ? 
-                juce::jmax(getWidth(), getHeight()) * 3.0f : 
-                juce::jmax(getWidth(), getHeight()) * 1.5f;
-            
+            // 画面外 or 寿命尽きたらリセット
             if (particles[i].life <= 0 || (!isDiffusing && dist < 2.0f) || dist > outOfBoundsRadius)
                 resetParticle(i);
         }
