@@ -694,7 +694,11 @@ private:
                 particles[i].vy *= 0.99f;
             }
             
-            if (!isDiffusing)
+            // 収束モードの判定をより厳密に: 実際に引力が働いているときのみ
+            // currentAdditionalForce > 0 なら実際に中心へ引っ張っている
+            bool isActuallyAttracting = (currentAdditionalForce > 0.01f);
+            
+            if (isActuallyAttracting)
             {
                 // 収束モード: 外に向かっているか、中心付近ならリセット
                 bool movingAway = (particles[i].x * particles[i].vx + particles[i].y * particles[i].vy) > 0;
@@ -704,15 +708,19 @@ private:
                     continue; 
                 }
             }
-            else
+            else if (isDiffusing)
             {
                 // 拡散モード: フェードアウト
                 particles[i].life -= 0.005f;
-                particles[i].alpha *= 0.995f;
+                particles[i].alpha = juce::jmax(0.0f, particles[i].alpha * 0.995f);
             }
             
+            // サイズとアルファの安全クランプ（描画エラー防止）
+            particles[i].size = juce::jmax(0.5f, particles[i].size);
+            particles[i].alpha = juce::jlimit(0.0f, 1.0f, particles[i].alpha);
+            
             // 画面外 or 寿命尽きたらリセット
-            if (particles[i].life <= 0 || (!isDiffusing && dist < 2.0f) || dist > outOfBoundsRadius)
+            if (particles[i].life <= 0 || (isActuallyAttracting && dist < 2.0f) || dist > outOfBoundsRadius)
                 resetParticle(i);
         }
         
