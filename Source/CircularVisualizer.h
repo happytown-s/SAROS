@@ -624,7 +624,7 @@ private:
         float startRadius = 0.0f;
         
         // 拡散モード(逆再生)のときは、中心付近から湧き出るようにする
-        if (dragVelocityRemaining < -5.0f) // 閾値
+        if (dragVelocityRemaining < -1.0f) // 閾値
         {
              startRadius = juce::Random::getSystemRandom().nextFloat() * 50.0f;
         }
@@ -687,7 +687,8 @@ private:
             }
             
             // リセットロジック: 加速時の散らばり(オーバーシュート)防止
-            bool isDiffusing = (dragVelocityRemaining < -1.0f);
+            // 負の値（拡散）が入っているときは、外向き移動を許容する
+            bool isDiffusing = (dragVelocityRemaining < -0.1f);
             
             if (!isDiffusing)
             {
