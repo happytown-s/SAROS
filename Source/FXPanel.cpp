@@ -392,7 +392,7 @@ void FXPanel::resized()
     rightArea.setLeft(dividerX + 20); // Add margin
     
     // Uniform Knob Layout - ノブを少し下に配置
-    int knobSize = 90;  // テキストボックス分少し縮小
+    int knobSize = 65;  // ユーザー要望により7割程度に縮小 (90 -> 65)
     int textBoxHeight = 20;  // テキストボックスの高さ
     int labelHeight = 16;
     int spacing = 20;
@@ -402,7 +402,10 @@ void FXPanel::resized()
     // Helper to place a list of sliders centered
     auto placeControls = [&](std::vector<std::pair<juce::Slider*, juce::Label*>> controls, juce::Component* extra = nullptr) 
     {
+        int extraWidth = (extra) ? 80 : 0;
         int totalWidth = (controls.size() * knobSize) + ((controls.size() - 1) * spacing);
+        if (extra) totalWidth += spacing + extraWidth;
+
         int currentX = rightArea.getCentreX() - (totalWidth / 2);
         
         for(auto& p : controls)
@@ -418,10 +421,11 @@ void FXPanel::resized()
         
         if (extra)
         {
-            // Place extra component (like button) below the middle or first knob
-            // 少し上に詰めて配置 (Y座標調整: +10 -> +5, extraH: 35 -> 30)
+            // Place extra component inline (to the right of knobs)
             int extraH = 30;
-            extra->setBounds(rightArea.getCentreX() - 40, startY + knobSize + textBoxHeight + labelHeight + 2, 80, extraH);
+            // Center vertically with the knob circle (approx)
+            int buttonY = startY + (knobSize / 2) - (extraH / 2) + 5; 
+            extra->setBounds(currentX, buttonY, extraWidth, extraH);
         }
     };
 
@@ -433,7 +437,7 @@ void FXPanel::resized()
         
         // Controls below visualizer
         int originalStartY = startY;
-        startY += vizHeight + 20; 
+        startY += vizHeight + 15; 
         
         placeControls({ {&filterSlider, &filterLabel}, {&filterResSlider, &filterResLabel} }, &filterTypeButton);
         
