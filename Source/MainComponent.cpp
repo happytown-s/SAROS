@@ -1046,6 +1046,10 @@ void MainComponent::onRecordingStopped(int trackID)
             nextTargetTrackId = -1;
         }
     });
+
+	// MIDI Learnモード時はアニメーションのために再描画
+	if (midiLearnManager.isLearnModeActive())
+		repaint();
 }
 
 //==============================================================================
@@ -1156,10 +1160,51 @@ void MainComponent::updateNextTargetPreview()
 	repaint();
 }
 
+// -------------------------------------------------------------------------
+// MIDI Learn 視覚効果 (オーバーレイ)
+// -------------------------------------------------------------------------
+void MainComponent::paintOverChildren(juce::Graphics& g)
+{
+	if (!midiLearnManager.isLearnModeActive())
+		return;
+
+	// トラック部分のハイライト
+	float alpha = 0.5f + 0.2f * std::sin(juce::Time::getMillisecondCounter() * 0.01f);
+	
+	for (auto& track : trackUIs)
+	{
+		juce::String controlId = "track_select_" + juce::String(track->getTrackId());
+		auto bounds = track->getBounds().toFloat().expanded(2.0f);
+		
+		// 1. 学習対象として選択されている場合（黄色点滅）
+		if (midiLearnManager.getLearnTarget() == controlId)
+		{
+			g.setColour(juce::Colours::yellow.withAlpha(alpha));
+			g.drawRoundedRectangle(bounds, 8.0f, 4.0f);
+			
+			g.setColour(juce::Colours::yellow.withAlpha(0.15f));
+			g.fillRoundedRectangle(bounds, 8.0f);
+		}
+		// 2. 既にマッピングされている場合（緑枠）
+		else if (midiLearnManager.hasMapping(controlId))
+		{
+			g.setColour(ThemeColours::PlayingGreen.withAlpha(0.8f));
+			g.drawRoundedRectangle(bounds, 8.0f, 2.0f);
+		}
+		// 3. マッピングされていないが対象可能な場合（薄い白枠でヒント）
+		else
+		{
+			g.setColour(ThemeColours::Silver.withAlpha(0.15f));
+			g.drawRoundedRectangle(bounds, 8.0f, 1.0f);
+		}
+	}
+}
+
 // =====================================================
 // MIDI Learn Listener
 // =====================================================
 void MainComponent::midiValueReceived(const juce::String& controlId, float value)
+// ...
 {
 	// Note: 値に関わらずトリガー（トグル動作のMIDIコントローラーに対応）
 	// if (value < 0.5f) return;

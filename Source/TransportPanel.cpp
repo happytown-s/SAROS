@@ -304,3 +304,73 @@ void TransportPanel::midiValueReceived(const juce::String& controlId, float valu
 	else if (controlId == "transport_settings")
 		buttonClicked(&settingButton);
 }
+
+void TransportPanel::midiLearnModeChanged(bool isActive)
+{
+	if (isActive)
+		startTimer(30); // 30ms間隔で点滅アニメーション用
+	else
+	{
+		stopTimer();
+		repaint();
+	}
+}
+
+void TransportPanel::timerCallback()
+{
+	// 点滅アニメーションのために再描画
+	if (midiManager != nullptr && midiManager->isLearnModeActive())
+		repaint();
+}
+
+juce::String TransportPanel::getControlIdForButton(juce::Button* button)
+{
+	if (button == &recordButton)       return "transport_rec";
+	if (button == &playButton)         return "transport_play";
+	if (button == &undoButton)         return "transport_undo";
+	if (button == &clearButton)        return "transport_clear";
+	if (button == &settingButton)      return "transport_settings";
+	return "";
+}
+
+void TransportPanel::paintOverChildren(juce::Graphics& g)
+{
+	if (midiManager == nullptr || !midiManager->isLearnModeActive())
+		return;
+
+	// MIDI Learnモード時のオーバーレイ描画
+	std::vector<juce::TextButton*> buttons = { &recordButton, &playButton, &undoButton, &clearButton, &settingButton };
+	
+	// 点滅用アルファ値 (0.3 ~ 0.7)
+	float alpha = 0.5f + 0.2f * std::sin(juce::Time::getMillisecondCounter() * 0.01f);
+	
+	for (auto* btn : buttons)
+	{
+		juce::String controlId = getControlIdForButton(btn);
+		if (controlId.isEmpty()) continue;
+		
+		auto bounds = btn->getBounds().toFloat().expanded(2.0f);
+		
+		// 1. 学習対象として選択されている場合（黄色点滅）
+		if (midiManager->getLearnTarget() == controlId)
+		{
+			g.setColour(juce::Colours::yellow.withAlpha(alpha));
+			g.drawRoundedRectangle(bounds, 5.0f, 3.0f);
+			
+			g.setColour(juce::Colours::yellow.withAlpha(0.2f));
+			g.fillRoundedRectangle(bounds, 5.0f);
+		}
+		// 2. 既にマッピングされている場合（緑枠）
+		else if (midiManager->hasMapping(controlId))
+		{
+			g.setColour(ThemeColours::PlayingGreen.withAlpha(0.8f));
+			g.drawRoundedRectangle(bounds, 5.0f, 2.0f);
+		}
+		// 3. マッピングされていないが対象可能な場合（薄い白枠でヒント）
+		else
+		{
+			g.setColour(ThemeColours::Silver.withAlpha(0.2f));
+			g.drawRoundedRectangle(bounds, 5.0f, 1.0f);
+		}
+	}
+}

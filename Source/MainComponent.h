@@ -38,6 +38,7 @@ public MidiLearnManager::Listener
 
 	// JUCE Component
 	void paint(juce::Graphics&) override;
+	void paintOverChildren(juce::Graphics& g) override;
 	void resized() override;
 
 	// UIイベント

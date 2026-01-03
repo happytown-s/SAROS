@@ -19,7 +19,8 @@
 // =====================================================
 class TransportPanel: public juce::Component,
 					public juce::Button::Listener,
-					public MidiLearnManager::Listener
+					public MidiLearnManager::Listener,
+					public juce::Timer
 
 {
 public:
@@ -40,13 +41,16 @@ public:
 	void setMidiLearnManager(MidiLearnManager* manager);
 
 	void paint(juce::Graphics& g)override;
+	void paintOverChildren(juce::Graphics& g) override;
 	void resized() override;
+	void timerCallback() override;
 	void buttonClicked(juce::Button* button) override;
 	void setState(State newState);
 	State getState() const{return currentState;}
 	
 	// MidiLearnManager::Listener
 	void midiValueReceived(const juce::String& controlId, float value) override;
+	void midiLearnModeChanged(bool isActive) override;
 
 
 private:
@@ -70,6 +74,7 @@ private:
 	// MIDI Learn
 	MidiLearnManager* midiManager = nullptr;
 	void handleButtonClick(juce::TextButton* button, const juce::String& controlId);
+	juce::String getControlIdForButton(juce::Button* button);
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(TransportPanel);
 };
