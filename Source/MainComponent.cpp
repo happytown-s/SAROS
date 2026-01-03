@@ -1240,6 +1240,13 @@ void MainComponent::paintOverChildren(juce::Graphics& g)
 // =====================================================
 // MIDI Learn Listener
 // =====================================================
+void MainComponent::midiLearnModeChanged(bool isActive)
+{
+	// モード切替時に画面を更新して視覚的フィードバックをクリア/表示
+	repaint();
+	fxPanel.repaint();
+}
+
 void MainComponent::midiValueReceived(const juce::String& controlId, float value)
 // ...
 {

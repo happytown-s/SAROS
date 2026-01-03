@@ -49,6 +49,7 @@ public MidiLearnManager::Listener
 	
 	// MidiLearnManager::Listener
 	void midiValueReceived(const juce::String& controlId, float value) override;
+	void midiLearnModeChanged(bool isActive) override;
 	
 	// Auto-Arm 機能
 	int findNextEmptyTrack(int fromTrackId) const;
