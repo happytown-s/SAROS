@@ -70,6 +70,12 @@ set(HEADER_FILES
     Source/FilterSpectrumVisualizer.h
 )
 
+
+# MSVC対応: ソースコードをUTF-8として扱う
+if (MSVC)
+    target_compile_options(SAROS PRIVATE /utf-8)
+endif()
+
 target_sources(SAROS PRIVATE ${SOURCE_FILES} ${HEADER_FILES})
 
 # 使用モジュール
