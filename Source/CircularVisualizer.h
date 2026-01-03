@@ -353,7 +353,9 @@ public:
             float angle = (currentPlayHeadPos * juce::MathConstants<float>::twoPi) + manualOffset;
             
             // プレイヘッドライン (レーダーのように中心から外へ)
-            auto innerPos = centre.getPointOnCircumference(radius * 0.1f, angle);
+            // 中心部はブラックホールがあるので、その外側から開始する
+            // coreRadiusが 0.20f + bass 程度なので、0.25f〜0.3f あたりから開始すれば綺麗
+            auto innerPos = centre.getPointOnCircumference(radius * 0.28f, angle);
             auto outerPos = centre.getPointOnCircumference(radius * 1.1f, angle);
             
             g.setGradientFill(juce::ColourGradient(juce::Colours::white.withAlpha(0.0f), innerPos.x, innerPos.y,
