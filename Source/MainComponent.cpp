@@ -347,6 +347,9 @@ MainComponent::MainComponent()
 	// TransportPanelにMIDI LearnManagerを設定
 	transportPanel.setMidiLearnManager(&midiLearnManager);
 	
+	// FXPanelにMIDI LearnManagerを設定
+	fxPanel.setMidiLearnManager(&midiLearnManager);
+	
 	midiLearnManager.addListener(this);
 	
 	looper.addListener(this);
@@ -1281,5 +1284,13 @@ void MainComponent::midiValueReceived(const juce::String& controlId, float value
 				trackClicked(track);
 			});
 		}
+		return;
+	}
+
+	// FXパネルのパラメータ制御
+	if (controlId.startsWith("fx_"))
+	{
+		fxPanel.handleMidiControl(controlId, value);
+		return;
 	}
 }

@@ -9,6 +9,7 @@
 */
 
 #include "FXPanel.h"
+#include "MidiLearnManager.h"
 
 FXPanel::FXPanel(LooperAudio& looperRef) : looper(looperRef)
 {
@@ -249,6 +250,9 @@ void FXPanel::setupSlider(juce::Slider& slider, juce::Label& label, const juce::
         return text.getDoubleValue();
     };
     slider.setNumDecimalPlacesToDisplay(0);
+    
+    // MIDI Learn用にリスナーを登録
+    slider.addListener(this);
 
     addChildComponent(label);
     label.setText(name, juce::dontSendNotification);
@@ -593,5 +597,160 @@ void FXPanel::timerCallback()
         juce::AudioBuffer<float> buffer(1, 1024); // Temp buffer
         looper.popMonitorSamples(buffer);
         visualizer.pushBuffer(buffer);
+    }
+}
+
+// =====================================================
+// MIDI Learn 対応
+// =====================================================
+
+void FXPanel::setMidiLearnManager(MidiLearnManager* manager)
+{
+    midiManager = manager;
+}
+
+juce::String FXPanel::getControlIdForSlider(juce::Slider* slider)
+{
+    if (slider == &filterSlider)        return "fx_filter_cutoff";
+    if (slider == &filterResSlider)     return "fx_filter_res";
+    if (slider == &compThreshSlider)    return "fx_comp_thresh";
+    if (slider == &compRatioSlider)     return "fx_comp_ratio";
+    if (slider == &delaySlider)         return "fx_delay_time";
+    if (slider == &delayFeedbackSlider) return "fx_delay_feedback";
+    if (slider == &delayMixSlider)      return "fx_delay_mix";
+    if (slider == &reverbSlider)        return "fx_reverb_mix";
+    if (slider == &reverbDecaySlider)   return "fx_reverb_decay";
+    if (slider == &repeatDivSlider)     return "fx_repeat_div";
+    if (slider == &repeatThreshSlider)  return "fx_repeat_thresh";
+    return "";
+}
+
+juce::Slider* FXPanel::getSliderForControlId(const juce::String& controlId)
+{
+    if (controlId == "fx_filter_cutoff")    return &filterSlider;
+    if (controlId == "fx_filter_res")       return &filterResSlider;
+    if (controlId == "fx_comp_thresh")      return &compThreshSlider;
+    if (controlId == "fx_comp_ratio")       return &compRatioSlider;
+    if (controlId == "fx_delay_time")       return &delaySlider;
+    if (controlId == "fx_delay_feedback")   return &delayFeedbackSlider;
+    if (controlId == "fx_delay_mix")        return &delayMixSlider;
+    if (controlId == "fx_reverb_mix")       return &reverbSlider;
+    if (controlId == "fx_reverb_decay")     return &reverbDecaySlider;
+    if (controlId == "fx_repeat_div")       return &repeatDivSlider;
+    if (controlId == "fx_repeat_thresh")    return &repeatThreshSlider;
+    return nullptr;
+}
+
+void FXPanel::handleMidiControl(const juce::String& controlId, float value)
+{
+    // UIスレッドで実行する
+    juce::MessageManager::callAsync([this, controlId, value]()
+    {
+        auto* slider = getSliderForControlId(controlId);
+        if (slider != nullptr)
+        {
+            // 正規化された値 (0.0-1.0) をスライダーの範囲に変換
+            auto range = slider->getRange();
+            // Skew factorを考慮
+            double proportionalValue = slider->proportionOfLengthToValue(value);
+            slider->setValue(proportionalValue, juce::sendNotificationSync);
+        }
+        // トグルボタン対応
+        else if (controlId == "fx_filter_type")
+        {
+            filterTypeButton.setToggleState(value > 0.5f, juce::sendNotificationSync);
+        }
+        else if (controlId == "fx_repeat_active")
+        {
+            repeatActiveButton.setToggleState(value > 0.5f, juce::sendNotificationSync);
+        }
+    });
+}
+
+void FXPanel::paintOverChildren(juce::Graphics& g)
+{
+    if (midiManager == nullptr || !midiManager->isLearnModeActive())
+        return;
+    
+    // 可視状態のスライダーに対してのみオーバーレイを描画
+    std::vector<juce::Slider*> sliders = {
+        &filterSlider, &filterResSlider,
+        &compThreshSlider, &compRatioSlider,
+        &delaySlider, &delayFeedbackSlider, &delayMixSlider,
+        &reverbSlider, &reverbDecaySlider,
+        &repeatDivSlider, &repeatThreshSlider
+    };
+    
+    float alpha = 0.5f + 0.2f * std::sin(juce::Time::getMillisecondCounter() * 0.01f);
+    
+    for (auto* slider : sliders)
+    {
+        if (!slider->isVisible()) continue;
+        
+        juce::String controlId = getControlIdForSlider(slider);
+        if (controlId.isEmpty()) continue;
+        
+        auto bounds = slider->getBounds().toFloat().expanded(3.0f);
+        
+        // 1. 学習対象として選択されている場合（黄色点滅）
+        if (midiManager->getLearnTarget() == controlId)
+        {
+            g.setColour(juce::Colours::yellow.withAlpha(alpha));
+            g.drawRoundedRectangle(bounds, 6.0f, 3.0f);
+            
+            g.setColour(juce::Colours::yellow.withAlpha(0.2f));
+            g.fillRoundedRectangle(bounds, 6.0f);
+        }
+        // 2. 既にマッピングされている場合（緑枠）
+        else if (midiManager->hasMapping(controlId))
+        {
+            g.setColour(ThemeColours::PlayingGreen.withAlpha(0.8f));
+            g.drawRoundedRectangle(bounds, 6.0f, 2.0f);
+        }
+        // 3. マッピングされていないが対象可能な場合（薄い白枠でヒント）
+        else
+        {
+            g.setColour(ThemeColours::Silver.withAlpha(0.2f));
+            g.drawRoundedRectangle(bounds, 6.0f, 1.0f);
+        }
+    }
+    
+    // トグルボタンも同様に処理
+    auto drawButtonOverlay = [&](juce::TextButton& btn, const juce::String& ctrlId) {
+        if (!btn.isVisible()) return;
+        auto bounds = btn.getBounds().toFloat().expanded(2.0f);
+        
+        if (midiManager->getLearnTarget() == ctrlId)
+        {
+            g.setColour(juce::Colours::yellow.withAlpha(alpha));
+            g.drawRoundedRectangle(bounds, 4.0f, 2.0f);
+        }
+        else if (midiManager->hasMapping(ctrlId))
+        {
+            g.setColour(ThemeColours::PlayingGreen.withAlpha(0.8f));
+            g.drawRoundedRectangle(bounds, 4.0f, 2.0f);
+        }
+    };
+    drawButtonOverlay(filterTypeButton, "fx_filter_type");
+    drawButtonOverlay(repeatActiveButton, "fx_repeat_active");
+}
+
+void FXPanel::sliderValueChanged(juce::Slider* slider)
+{
+    // 何もしない (既存のonValueChangeコールバックで処理されている)
+}
+
+void FXPanel::sliderDragStarted(juce::Slider* slider)
+{
+    // MIDI Learnモード時はスライダーの操作をマッピング登録に変える
+    if (midiManager != nullptr && midiManager->isLearnModeActive())
+    {
+        juce::String controlId = getControlIdForSlider(slider);
+        if (controlId.isNotEmpty())
+        {
+            midiManager->setLearnTarget(controlId);
+            DBG("MIDI Learn: Waiting for input - " << controlId);
+            repaint();
+        }
     }
 }

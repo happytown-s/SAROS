@@ -16,10 +16,14 @@
 #include "FXSlotButtonLookAndFeel.h"
 #include "FilterSpectrumVisualizer.h"
 
+class MidiLearnManager; // 前方宣言
+
 // =====================================================
 // 🎛 FXPanel クラス宣言
 // =====================================================
-class FXPanel: public juce::Component, public juce::Timer
+class FXPanel: public juce::Component, 
+               public juce::Timer,
+               public juce::Slider::Listener
 {
 public:
     enum class EffectType {
@@ -45,11 +49,22 @@ public:
     std::function<void(int)> onTrackSelected;
 
     void paint(juce::Graphics& g) override;
+    void paintOverChildren(juce::Graphics& g) override;
     void resized() override;
     
     void timerCallback() override;
 
     void mouseDown(const juce::MouseEvent& e) override;
+    
+    // MIDI Learn対応
+    void setMidiLearnManager(MidiLearnManager* manager);
+    void handleMidiControl(const juce::String& controlId, float value);
+    juce::String getControlIdForSlider(juce::Slider* slider);
+    juce::Slider* getSliderForControlId(const juce::String& controlId);
+    
+    // Slider::Listener
+    void sliderValueChanged(juce::Slider* slider) override;
+    void sliderDragStarted(juce::Slider* slider) override;
 
 private:
     LooperAudio& looper;
@@ -108,6 +123,9 @@ private:
     void setupSlider(juce::Slider& slider, juce::Label& label, const juce::String& name, const juce::String& style);
     void showEffectMenu(int slotIndex);
     void updateSliderVisibility();
+    
+    // MIDI Learn
+    MidiLearnManager* midiManager = nullptr;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FXPanel)
 };
