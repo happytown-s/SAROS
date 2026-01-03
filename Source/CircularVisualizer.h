@@ -755,21 +755,20 @@ private:
             float proximityBonus = juce::jlimit(0.0f, 1.0f, 1.0f - (dist / maxRadius));
             float alpha = juce::jlimit(0.0f, 1.0f, particles[i].alpha * particles[i].life * (0.2f + proximityBonus * 0.6f));
             
-            // パーティクル本体（核） - 少し小さく
+            // パーティクル本体（核） - さらに小さく
             g.setColour(juce::Colours::white.withAlpha(alpha));
-            float coreSize = particles[i].size * 0.6f;
+            float coreSize = particles[i].size * 0.4f; // 0.6 -> 0.4
             g.fillEllipse(px - coreSize*0.5f, py - coreSize*0.5f, coreSize, coreSize);
             
             // スモーク（柔らかいグロー）
-            // ネオンシアンではなく、少し青みがかった白で霧っぽさを表現
-            // 色: RGB(200, 220, 255) くらい
+            // サイズを小さくして繊細に（細く）
             juce::Colour smokeColor = juce::Colour::fromFloatRGBA(0.85f, 0.9f, 1.0f, 1.0f);
             
-            float glowAlpha = juce::jlimit(0.0f, 1.0f, alpha * 0.3f); // 少し薄くして重ねる
+            float glowAlpha = juce::jlimit(0.0f, 1.0f, alpha * 0.25f); // アルファも少し下げて上品に
             g.setColour(smokeColor.withAlpha(glowAlpha));
             
-            // サイズを大きくしてボケ感を出す
-            float smokeSize = particles[i].size * 2.5f;
+            // 倍率を下げる: 2.5 -> 1.4
+            float smokeSize = particles[i].size * 1.4f;
             g.fillEllipse(px - smokeSize*0.5f, py - smokeSize*0.5f, smokeSize, smokeSize);
         }
     }
