@@ -299,6 +299,17 @@ MainComponent::MainComponent()
 	autoArmButton.setClickingTogglesState(true);
 	autoArmButton.onClick = [this]()
 	{
+		// MIDI Learnモードチェック
+		if (midiLearnManager.isLearnModeActive())
+		{
+			// クリックでトグルしてしまうので元に戻す
+			autoArmButton.setToggleState(!autoArmButton.getToggleState(), juce::dontSendNotification);
+			
+			midiLearnManager.setLearnTarget("main_auto_arm");
+			DBG("MIDI Learn: Waiting for input - main_auto_arm");
+			return;
+		}
+
 		isAutoArmEnabled = autoArmButton.getToggleState();
 		DBG("🔗 Auto-Arm " << (isAutoArmEnabled ? "ON" : "OFF"));
 		
@@ -1171,6 +1182,29 @@ void MainComponent::paintOverChildren(juce::Graphics& g)
 	// トラック部分のハイライト
 	float alpha = 0.5f + 0.2f * std::sin(juce::Time::getMillisecondCounter() * 0.01f);
 	
+	// --- Auto-Armボタンのハイライト ---
+	{
+		juce::String controlId = "main_auto_arm";
+		auto bounds = autoArmButton.getBounds().toFloat().expanded(2.0f);
+		if (midiLearnManager.getLearnTarget() == controlId)
+		{
+			g.setColour(juce::Colours::yellow.withAlpha(alpha));
+			g.drawRoundedRectangle(bounds, 5.0f, 3.0f);
+			g.setColour(juce::Colours::yellow.withAlpha(0.2f));
+			g.fillRoundedRectangle(bounds, 5.0f);
+		}
+		else if (midiLearnManager.hasMapping(controlId))
+		{
+			g.setColour(ThemeColours::PlayingGreen.withAlpha(0.8f));
+			g.drawRoundedRectangle(bounds, 5.0f, 2.0f);
+		}
+		else
+		{
+			g.setColour(ThemeColours::Silver.withAlpha(0.2f));
+			g.drawRoundedRectangle(bounds, 5.0f, 1.0f);
+		}
+	}
+	
 	for (auto& track : trackUIs)
 	{
 		juce::String controlId = "track_select_" + juce::String(track->getTrackId());
@@ -1209,6 +1243,28 @@ void MainComponent::midiValueReceived(const juce::String& controlId, float value
 	// Note: 値に関わらずトリガー（トグル動作のMIDIコントローラーに対応）
 	// if (value < 0.5f) return;
 		
+	if (controlId == "main_auto_arm")
+	{
+		// UIスレッドで実行
+		juce::MessageManager::callAsync([this]()
+		{
+			// トグル切り替え
+			// AutoArmのロジックはonClickに集約されているので、onClickを呼ぶのが一番安全
+			// ただし、LearnModeがONだとonClick内でLearn処理が走ってしまうため、
+			// LearnModeはOFFである必要がある（midiValueReceivedはLearnモードOFF時のみ呼ばれるはず）
+			// Confirm: MidiLearnManager::midiInputCallback handles message -> calls notifyValueReceived if NOT learn mode.
+			// Yes, notifyValueReceived is only called when NOT in learn mode for that specific message?
+			// Checking MidiLearnManager.cpp:
+			// if (learnModeEnabled) { set mapping... } else { notifyValueReceived... }
+			// So yes, safe to call logic.
+			
+			// 直接onClickを呼ぶ
+			autoArmButton.setToggleState(!autoArmButton.getToggleState(), juce::dontSendNotification);
+			autoArmButton.onClick();
+		});
+		return;
+	}
+
 	if (controlId.startsWith("track_select_"))
 	{
 		int trackId = controlId.substring(13).getIntValue();
