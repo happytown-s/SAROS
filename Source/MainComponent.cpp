@@ -321,6 +321,18 @@ MainComponent::MainComponent()
 		updateNextTargetPreview();
 	};
 	addAndMakeVisible(autoArmButton);
+	
+	// MIDI Learn ボタンの初期化
+	midiLearnButton.setButtonText(juce::String::fromUTF8("\xE2\x8C\xA8") + " MIDI LEARN");  // ⌨ MIDI LEARN
+	midiLearnButton.setClickingTogglesState(true);
+	midiLearnButton.setColour(juce::TextButton::buttonOnColourId, ThemeColours::NeonMagenta);
+	midiLearnButton.onClick = [this]()
+	{
+		midiLearnManager.setLearnMode(midiLearnButton.getToggleState());
+		DBG("🎹 MIDI Learn " << (midiLearnButton.getToggleState() ? "ON" : "OFF"));
+	};
+	addAndMakeVisible(midiLearnButton);
+	
 	looper.addListener(this);
 
     // Initialize Global Stars
@@ -599,11 +611,19 @@ void MainComponent::resized()
 {
 	auto area = getLocalBounds().reduced(15);
 	
-	// Auto-Arm ボタンをヘッダー部の右上に配置 (FXボタンの横)
+	// MIDI Learn と Auto-Arm ボタンをヘッダー部の右上に配置
 	int buttonWidth = 100;
+	int midiLearnButtonWidth = 130;  // MIDI Learnボタンは少し幅広く
 	int buttonHeight = 30;
 	int margin = 15;
+	int spacing = 5;
+	
+	// Auto-Arm ボタン（一番右）
 	autoArmButton.setBounds(getWidth() - buttonWidth - margin, 5, buttonWidth, buttonHeight);
+	
+	// MIDI Learn ボタン（Auto-Armの左）
+	midiLearnButton.setBounds(getWidth() - buttonWidth - midiLearnButtonWidth - margin - spacing, 5, 
+	                          midiLearnButtonWidth, buttonHeight);
 	
 // ⬇️ Top margin for layout (skip past the 40px header bar)
 	area.removeFromTop(30);

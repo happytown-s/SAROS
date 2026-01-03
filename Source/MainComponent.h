@@ -84,6 +84,9 @@ public juce::Timer
     juce::ToggleButton autoArmButton;
     bool isAutoArmEnabled = false;
     int nextTargetTrackId = -1;
+    
+    // MIDI Learn 機能
+    juce::ToggleButton midiLearnButton;
 
 
 	std::vector<std::unique_ptr<LooperTrackUi>> trackUIs;
