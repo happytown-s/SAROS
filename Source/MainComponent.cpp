@@ -94,6 +94,11 @@ MainComponent::MainComponent()
 		else if (action == "STOP_REC") {
 			// スタンバイ解除
 			isStandbyMode = false;
+			
+			// Auto-Arm状態もリセット
+			isAutoArmEnabled = false;
+			autoArmButton.setToggleState(false, juce::dontSendNotification);
+			nextTargetTrackId = -1;
             
             if (looper.isAnyRecording())
             {
@@ -127,7 +132,23 @@ MainComponent::MainComponent()
              }
              if (!anyStarted) DBG("⚠️ No tracks to play");
         }
-		else if (action == "STOP")   looper.stopAllTracks();
+		else if (action == "STOP")
+		{
+			looper.stopAllTracks();
+			
+			// Auto-Arm状態とStandby状態をリセット
+			isAutoArmEnabled = false;
+			autoArmButton.setToggleState(false, juce::dontSendNotification);
+			nextTargetTrackId = -1;
+			isStandbyMode = false;
+			
+			for (auto& t : trackUIs)
+			{
+				if (t->getState() == LooperTrackUi::TrackState::Standby)
+					t->setState(LooperTrackUi::TrackState::Idle);
+			}
+			updateStateVisual();
+		}
 		else if (action == "UNDO")   looper.undoLastRecording();
 		else if (action == "CLEAR") {
 		looper.allClear();
@@ -280,6 +301,23 @@ MainComponent::MainComponent()
 	{
 		isAutoArmEnabled = autoArmButton.getToggleState();
 		DBG("🔗 Auto-Arm " << (isAutoArmEnabled ? "ON" : "OFF"));
+		
+		if (!isAutoArmEnabled)
+		{
+			// OFFにした時は選択とStandby状態をクリア
+			nextTargetTrackId = -1;
+			isStandbyMode = false;
+			
+			for (auto& t : trackUIs)
+			{
+				if (t->getState() == LooperTrackUi::TrackState::Standby)
+					t->setState(LooperTrackUi::TrackState::Idle);
+				t->setSelected(false);
+			}
+			selectedTrackId = 0;
+			selectedTrack = nullptr;
+		}
+		
 		updateNextTargetPreview();
 	};
 	addAndMakeVisible(autoArmButton);
