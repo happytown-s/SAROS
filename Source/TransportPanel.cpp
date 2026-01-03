@@ -228,15 +228,17 @@ void TransportPanel::setState(State newState)
 		case State::Standby:
 			recordButton.setButtonText("REC");
 			recordButton.setColour(juce::TextButton::buttonColourId, ThemeColours::ElectricBlue);
-			playButton.setButtonText("PLAY");
-			playButton.setColour(juce::TextButton::buttonColourId, ThemeColours::MetalGray);
+			// スタンバイ中でも停止ボタンを表示（既存の再生トラックを停止可能に）
+			playButton.setButtonText("STOP");
+			playButton.setColour(juce::TextButton::buttonColourId, ThemeColours::ElectricBlue);
 			break;
 
 		case State::Recording:
 			recordButton.setButtonText("STOP_REC");
 			recordButton.setColour(juce::TextButton::buttonColourId, ThemeColours::RecordingRed);
-			playButton.setButtonText("PLAY");
-			playButton.setColour(juce::TextButton::buttonColourId, ThemeColours::MetalGray);
+			// 録音中でも停止ボタンを表示（全停止可能に）
+			playButton.setButtonText("STOP");
+			playButton.setColour(juce::TextButton::buttonColourId, ThemeColours::ElectricBlue);
 			break;
 
 		case State::Playing:

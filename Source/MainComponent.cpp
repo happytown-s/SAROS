@@ -92,13 +92,21 @@ MainComponent::MainComponent()
 			}
 		}
 		else if (action == "STOP_REC") {
-			// スタンバイ解除
+			// スタンバイ解除（録音待機をキャンセル）
 			isStandbyMode = false;
 			
-			// Auto-Arm状態もリセット
-			isAutoArmEnabled = false;
-			autoArmButton.setToggleState(false, juce::dontSendNotification);
-			nextTargetTrackId = -1;
+			// Auto-Arm有効時は録音停止しても継続（onRecordingStoppedで次トラックへ）
+			// Auto-Arm無効時のみスタンバイをIdleに戻す
+			if (!isAutoArmEnabled)
+			{
+				for (auto& t : trackUIs)
+				{
+					if (t->getState() == LooperTrackUi::TrackState::Standby)
+					{
+						t->setState(LooperTrackUi::TrackState::Idle);
+					}
+				}
+			}
             
             if (looper.isAnyRecording())
             {
@@ -106,14 +114,6 @@ MainComponent::MainComponent()
                 looper.stopRecording(id);
                 looper.startPlaying(id);
             }
-
-			for (auto& t : trackUIs)
-			{
-				if (t->getState() == LooperTrackUi::TrackState::Standby)
-				{
-					t->setState(LooperTrackUi::TrackState::Idle);
-				}
-			}
             updateStateVisual();
 		}
 		else if (action == "PLAY")
@@ -831,18 +831,15 @@ void MainComponent::updateStateVisual()
 	{
 		transportPanel.setState(TransportPanel::State::Recording);
 	}
+	else if (anyPlaying)
+	{
+		// 再生中は常にSTOPボタンを表示（Auto-ArmのStandbyより優先）
+		transportPanel.setState(TransportPanel::State::Playing);
+	}
     else if (anyStandby)
     {
         transportPanel.setState(TransportPanel::State::Standby);
     }
-	else if (anyPlaying && selectedDuringPlay)
-	{
-		transportPanel.setState(TransportPanel::State::Playing);
-	}
-	else if (anyPlaying)
-	{
-		transportPanel.setState(TransportPanel::State::Stopped);
-	}
 	else
 	{
 		transportPanel.setState(TransportPanel::State::Idle);
@@ -1054,6 +1051,8 @@ void MainComponent::onRecordingStopped(int trackID)
                 nextTargetTrackId = -1;
                 DBG("🔗 Auto-Arm: 空きトラックなし、自動終了");
             }
+            // Auto-Arm設定後に状態を再更新（再生中ならSTOPボタン表示）
+            updateStateVisual();
         }
         else
         {

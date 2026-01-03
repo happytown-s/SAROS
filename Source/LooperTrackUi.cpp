@@ -65,17 +65,17 @@ void LooperTrackUi::paint(juce::Graphics& g)
 	float pulse = 0.5f + 0.5f * std::sin(time * juce::MathConstants<float>::pi * 0.5f);
 	
 	if(state == TrackState::Recording){
-		float alpha = 0.2f + 0.3f * pulse; // 0.2 to 0.5
+		float alpha = juce::jlimit(0.0f, 1.0f, 0.2f + 0.3f * pulse); // 0.2 to 0.5
 		g.setColour(ThemeColours::RecordingRed.withAlpha(alpha));
 		g.fillRoundedRectangle(buttonArea, 8.0f);
 		drawGlowingBorder(g, ThemeColours::RecordingRed, buttonArea);
 	}else if(state == TrackState::Playing){
-		float alpha = 0.1f + 0.15f * pulse; // 0.1 to 0.25
+		float alpha = juce::jlimit(0.0f, 1.0f, 0.1f + 0.15f * pulse); // 0.1 to 0.25
 		g.setColour(ThemeColours::PlayingGreen.withAlpha(alpha));
 		g.fillRoundedRectangle(buttonArea, 8.0f);
 		drawGlowingBorder(g, ThemeColours::PlayingGreen, buttonArea);
 	} else if (state == TrackState::Standby) {
-		float alpha = 0.15f + 0.2f * pulse; // 0.15 to 0.35
+		float alpha = juce::jlimit(0.0f, 1.0f, 0.15f + 0.2f * pulse); // 0.15 to 0.35
         g.setColour(ThemeColours::ElectricBlue.withAlpha(alpha));
         g.fillRoundedRectangle(buttonArea, 8.0f);
         drawGlowingBorder(g, ThemeColours::ElectricBlue, buttonArea);
@@ -117,7 +117,7 @@ void LooperTrackUi::paint(juce::Graphics& g)
 	for (int i = 4; i >= 1; --i)
 	{
 		float expand = (float)i * 2.5f;
-		float alpha = baseGlowAlpha * glowIntensity * (1.0f - (float)i / 5.0f);
+		float alpha = juce::jlimit(0.0f, 1.0f, baseGlowAlpha * glowIntensity * (1.0f - (float)i / 5.0f));
 		g.setColour(trackColour.withAlpha(alpha));
 		g.fillRoundedRectangle(meterArea.expanded(expand), 3.0f + expand * 0.5f);
 	}

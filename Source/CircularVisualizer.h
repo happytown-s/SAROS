@@ -257,39 +257,72 @@ public:
         }
         if (levelCount > 0) masterLevel /= (float)levelCount;
         masterLevel = juce::jlimit(0.0f, 1.0f, masterLevel * 3.0f); // 感度を上げてダイナミックに
+        
+        // 中高音レベル計算（スパイク用）
+        float midHighLevel = 0.0f;
+        int midHighCount = 0;
+        for (int i = scopeSize / 4; i < scopeSize / 2; ++i) {
+            midHighLevel += scopeData[i];
+            midHighCount++;
+        }
+        if (midHighCount > 0) midHighLevel /= (float)midHighCount;
+        midHighLevel = juce::jlimit(0.0f, 1.0f, midHighLevel * 4.0f);
 
+        // パーティクルを先に描画（ブラックホールに吸い込まれる演出）
         drawParticles(g, centre, maxParticleDist, masterLevel);
 
-        // --- 2. Black Hole Core ---
-        float bassLevel = juce::jlimit(0.0f, 1.0f, scopeData[0] * 0.5f + scopeData[1] * 0.3f + scopeData[2] * 0.2f);
+        // --- 2. Black Hole Core (Eclipse Style) ---
+        // scopeDataは負になる可能性があるのでクランプ
+        float bassLevel = juce::jlimit(0.0f, 1.0f, 
+            std::max(0.0f, scopeData[0]) * 0.5f + 
+            std::max(0.0f, scopeData[1]) * 0.3f + 
+            std::max(0.0f, scopeData[2]) * 0.2f);
         
         // ブラックホールのイベントホライズン（黒い核）
         // 低音でサイズが少し変動
         float coreRadius = radius * (0.20f + bassLevel * 0.10f); 
         
-        // 降着円盤 (Accretion Disk) - 周囲の光
-        // 見えるか見えないかくらいまで、ごく薄く、細くする
-        float diskRadius = coreRadius * 1.1f;
+        // === 炎/プラズマ風グローエフェクト（円形リング）===
+        float time = (float)juce::Time::getMillisecondCounterHiRes() * 0.001f;
         
-        // 降着円盤も音量でわずかに明るくする
-        float diskAlpha = 0.15f + masterLevel * 0.15f;
+        // 炎グロー（複数層の円形リング）
+        for (int layer = 0; layer < 3; ++layer)
+        {
+            float layerOffset = (float)layer * 0.04f;
+            float flameRadius = coreRadius * (1.02f + layerOffset);
+            
+            // アニメーションするアルファ値（炎のゆらめき）
+            float flicker = 0.5f + 0.5f * std::sin(time * 3.0f + layer * 1.5f);
+            float baseAlpha = (0.2f - layer * 0.06f) * (0.4f + midHighLevel * 0.6f);
+            float layerAlpha = juce::jlimit(0.0f, 0.4f, baseAlpha * (0.7f + flicker * 0.3f));
+            
+            // 炎の色（内側ほど白、外側ほどオレンジ〜赤）
+            juce::Colour flameColor;
+            if (layer == 0)
+                flameColor = juce::Colour::fromFloatRGBA(1.0f, 0.95f, 0.9f, layerAlpha);   // 白〜クリーム
+            else if (layer == 1)
+                flameColor = juce::Colour::fromFloatRGBA(1.0f, 0.75f, 0.4f, layerAlpha);  // オレンジ
+            else
+                flameColor = juce::Colour::fromFloatRGBA(1.0f, 0.5f, 0.2f, layerAlpha);   // 赤オレンジ
+            
+            g.setColour(flameColor);
+            float strokeWidth = 2.5f - layer * 0.6f;
+            g.drawEllipse(centre.x - flameRadius, centre.y - flameRadius, 
+                         flameRadius * 2.0f, flameRadius * 2.0f, strokeWidth);
+        }
         
-        juce::ColourGradient diskGrad(juce::Colours::white.withAlpha(diskAlpha), centre.x, centre.y,
-                                     ThemeColours::NeonCyan.withAlpha(0.0f), centre.x + diskRadius, centre.y + diskRadius, true);
-        g.setGradientFill(diskGrad);
-        g.fillEllipse(centre.x - diskRadius, centre.y - diskRadius, diskRadius * 2.0f, diskRadius * 2.0f);
-
-        // イベントホライズン（本体） - 漆黒
+        // イベントホライズン（本体） - 完全な円形、漆黒
         g.setColour(juce::Colours::black);
         g.fillEllipse(centre.x - coreRadius, centre.y - coreRadius, coreRadius * 2.0f, coreRadius * 2.0f);
         
         // 追加の闇（中心をより深く見せる）
-        g.setColour(juce::Colours::black.withAlpha(0.9f));
+        g.setColour(juce::Colours::black.withAlpha(0.95f));
         g.fillEllipse(centre.x - coreRadius*0.9f, centre.y - coreRadius*0.9f, coreRadius * 1.8f, coreRadius * 1.8f);
 
-        // 外側の装飾リング（重力レンズ的な歪みの表現として残す）
-        g.setColour(juce::Colours::white.withAlpha(0.05f)); // こちらもさらに薄く
-        g.drawEllipse(bounds.withSizeKeepingCentre(radius * 2.1f, radius * 2.1f), 1.0f);
+        // 極細の光輪
+        float coronaAlpha = juce::jlimit(0.05f, 0.3f, 0.1f + masterLevel * 0.15f);
+        g.setColour(juce::Colours::white.withAlpha(coronaAlpha));
+        g.drawEllipse(centre.x - coreRadius*1.01f, centre.y - coreRadius*1.01f, coreRadius * 2.02f, coreRadius * 2.02f, 0.8f);
 
         // --- Draw Concentric Waveforms with Glow ---
         // --- Draw Concentric Waveforms with Glow ---
@@ -367,10 +400,8 @@ public:
             g.fillEllipse(headPos.x - 3.0f, headPos.y - 3.0f, 6.0f, 6.0f);
         }
 
-
         // Draw spinning accent rings
-        float time = (float)juce::Time::getMillisecondCounterHiRes() * 0.001f;
-        
+        // 'time' は既に286行目で定義済みなので再利用
         // Secondary data rings
         g.setColour(ThemeColours::NeonCyan.withAlpha(0.15f));
         drawRotatingRing(g, centre, radius * 1.05f, time, 0.4f);
