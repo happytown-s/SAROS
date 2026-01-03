@@ -246,7 +246,19 @@ public:
         // --- 1. Particle Field (White Smoke / Stars) ---
         // 画面全体に描画するため、大きな半径を渡す
         float maxParticleDist = juce::jmax(bounds.getWidth(), bounds.getHeight()) * 0.8f;
-        drawParticles(g, centre, maxParticleDist);
+        
+        // マスターレベル（全体の音量感）を計算
+        // 平均的なエネルギーを使用
+        float masterLevel = 0.0f;
+        int levelCount = 0;
+        for (int i = 0; i < scopeSize / 2; ++i) {
+            masterLevel += scopeData[i];
+            levelCount++;
+        }
+        if (levelCount > 0) masterLevel /= (float)levelCount;
+        masterLevel = juce::jlimit(0.0f, 1.0f, masterLevel * 3.0f); // 感度を上げてダイナミックに
+
+        drawParticles(g, centre, maxParticleDist, masterLevel);
 
         // --- 2. Black Hole Core ---
         float bassLevel = juce::jlimit(0.0f, 1.0f, scopeData[0] * 0.5f + scopeData[1] * 0.3f + scopeData[2] * 0.2f);
@@ -258,7 +270,11 @@ public:
         // 降着円盤 (Accretion Disk) - 周囲の光
         // 見えるか見えないかくらいまで、ごく薄く、細くする
         float diskRadius = coreRadius * 1.1f;
-        juce::ColourGradient diskGrad(juce::Colours::white.withAlpha(0.15f), centre.x, centre.y,
+        
+        // 降着円盤も音量でわずかに明るくする
+        float diskAlpha = 0.15f + masterLevel * 0.15f;
+        
+        juce::ColourGradient diskGrad(juce::Colours::white.withAlpha(diskAlpha), centre.x, centre.y,
                                      ThemeColours::NeonCyan.withAlpha(0.0f), centre.x + diskRadius, centre.y + diskRadius, true);
         g.setGradientFill(diskGrad);
         g.fillEllipse(centre.x - diskRadius, centre.y - diskRadius, diskRadius * 2.0f, diskRadius * 2.0f);
@@ -738,7 +754,7 @@ private:
         if (std::abs(dragVelocityRemaining) < 0.001f) dragVelocityRemaining = 0.0f;
     }
 
-    void drawParticles(juce::Graphics& g, juce::Point<float> centre, float maxRadius)
+    void drawParticles(juce::Graphics& g, juce::Point<float> centre, float maxRadius, float audioLevel)
     {
         // 0 除算防止
         if (maxRadius < 1.0f) maxRadius = 400.0f;
@@ -755,20 +771,35 @@ private:
             float proximityBonus = juce::jlimit(0.0f, 1.0f, 1.0f - (dist / maxRadius));
             float alpha = juce::jlimit(0.0f, 1.0f, particles[i].alpha * particles[i].life * (0.2f + proximityBonus * 0.6f));
             
+            // 音量レベルによるブースト（アルファ値）
+            // 音が大きいと不透明度が上がる
+            float alphaBoost = audioLevel * 0.5f;
+            alpha = juce::jlimit(0.0f, 1.0f, alpha * (1.0f + alphaBoost));
+
             // パーティクル本体（核） - さらに小さく
             g.setColour(juce::Colours::white.withAlpha(alpha));
-            float coreSize = particles[i].size * 0.4f; // 0.6 -> 0.4
+            float coreSize = particles[i].size * 0.4f; 
+            
+            // サイズも音量で少し大きく
+            float sizeBoost = 1.0f + audioLevel * 0.5f;
+            coreSize *= sizeBoost;
+            
             g.fillEllipse(px - coreSize*0.5f, py - coreSize*0.5f, coreSize, coreSize);
             
             // スモーク（柔らかいグロー）
             // サイズを小さくして繊細に（細く）
             juce::Colour smokeColor = juce::Colour::fromFloatRGBA(0.85f, 0.9f, 1.0f, 1.0f);
             
-            float glowAlpha = juce::jlimit(0.0f, 1.0f, alpha * 0.25f); // アルファも少し下げて上品に
+            // 音量が大きいと少し白さを強調
+            if (audioLevel > 0.5f) {
+                smokeColor = smokeColor.brighter(0.1f * (audioLevel - 0.5f));
+            }
+            
+            float glowAlpha = juce::jlimit(0.0f, 1.0f, alpha * 0.25f); 
             g.setColour(smokeColor.withAlpha(glowAlpha));
             
-            // 倍率を下げる: 2.5 -> 1.4
-            float smokeSize = particles[i].size * 1.4f;
+            // 倍率を下げる: 2.5 -> 1.4 -> 音量でブースト
+            float smokeSize = particles[i].size * 1.4f * sizeBoost;
             g.fillEllipse(px - smokeSize*0.5f, py - smokeSize*0.5f, smokeSize, smokeSize);
         }
     }
