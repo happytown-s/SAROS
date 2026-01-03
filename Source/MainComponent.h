@@ -19,7 +19,8 @@ class MainComponent :
 public juce::AudioAppComponent,
 public LooperTrackUi::Listener,
 public LooperAudio::Listener,
-public juce::Timer
+public juce::Timer,
+public MidiLearnManager::Listener
 {
 	public:
 	MainComponent();
@@ -44,6 +45,9 @@ public juce::Timer
 	void showDeviceSettings();
 	void updateStateVisual();
 	int getSelectedTrackId() const {return selectedTrackId;}
+	
+	// MidiLearnManager::Listener
+	void midiValueReceived(const juce::String& controlId, float value) override;
 	
 	// Auto-Arm 機能
 	int findNextEmptyTrack(int fromTrackId) const;

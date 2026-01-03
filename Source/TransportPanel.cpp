@@ -278,7 +278,7 @@ void TransportPanel::handleButtonClick(juce::TextButton* button, const juce::Str
 	if (midiManager != nullptr && midiManager->isLearnModeActive())
 	{
 		midiManager->setLearnTarget(controlId);
-		DBG("MIDI Learn: 待機中 - " + controlId);
+		DBG("MIDI Learn: Waiting for input - " + controlId);
 		// MIDI信号を待つ（MidiLearnManagerが自動的に処理）
 		return;
 	}

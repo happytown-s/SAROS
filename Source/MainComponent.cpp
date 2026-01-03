@@ -323,7 +323,7 @@ MainComponent::MainComponent()
 	addAndMakeVisible(autoArmButton);
 	
 	// MIDI Learn ボタンの初期化
-	midiLearnButton.setButtonText(juce::String::fromUTF8("\xE2\x8C\xA8") + " MIDI LEARN");  // ⌨ MIDI LEARN
+	midiLearnButton.setButtonText("MIDI LEARN");
 	midiLearnButton.setClickingTogglesState(true);
 	midiLearnButton.setColour(juce::TextButton::buttonOnColourId, ThemeColours::NeonMagenta);
 	midiLearnButton.onClick = [this]()
@@ -335,6 +335,8 @@ MainComponent::MainComponent()
 	
 	// TransportPanelにMIDI LearnManagerを設定
 	transportPanel.setMidiLearnManager(&midiLearnManager);
+	
+	midiLearnManager.addListener(this);
 	
 	looper.addListener(this);
 
@@ -353,6 +355,7 @@ MainComponent::MainComponent()
 
 MainComponent::~MainComponent()
 {
+	midiLearnManager.removeListener(this);
 	saveAudioDeviceSettings();
 	shutdownAudio();
 }
@@ -720,6 +723,15 @@ void MainComponent::resized()
 
 void MainComponent::trackClicked(LooperTrackUi* clickedTrack)
 {
+	// MIDI Learnモードの場合、学習対象として設定
+	if (midiLearnManager.isLearnModeActive())
+	{
+		juce::String controlId = "track_select_" + juce::String(clickedTrack->getTrackId());
+		midiLearnManager.setLearnTarget(controlId);
+		DBG("MIDI Learn: Waiting for input - " + controlId);
+		return;
+	}
+
 	const bool wasSelected = clickedTrack->getIsSelected(); // 押す前の状態を記録
 
 	// まず全トラックの選択を解除
@@ -1142,4 +1154,32 @@ void MainComponent::updateNextTargetPreview()
 	
 	nextTargetTrackId = findNextEmptyTrack(currentTrack);
 	repaint();
+}
+
+// =====================================================
+// MIDI Learn Listener
+// =====================================================
+void MainComponent::midiValueReceived(const juce::String& controlId, float value)
+{
+	// Note: 値が0.5以上でトリガー（トグル動作）
+	if (value < 0.5f)
+		return;
+		
+	if (controlId.startsWith("track_select_"))
+	{
+		int trackId = controlId.substring(13).getIntValue();
+		if (trackId >= 1 && trackId <= trackUIs.size())
+		{
+			// トラック選択処理を実行
+			auto* track = trackUIs[trackId - 1].get();
+			
+			// UIスレッドで実行
+			juce::MessageManager::callAsync([this, track]()
+			{
+				// 通常モード時の呼び出しなので、trackClicked内でLearnモードチェックはfalseになり、
+				// 通常の選択ロジックが実行される
+				trackClicked(track);
+			});
+		}
+	}
 }
