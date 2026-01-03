@@ -256,9 +256,9 @@ public:
         float coreRadius = radius * (0.20f + bassLevel * 0.10f); 
         
         // 降着円盤 (Accretion Disk) - 周囲の光
-        // 白〜青白く光る
-        float diskRadius = coreRadius * 1.4f;
-        juce::ColourGradient diskGrad(juce::Colours::white.withAlpha(0.6f), centre.x, centre.y,
+        // 見えるか見えないかくらいまで、ごく薄く、細くする
+        float diskRadius = coreRadius * 1.1f;
+        juce::ColourGradient diskGrad(juce::Colours::white.withAlpha(0.15f), centre.x, centre.y,
                                      ThemeColours::NeonCyan.withAlpha(0.0f), centre.x + diskRadius, centre.y + diskRadius, true);
         g.setGradientFill(diskGrad);
         g.fillEllipse(centre.x - diskRadius, centre.y - diskRadius, diskRadius * 2.0f, diskRadius * 2.0f);
@@ -268,11 +268,11 @@ public:
         g.fillEllipse(centre.x - coreRadius, centre.y - coreRadius, coreRadius * 2.0f, coreRadius * 2.0f);
         
         // 追加の闇（中心をより深く見せる）
-        g.setColour(juce::Colours::black.withAlpha(0.8f));
-        g.fillEllipse(centre.x - coreRadius*0.8f, centre.y - coreRadius*0.8f, coreRadius * 1.6f, coreRadius * 1.6f);
+        g.setColour(juce::Colours::black.withAlpha(0.9f));
+        g.fillEllipse(centre.x - coreRadius*0.9f, centre.y - coreRadius*0.9f, coreRadius * 1.8f, coreRadius * 1.8f);
 
         // 外側の装飾リング（重力レンズ的な歪みの表現として残す）
-        g.setColour(juce::Colours::white.withAlpha(0.15f));
+        g.setColour(juce::Colours::white.withAlpha(0.05f)); // こちらもさらに薄く
         g.drawEllipse(bounds.withSizeKeepingCentre(radius * 2.1f, radius * 2.1f), 1.0f);
 
         // --- Draw Concentric Waveforms with Glow ---
