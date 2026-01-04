@@ -372,6 +372,9 @@ MainComponent::MainComponent()
         s.speed = juce::Random::getSystemRandom().nextFloat() * 0.05f + 0.02f;
         stars.push_back(s);
     }
+    
+    // キーボード入力を受け付けるように設定
+    setWantsKeyboardFocus(true);
 }
 
 MainComponent::~MainComponent()
@@ -797,8 +800,9 @@ void MainComponent::trackClicked(LooperTrackUi* clickedTrack)
 
 void MainComponent::showDeviceSettings()
 {
-	auto* settingsComp = new SettingsComponent(deviceManager, inputTap.getManager(), midiLearnManager);
-    settingsComp->setSize(550, 450);
+	auto* settingsComp = new SettingsComponent(deviceManager, inputTap.getManager(), 
+	                                           midiLearnManager, keyboardMappingManager);
+    settingsComp->setSize(600, 700);
 
 	juce::DialogWindow::LaunchOptions opts;
 	opts.dialogTitle = "Audio Device & Trigger Settings";
@@ -1307,4 +1311,85 @@ void MainComponent::midiValueReceived(const juce::String& controlId, float value
 		fxPanel.handleMidiControl(controlId, value);
 		return;
 	}
+}
+
+bool MainComponent::keyPressed(const juce::KeyPress& key)
+{
+	// キーマッピングからアクションを取得
+	juce::String action = keyboardMappingManager.getActionForKey(key.getKeyCode());
+	
+	if (action.isEmpty())
+		return false;  // マッピングされていないキー
+	
+	DBG("⌨️ Key action: " << action);
+	
+	// === Transport Actions ===
+	if (action == KeyboardMappingManager::ACTION_REC)
+	{
+		if (transportPanel.onAction)
+			transportPanel.onAction("REC");
+		return true;
+	}
+	if (action == KeyboardMappingManager::ACTION_PLAY)
+	{
+		if (transportPanel.onAction)
+			transportPanel.onAction("PLAY");
+		return true;
+	}
+	if (action == KeyboardMappingManager::ACTION_UNDO)
+	{
+		if (transportPanel.onAction)
+			transportPanel.onAction("UNDO");
+		return true;
+	}
+	
+	// === Track Selection ===
+	if (action.startsWith("track_"))
+	{
+		int trackId = action.substring(6).getIntValue();
+		if (trackId >= 1 && trackId <= (int)trackUIs.size())
+		{
+			// 全トラックの選択を解除
+			for (auto& t : trackUIs)
+				t->setSelected(false);
+			
+			// 指定トラックを選択
+			trackUIs[trackId - 1]->setSelected(true);
+			
+			// FXモード時はFXパネルも更新
+			if (isFXMode)
+				fxPanel.setTargetTrackId(trackId);
+			
+			for (auto& t : trackUIs)
+				t->repaint();
+				
+			DBG("⌨️ Track " << trackId << " selected via keyboard");
+		}
+		return true;
+	}
+	
+	// === Auto-Arm Toggle ===
+	if (action == KeyboardMappingManager::ACTION_AUTO_ARM)
+	{
+		autoArmButton.setToggleState(!autoArmButton.getToggleState(), juce::sendNotification);
+		return true;
+	}
+	
+	// === Visual Mode Toggle ===
+	if (action == KeyboardMappingManager::ACTION_VISUAL_MODE)
+	{
+		if (transportPanel.onToggleTracks)
+			transportPanel.onToggleTracks();
+		return true;
+	}
+	
+	// === FX Mode Toggle ===
+	if (action == KeyboardMappingManager::ACTION_FX_MODE)
+	{
+		if (transportPanel.onShowFX)
+			transportPanel.onShowFX();
+		return true;
+	}
+	
+	return false;
 }

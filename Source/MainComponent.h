@@ -11,6 +11,7 @@
 #include "CircularVisualizer.h"
 #include "FXPanel.h"
 #include "MidiLearnManager.h"
+#include "KeyboardMappingManager.h"
 
 //==============================================================================
 // ルーパーアプリ本体
@@ -40,6 +41,7 @@ public MidiLearnManager::Listener
 	void paint(juce::Graphics&) override;
 	void paintOverChildren(juce::Graphics& g) override;
 	void resized() override;
+	bool keyPressed(const juce::KeyPress& key) override;
 
 	// UIイベント
 	void trackClicked(LooperTrackUi* trackClicked) override;
@@ -76,6 +78,9 @@ public MidiLearnManager::Listener
 	
 	// ===== MIDI Learn =====
 	MidiLearnManager midiLearnManager;
+	
+	// ===== Keyboard Mapping =====
+	KeyboardMappingManager keyboardMappingManager;
 
 	// ===== UI =====
 	CircularVisualizer visualizer;

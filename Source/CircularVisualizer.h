@@ -248,21 +248,21 @@ public:
         float maxParticleDist = juce::jmax(bounds.getWidth(), bounds.getHeight()) * 0.8f;
         
         // マスターレベル（全体の音量感）を計算
-        // 平均的なエネルギーを使用
+        // 平均的なエネルギーを使用 - scopeDataは負になる可能性があるのでクランプ
         float masterLevel = 0.0f;
         int levelCount = 0;
         for (int i = 0; i < scopeSize / 2; ++i) {
-            masterLevel += scopeData[i];
+            masterLevel += std::max(0.0f, scopeData[i]);
             levelCount++;
         }
         if (levelCount > 0) masterLevel /= (float)levelCount;
         masterLevel = juce::jlimit(0.0f, 1.0f, masterLevel * 3.0f); // 感度を上げてダイナミックに
         
-        // 中高音レベル計算（スパイク用）
+        // 中高音レベル計算（スパイク用） - scopeDataをクランプ
         float midHighLevel = 0.0f;
         int midHighCount = 0;
         for (int i = scopeSize / 4; i < scopeSize / 2; ++i) {
-            midHighLevel += scopeData[i];
+            midHighLevel += std::max(0.0f, scopeData[i]);
             midHighCount++;
         }
         if (midHighCount > 0) midHighLevel /= (float)midHighCount;
@@ -424,7 +424,7 @@ public:
         {
             // 3時(0度)開始
             float angle = (float)i / (float)numBars * juce::MathConstants<float>::twoPi;
-            float level = scopeData[i * 2]; // Sample every other data point
+            float level = std::max(0.0f, scopeData[i * 2]); // 負の値をクランプ
             float barHeight = level * maxBarHeight;
             
             if (barHeight < 1.0f) continue; // Skip very small bars
@@ -703,7 +703,9 @@ private:
 
     void updateParticles()
     {
-        float bassLevel = scopeData[0] * 0.5f + scopeData[1] * 0.5f;
+        // scopeDataが負にならないようクランプ
+        float bassLevel = juce::jlimit(0.0f, 1.0f, 
+            std::max(0.0f, scopeData[0]) * 0.5f + std::max(0.0f, scopeData[1]) * 0.5f);
         float attractStrength = 0.3f + bassLevel * 0.5f; // 低音に反応して吸引力が強くなる
         
         // ベースの力 (通常時ゆっくり) + ドラッグによる追加力
