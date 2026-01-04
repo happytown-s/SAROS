@@ -12,11 +12,15 @@
             "problemMatcher": []
         },
         {
-            "label": "Run SAROS",
+            "label": "Run SAROS in Terminal",
             "type": "shell",
-            "command": "open ${workspaceFolder}/build/SAROSApp/SAROS.app",
+            "command": "${workspaceFolder}/build/SAROSApp/SAROS.app/Contents/MacOS/SAROS",
             "problemMatcher": [],
-            "dependsOn": "CMake: build"
+            "dependsOn": "CMake: build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
         }
     ]
 }

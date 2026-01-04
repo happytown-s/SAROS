@@ -106,6 +106,11 @@ class LooperTrackUi : public juce::Component,juce::Timer
 
 public:
 	std::function<void(float)> onGainChange;
+	std::function<void(float)> onLoopMultiplierChange; // 🆕 Added callback
+
+    // Multiplier Buttons
+    juce::TextButton mult2xButton { "x2" };
+    juce::TextButton multHalfButton { "/2" };
 
 	void setLevel(float rms);
 	float getGain() const { return (float)gainSlider.getValue(); }

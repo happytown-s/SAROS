@@ -35,6 +35,20 @@ MainComponent::MainComponent()
 		{
 			looper.setTrackGain(newId, gain);
 		};
+        
+        // 倍率変更時のコールバック
+        track->onLoopMultiplierChange = [this, newId](float multiplier)
+        {
+            looper.setTrackLoopMultiplier(newId, multiplier);
+            // ビジュアライザの波形も即座に更新
+            visualizer.setTrackMultiplier(newId, multiplier);
+            
+            // x2の時のみマスターを2周表示、/2の時はマスターはそのまま（1周）
+            if (multiplier > 1.0f)
+                visualizer.setTrackMultiplier(1, multiplier);  // x2 -> マスターも2周
+            else
+                visualizer.setTrackMultiplier(1, 1.0f);        // /2 or 1x -> マスター1周
+        };
 		
 		addAndMakeVisible(track.get());
 		trackUIs.push_back(std::move(track));

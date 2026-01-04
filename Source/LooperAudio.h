@@ -127,6 +127,7 @@ private:
 		int lengthInSample = 0; //トラックの長さ
 		float currentLevel = 0.0f;
 		float gain = 1.0f;
+		float loopMultiplier = 1.0f; // 1.0, 2.0 (x2), 0.5 (/2)
 		
 		// Per-Track FX Chain
 		FXChain fx;
@@ -146,6 +147,7 @@ public:
 
 	float getTrackRMS(int trackId) const;
 	void setTrackGain(int trackId, float gain);
+	void setTrackLoopMultiplier(int trackId, float multiplier);
 
     // Per-Track FX Setters
     void setTrackFilterCutoff(int trackId, float freq);

@@ -1,7 +1,0 @@
-{
-    "cmake.sourceDirectory": "${workspaceFolder}",
-    "cmake.debugConfig": {
-        "cwd": "${workspaceFolder}/build/SAROSApp/SAROS.app/Contents/MacOS"
-    },
-    "cmake.defaultLaunchTarget": "SAROS"
-}

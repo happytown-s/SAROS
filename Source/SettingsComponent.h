@@ -23,7 +23,7 @@ public:
         leftActiveBtn.setClickingTogglesState(true);
         leftActiveBtn.setToggleState(leftSettings.isActive, juce::dontSendNotification);
         leftActiveBtn.setColour(juce::TextButton::buttonColourId, juce::Colours::darkgrey.darker());
-        leftActiveBtn.setColour(juce::TextButton::buttonOnColourId, ThemeColours::NeonCyan);
+        leftActiveBtn.setColour(juce::TextButton::buttonOnColourId, ThemeColours::NeonCyan.withAlpha(0.7f));
         leftActiveBtn.onClick = [this, &leftSettings]() {
             leftSettings.isActive = leftActiveBtn.getToggleState();
         };
@@ -37,7 +37,7 @@ public:
             rightActiveBtn.setClickingTogglesState(true);
             rightActiveBtn.setToggleState(rightSettings.isActive, juce::dontSendNotification);
             rightActiveBtn.setColour(juce::TextButton::buttonColourId, juce::Colours::darkgrey.darker());
-            rightActiveBtn.setColour(juce::TextButton::buttonOnColourId, ThemeColours::NeonCyan);
+            rightActiveBtn.setColour(juce::TextButton::buttonOnColourId, ThemeColours::NeonCyan.withAlpha(0.7f));
             rightActiveBtn.onClick = [this, &rightSettings]() {
                 rightSettings.isActive = rightActiveBtn.getToggleState();
             };
@@ -50,7 +50,7 @@ public:
         linkBtn.setClickingTogglesState(true);
         linkBtn.setToggleState(leftSettings.isStereoLinked, juce::dontSendNotification);
         linkBtn.setColour(juce::TextButton::buttonColourId, juce::Colours::darkgrey.darker());
-        linkBtn.setColour(juce::TextButton::buttonOnColourId, ThemeColours::NeonMagenta);
+        linkBtn.setColour(juce::TextButton::buttonOnColourId, ThemeColours::NeonMagenta.withAlpha(0.7f));
         linkBtn.onClick = [this, &leftSettings]() {
             bool linked = linkBtn.getToggleState();
             leftSettings.isStereoLinked = linked;

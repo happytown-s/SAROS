@@ -88,11 +88,16 @@ void LooperAudio::startRecording(int trackId)
         track.buffer.setSize(2, maxSamples);
         DBG("🔧 Resized Track " << trackId << " buffer to maxSamples (" << maxSamples << ")");
     }
-    // Optimization/Safety: If Slave, ensure at least Master Length
-    else if (masterLoopLength > 0 && track.buffer.getNumSamples() < masterLoopLength)
+    // Optimization/Safety: If Slave, ensure at least Master Length * multiplier
+    else if (masterLoopLength > 0)
     {
-        track.buffer.setSize(2, masterLoopLength);
-        DBG("🔧 Resized Track " << trackId << " buffer to masterLoopLength (" << masterLoopLength << ")");
+        int requiredSize = (int)(masterLoopLength * track.loopMultiplier);
+        if (track.buffer.getNumSamples() < requiredSize)
+        {
+            track.buffer.setSize(2, requiredSize);
+            DBG("🔧 Resized Track " << trackId << " buffer to " << requiredSize 
+                << " (masterLoopLength * multiplier=" << track.loopMultiplier << ")");
+        }
     }
 
     track.isRecording = true;
@@ -227,22 +232,25 @@ void LooperAudio::stopRecording(int trackId)
     }
     else
     {
+        // スレーブトラック: loopMultiplierを考慮したサイズでアラインメント
+        int effectiveLength = (int)(masterLoopLength * track.loopMultiplier);
         juce::AudioBuffer<float> aligned;
-        aligned.setSize(2, masterLoopLength, false, false, true);
+        aligned.setSize(2, effectiveLength, false, false, true);
         aligned.clear();
 
-        const int copyLen = masterLoopLength;
+        const int copyLen = juce::jmin(effectiveLength, track.buffer.getNumSamples());
         
         aligned.copyFrom(0, 0, track.buffer, 0, 0, copyLen);
         aligned.copyFrom(1, 0, track.buffer, 1, 0, copyLen);
 
         track.buffer.makeCopyOf(aligned);
-        track.lengthInSample = masterLoopLength;
+        track.lengthInSample = effectiveLength;
         track.recordLength = recordedLength; 
 
         track.recordStartSample = masterStartSample;
 
-        DBG("🟢 Track " << trackId << ": aligned to master (length " << masterLoopLength << ")");
+        DBG("🟢 Track " << trackId << ": aligned to " << effectiveLength 
+            << " samples (master=" << masterLoopLength << " * multiplier=" << track.loopMultiplier << ")");
     }
 
     listeners.call([&](Listener& l) { l.onRecordingStopped(trackId); });
@@ -257,7 +265,12 @@ void LooperAudio::startPlaying(int trackId)
 
         if (masterLoopLength > 0)
         {
-            track.readPosition = masterReadPosition % masterLoopLength;
+            // Sync based on absolute position
+            int64_t relativePos = currentSamplePosition - masterStartSample;
+            int effectiveLoopLength = (int)(masterLoopLength * track.loopMultiplier);
+            if (effectiveLoopLength < 1) effectiveLoopLength = 1;
+
+            track.readPosition = relativePos % effectiveLoopLength;
         }
         else
         {
@@ -292,14 +305,18 @@ void LooperAudio::recordIntoTracks(const juce::AudioBuffer<float>& input)
 
         const int numChannels = juce::jmin(input.getNumChannels(), track.buffer.getNumChannels());
         
-        const int loopLimit = (masterLoopLength > 0) ? masterLoopLength : track.buffer.getNumSamples();
+        const int loopLimit = (masterLoopLength > 0)
+            ? (int)(masterLoopLength * track.loopMultiplier)
+            : track.buffer.getNumSamples();
 
         if (loopLimit == 0) continue; 
 
         int currentWritePos;
         if (masterLoopLength > 0)
         {
-            currentWritePos = masterReadPosition % loopLimit;
+             // Sync based on absolute position
+            int64_t relativePos = currentSamplePosition - masterStartSample;
+            currentWritePos = relativePos % loopLimit;
         }
         else
         {
@@ -310,7 +327,9 @@ void LooperAudio::recordIntoTracks(const juce::AudioBuffer<float>& input)
 
         if (masterLoopLength > 0)
         {
-            int maxRecordable = masterLoopLength - track.recordLength;
+            // loopMultiplierを考慮した最大録音可能量（x2なら2倍まで録音可能）
+            int targetRecordLength = (int)(masterLoopLength * track.loopMultiplier);
+            int maxRecordable = targetRecordLength - track.recordLength;
             if (maxRecordable < 0) maxRecordable = 0;
             samplesRemaining = juce::jmin(samplesRemaining, maxRecordable);
         }
@@ -336,12 +355,14 @@ void LooperAudio::recordIntoTracks(const juce::AudioBuffer<float>& input)
 
         track.writePosition = currentWritePos;
 
-        if (masterLoopLength > 0 && track.recordLength >= masterLoopLength)
+        // loopMultiplierを考慮した録音長での自動停止（x2なら2倍、/2なら半分）
+        int targetRecordLength = (int)(masterLoopLength * track.loopMultiplier);
+        if (masterLoopLength > 0 && track.recordLength >= targetRecordLength)
         {
             stopRecording(id);
             startPlaying(id);
             DBG("✅ Master-synced loop complete for Track " << id
-                << " | length=" << masterLoopLength);
+                << " | length=" << targetRecordLength << " (multiplier=" << track.loopMultiplier << ")");
         }
     }
 }
@@ -366,7 +387,7 @@ void LooperAudio::mixTracksToOutput(juce::AudioBuffer<float>& output)
         const int outChannels = output.getNumChannels();
         
         const int loopLength = (masterLoopLength > 0)
-            ? masterLoopLength
+            ? (int)(masterLoopLength * track.loopMultiplier)
             : juce::jmax(1, track.recordLength > 0 ? track.recordLength : track.buffer.getNumSamples());
 
         // Clear temp buffer
@@ -872,4 +893,13 @@ void LooperAudio::setTrackReverbEnabled(int trackId, bool enabled)
 {
     if (auto it = tracks.find(trackId); it != tracks.end())
         it->second.fx.reverbEnabled = enabled;
+}
+
+void LooperAudio::setTrackLoopMultiplier(int trackId, float multiplier)
+{
+    if (auto it = tracks.find(trackId); it != tracks.end())
+    {
+        it->second.loopMultiplier = multiplier;
+        DBG("Track " << trackId << " loop multiplier set to " << multiplier);
+    }
 }

@@ -267,6 +267,53 @@ LooperTrackUi::LooperTrackUi(int id, TrackState initState)
 	};
 
 	addAndMakeVisible(gainSlider);
+
+    // Multiplier Buttons (Skip for Master Track 1)
+    if (trackId != 1)
+    {
+        addAndMakeVisible(mult2xButton);
+        addAndMakeVisible(multHalfButton);
+        
+        // Style
+        mult2xButton.setColour(juce::TextButton::buttonColourId, juce::Colours::black.withAlpha(0.6f));
+        mult2xButton.setColour(juce::TextButton::buttonOnColourId, ThemeColours::NeonCyan.withAlpha(0.7f));
+        mult2xButton.setColour(juce::TextButton::textColourOnId, juce::Colours::black);
+        mult2xButton.setClickingTogglesState(true);
+        mult2xButton.setConnectedEdges(juce::Button::ConnectedOnRight);
+        
+        multHalfButton.setColour(juce::TextButton::buttonColourId, juce::Colours::black.withAlpha(0.6f));
+        multHalfButton.setColour(juce::TextButton::buttonOnColourId, ThemeColours::NeonMagenta.withAlpha(0.7f));
+        multHalfButton.setColour(juce::TextButton::textColourOnId, juce::Colours::black);
+        multHalfButton.setClickingTogglesState(true);
+        multHalfButton.setConnectedEdges(juce::Button::ConnectedOnLeft);
+        
+        // Logic
+        mult2xButton.onClick = [this]()
+        {
+            if (mult2xButton.getToggleState())
+            {
+                multHalfButton.setToggleState(false, juce::dontSendNotification);
+                if (onLoopMultiplierChange) onLoopMultiplierChange(2.0f);
+            }
+            else
+            {
+                if (onLoopMultiplierChange) onLoopMultiplierChange(1.0f);
+            }
+        };
+        
+        multHalfButton.onClick = [this]()
+        {
+            if (multHalfButton.getToggleState())
+            {
+                mult2xButton.setToggleState(false, juce::dontSendNotification);
+                if (onLoopMultiplierChange) onLoopMultiplierChange(0.5f);
+            }
+            else
+            {
+                if (onLoopMultiplierChange) onLoopMultiplierChange(1.0f);
+            }
+        };
+    }
 }
 
 void LooperTrackUi::resized()
@@ -277,8 +324,24 @@ void LooperTrackUi::resized()
 	
 	// フェーダーエリア (メーターの右側)
 	// 下部に15pxの隙間、上部(ボタン下)に10pxの隙間を作る
+    // ギャップは全トラック共通 (10px)
 	int gap = 10;
 	juce::Rectangle<int> bottomArea(0, (int)buttonSize + gap, width, bounds.getHeight() - (int)buttonSize - 15 - gap);
+    
+    // 倍率ボタンを選択ボタンの内側下部に配置 (Track 1以外)
+    if (trackId != 1)
+    {
+        int buttonHeight = 18;
+        int margin = 4;
+        int buttonY = (int)buttonSize - buttonHeight - margin; // ボタン内側の下部
+        // Center the buttons
+        int totalBtnWidth = (int)(width * 0.9f);
+        int btnWidth = totalBtnWidth / 2;
+        int startX = (width - totalBtnWidth) / 2;
+        
+        mult2xButton.setBounds(startX, buttonY, btnWidth, buttonHeight);
+        multHalfButton.setBounds(startX + btnWidth, buttonY, btnWidth, buttonHeight);
+    }
 	
 	// 左40%はメーター用に空けて、右60%にスライダーを配置
 	gainSlider.setBounds(bottomArea.removeFromRight((int)(width * 0.6f)).reduced(0, 0)); // reducedは不要になるかもだが一応0
@@ -328,6 +391,30 @@ void LooperTrackUi::setState(TrackState newState)
         {
             stopTimer(); // アニメーション用タイマー停止
         }
+        
+        // 録音完了後はmultiplierボタンを無効化（バグ防止）
+        if (trackId != 1)
+        {
+            if (state == TrackState::Playing || state == TrackState::Stopped)
+            {
+                // 録音済み → ボタン無効化
+                mult2xButton.setEnabled(false);
+                multHalfButton.setEnabled(false);
+                mult2xButton.setAlpha(0.4f);
+                multHalfButton.setAlpha(0.4f);
+            }
+            else if (state == TrackState::Idle)
+            {
+                // ALLCLEAR後 → ボタン再有効化＆リセット
+                mult2xButton.setEnabled(true);
+                multHalfButton.setEnabled(true);
+                mult2xButton.setAlpha(1.0f);
+                multHalfButton.setAlpha(1.0f);
+                mult2xButton.setToggleState(false, juce::dontSendNotification);
+                multHalfButton.setToggleState(false, juce::dontSendNotification);
+            }
+        }
+        
         repaint();
     }
 }

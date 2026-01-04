@@ -186,6 +186,14 @@ public:
         waveformPaths.erase(std::remove_if(waveformPaths.begin(), waveformPaths.end(),
             [trackId](const WaveformPath& w) { return w.trackId == trackId; }), waveformPaths.end());
 
+        // オリジナルデータを保存（multiplier変更時の再計算用）
+        wp.originalBuffer.makeCopyOf(buffer);
+        wp.originalTrackLength = trackLengthSamples;
+        wp.originalMasterLength = masterLengthSamples;
+        wp.originalRecordStart = recordStartGlobal;
+        wp.originalMasterStart = masterStartGlobal;
+        wp.loopMultiplier = 1.0f;
+
         waveformPaths.insert(waveformPaths.begin(), wp);
         if (waveformPaths.size() > 8) waveformPaths.resize(8);  // 8トラック分表示
         
@@ -217,6 +225,35 @@ public:
             
         linearWaveforms.insert(linearWaveforms.begin(), lwd);
         if (linearWaveforms.size() > 8) linearWaveforms.resize(8);
+        
+        repaint();
+    }
+    
+    // 指定トラックのloopMultiplierを変更して波形を再計算
+    void setTrackMultiplier(int trackId, float multiplier)
+    {
+        DBG("🔍 setTrackMultiplier: trackId=" << trackId << " multiplier=" << multiplier);
+        
+        bool found = false;
+        for (auto& wp : waveformPaths)
+        {
+            if (wp.trackId == trackId && wp.originalBuffer.getNumSamples() > 0)
+            {
+                found = true;
+                wp.loopMultiplier = multiplier;
+                
+                // 新しいloopRatioを計算（multiplierを反映）
+                int effectiveTrackLength = (int)(wp.originalMasterLength * multiplier);
+                
+                // 波形パスを再生成（色はそのまま維持）
+                regenerateWaveformPath(wp, effectiveTrackLength, wp.originalMasterLength);
+                
+                DBG("✅ Updated Track " << trackId << " with " << (int)multiplier << " loops");
+            }
+        }
+        
+        if (!found)
+            DBG("⚠️ Track " << trackId << " waveform not found!");
         
         repaint();
     }
@@ -562,8 +599,111 @@ private:
         juce::Colour colour;
         int trackId = 0;
         float spawnProgress = 0.0f; // 0.0 -> 1.0 アニメーション用
+        float loopMultiplier = 1.0f; // x2なら2.0、/2なら0.5
+        juce::AudioBuffer<float> originalBuffer; // 元の波形データ（再計算用）
+        int originalTrackLength = 0;
+        int originalMasterLength = 0;
+        int originalRecordStart = 0;
+        int originalMasterStart = 0;
     };
     std::vector<WaveformPath> waveformPaths;
+    
+    // multiplier変更時に波形パスを再生成
+    void regenerateWaveformPath(WaveformPath& wp, int effectiveTrackLength, int masterLengthSamples)
+    {
+        const auto* data = wp.originalBuffer.getReadPointer(0);
+        const int originalSamples = wp.originalBuffer.getNumSamples();
+        if (originalSamples == 0 || masterLengthSamples == 0) return;
+        
+        const int points = 1024;
+        const float maxAmpWidth = 0.3f;
+        
+        // ループ比率を計算
+        double loopRatio = (double)effectiveTrackLength / (double)masterLengthSamples;
+        if (loopRatio > 0.95 && loopRatio < 1.05) loopRatio = 1.0;
+        
+        // 開始角度の計算
+        long offsetFromMasterStart = (long)wp.originalRecordStart - (long)wp.originalMasterStart;
+        double startAngleRatio = 0.0;
+        if (masterLengthSamples > 0 && offsetFromMasterStart > 0)
+        {
+            int relativeStartSample = (int)(offsetFromMasterStart % masterLengthSamples);
+            startAngleRatio = (double)relativeStartSample / (double)masterLengthSamples;
+        }
+        
+        double manualOffset = -juce::MathConstants<double>::halfPi;
+        
+        juce::Path newPath;
+        
+        // 1周分の表示で、サンプルをloopRatio回繰り返し読む
+        // 角度は常に0〜2π（1周）
+        for (int i = 0; i <= points; ++i)
+        {
+            double progressRaw = (double)i / (double)points;
+            
+            // サンプル位置：loopRatio回分のデータを1周に凝縮して読む
+            double sampleProgress = std::fmod(progressRaw * loopRatio, 1.0);
+            int startSample = (int)(sampleProgress * wp.originalTrackLength);
+            startSample = juce::jmin(startSample, originalSamples - 1);
+            
+            int samplesToAverage = juce::jmax(1, (int)(wp.originalTrackLength / points));
+            float rms = 0.0f;
+            for (int j = 0; j < samplesToAverage; ++j)
+            {
+                int idx = (startSample + j) % originalSamples;
+                rms += std::abs(data[idx]);
+            }
+            rms /= (float)samplesToAverage;
+            rms = std::pow(rms, 0.6f);
+            
+            // 角度計算：常に1周（0〜2π）
+            double currentAngleRatio = startAngleRatio + progressRaw;
+            double angleVal = juce::MathConstants<double>::twoPi * currentAngleRatio + manualOffset;
+            float angle = (float)angleVal;
+            
+            float rInner = juce::jmax(0.1f, 1.0f - (rms * maxAmpWidth));
+            float xIn = rInner * std::cos(angle);
+            float yIn = rInner * std::sin(angle);
+            
+            if (i == 0) 
+                newPath.startNewSubPath(xIn, yIn);
+            else
+                newPath.lineTo(xIn, yIn);
+        }
+        
+        // 外側のポイントを逆順に追加
+        for (int i = points; i >= 0; --i)
+        {
+            double progressRaw = (double)i / (double)points;
+            
+            double sampleProgress = std::fmod(progressRaw * loopRatio, 1.0);
+            int startSample = (int)(sampleProgress * wp.originalTrackLength);
+            startSample = juce::jmin(startSample, originalSamples - 1);
+            
+            int samplesToAverage = juce::jmax(1, (int)(wp.originalTrackLength / points));
+            float rms = 0.0f;
+            for (int j = 0; j < samplesToAverage; ++j)
+            {
+                int idx = (startSample + j) % originalSamples;
+                rms += std::abs(data[idx]);
+            }
+            rms /= (float)samplesToAverage;
+            rms = std::pow(rms, 0.6f);
+            
+            double currentAngleRatio = startAngleRatio + progressRaw;
+            double angleVal = juce::MathConstants<double>::twoPi * currentAngleRatio + manualOffset;
+            float angle = (float)angleVal;
+            
+            float rOuter = 1.0f + (rms * maxAmpWidth);
+            float xOut = rOuter * std::cos(angle);
+            float yOut = rOuter * std::sin(angle);
+            
+            newPath.lineTo(xOut, yOut);
+        }
+        
+        newPath.closeSubPath();
+        wp.path = newPath;
+    }
     
     // デバッグ用リニア波形データ
     struct LinearWaveformData
