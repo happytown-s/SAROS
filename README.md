@@ -4,7 +4,7 @@
 
 ![Platform](https://img.shields.io/badge/platform-macOS-blue)
 ![Framework](https://img.shields.io/badge/framework-JUCE-orange)
-![License](https://img.shields.io/badge/license-MIT-green)
+![License](https://img.shields.io/badge/license-GPLv3-green)
 
 ## 概要
 
@@ -38,6 +38,11 @@ SAROSは、サイバーパンク/フューチャリスティックなUIを持つ
 - **自動トリガー検出** - 音声入力で自動録音開始
 - **スレッショルド調整** - 感度をカスタマイズ可能
 - **スマートゲート** - ノイズを自動カット
+
+### ⌨️ キーボードショートカット
+- **カスタムキーマッピング** - 「Settings」でアクションにキーを割り当て可能
+- **トランスポート制御** - REC, PLAY, UNDOなどをキー操作
+- **トラック操作** - トラック選択、オートアーム切替
 
 ### 🎨 UIデザイン
 - **サイバーパンクテーマ** - ダークな背景にネオン発光
@@ -83,28 +88,31 @@ SAROS/
 │   ├── FXPanel.cpp/h         # エフェクトパネル
 │   ├── TransportPanel.cpp/h  # トランスポートコントロール
 │   ├── InputManager.cpp/h    # オーディオ入力管理
+│   ├── KeyboardMappingManager.h # キーボーマッピング管理
 │   ├── ThemeColours.h        # カラースキーム定義
 │   └── ...
 ├── CMakeLists.txt
+├── LICENSE               # ライセンスファイル
 └── README.md
 ```
 
 ## 🎮 操作方法
 
-| 操作 | 説明 |
-|------|------|
-| トラッククリック | トラック選択 |
-| REC | 録音開始/停止 |
-| PLAY | 全トラック再生 |
-| UNDO | 直前の録音取り消し |
-| CLEAR | 全トラッククリア |
-| FX | エフェクトパネル切り替え |
-| ビジュアライザードラッグ | ズームイン/アウト |
-| ダブルクリック | ズームリセット |
+| 操作                     | 説明                                         |
+| ------------------------ | -------------------------------------------- |
+| トラッククリック         | トラック選択 (トグル)                        |
+| REC                      | 録音開始/停止                                |
+| PLAY                     | 全トラック再生                               |
+| UNDO                     | 直前の録音取り消し                           |
+| CLEAR                    | 全トラッククリア                             |
+| FX                       | エフェクトパネル切り替え                     |
+| ビジュアライザードラッグ | ズームイン/アウト                            |
+| ダブルクリック           | ズームリセット                               |
+| 設定 (⚙)                 | オーディオデバイス・トリガー・キーボード設定 |
 
 ## 📝 ライセンス
 
-MIT License
+GNU General Public License v3 (GPL v3)
 
 ## 🙏 クレジット
 
