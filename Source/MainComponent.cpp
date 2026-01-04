@@ -1343,26 +1343,15 @@ bool MainComponent::keyPressed(const juce::KeyPress& key)
 		return true;
 	}
 	
-	// === Track Selection ===
+	// === Track Selection	// トラック選択アクション
 	if (action.startsWith("track_"))
 	{
+		// "track_1" -> 1
 		int trackId = action.substring(6).getIntValue();
 		if (trackId >= 1 && trackId <= (int)trackUIs.size())
 		{
-			// 全トラックの選択を解除
-			for (auto& t : trackUIs)
-				t->setSelected(false);
-			
-			// 指定トラックを選択
-			trackUIs[trackId - 1]->setSelected(true);
-			
-			// FXモード時はFXパネルも更新
-			if (isFXMode)
-				fxPanel.setTargetTrackId(trackId);
-			
-			for (auto& t : trackUIs)
-				t->repaint();
-				
+            // マウスクリック時と同じ処理を通してトグル動作やFXモード連動を行う
+            trackClicked(trackUIs[trackId - 1].get());
 			DBG("⌨️ Track " << trackId << " selected via keyboard");
 		}
 		return true;
