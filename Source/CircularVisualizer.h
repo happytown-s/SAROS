@@ -255,12 +255,38 @@ public:
         if (!found)
             DBG("⚠️ Track " << trackId << " waveform not found!");
         
+        // プレイヘッド表示用にアクティブ倍率を更新
+        activeMultiplier = multiplier;
+        
         repaint();
     }
 
     void setPlayHeadPosition(float normalizedPos)
     {
-        currentPlayHeadPos = normalizedPos;
+        // ループのラップアラウンドを検出してループカウントを更新
+        if (normalizedPos < lastPlayHeadPos - 0.5f)  // 0.9から0.1へ等の大きなジャンプ
+        {
+            loopCount++;
+        }
+        lastPlayHeadPos = normalizedPos;
+        
+        // x2モード時：2マスターループで1周完結するよう累積位置を計算
+        if (activeMultiplier > 1.0f)
+        {
+            float loopOffset = (float)(loopCount % (int)activeMultiplier) / activeMultiplier;
+            currentPlayHeadPos = loopOffset + (normalizedPos / activeMultiplier);
+        }
+        else
+        {
+            currentPlayHeadPos = normalizedPos;
+        }
+    }
+    
+    void resetPlayHead()
+    {
+        loopCount = 0;
+        lastPlayHeadPos = 0.0f;
+        currentPlayHeadPos = -1.0f;
     }
 
     void paint(juce::Graphics& g) override
@@ -418,7 +444,7 @@ public:
         // --- Draw Playhead ---
         if (currentPlayHeadPos >= 0.0f)
         {
-            // ★ プレイヘッドはオフセットなし（以前の状態に戻す）
+            // プレイヘッドは累積位置（setPlayHeadPositionで計算済み）を使用
             float manualOffset = 0.0f;
             float angle = (currentPlayHeadPos * juce::MathConstants<float>::twoPi) + manualOffset;
             
@@ -716,6 +742,9 @@ private:
     std::vector<LinearWaveformData> linearWaveforms;
     
     float currentPlayHeadPos = -1.0f;
+    float lastPlayHeadPos = 0.0f;
+    int loopCount = 0;
+    float activeMultiplier = 1.0f;  // x2表示時は2.0、通常は1.0
     
     // ズーム機能用
     // ズーム機能用
