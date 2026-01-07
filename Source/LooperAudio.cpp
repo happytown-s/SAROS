@@ -596,15 +596,17 @@ void LooperAudio::backupTrackBeforeRecord(int trackId)
     }
 }
 
-void LooperAudio::undoLastRecording()
+int LooperAudio::undoLastRecording()
 {
     if (!lastHistory.has_value())
     {
         DBG("⚠️ Nothing to undo");
-        return;
+        return -1;
     }
 
     auto& history = lastHistory.value();
+    int undoneTrackId = history.trackId;
+    
     if (auto it = tracks.find(history.trackId); it != tracks.end())
     {
         it->second.buffer.makeCopyOf(history.previousBuffer);
@@ -616,6 +618,7 @@ void LooperAudio::undoLastRecording()
         DBG("↩️ Undo applied to track " << history.trackId);
     }
     lastHistory.reset();
+    return undoneTrackId;
 }
 
 void LooperAudio::allClear()

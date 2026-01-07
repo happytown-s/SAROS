@@ -75,6 +75,12 @@ class LooperTrackUi : public juce::Component,juce::Timer
 	float flashProgress = 0.0f;
 	bool isFlashing = false;
 
+	float loopMultiplier = 1.0f; // 🆕 Added
+	
+public:
+	std::function<void(float)> onLoopMultiplierChange; // 🆕 Added public callback
+	float getLoopMultiplier() const { return loopMultiplier; } // 🆕 Added accessor
+
 	// Volume Fader
     class FaderLookAndFeel : public juce::LookAndFeel_V4
     {
@@ -106,7 +112,6 @@ class LooperTrackUi : public juce::Component,juce::Timer
 
 public:
 	std::function<void(float)> onGainChange;
-	std::function<void(float)> onLoopMultiplierChange; // 🆕 Added callback
 
     // Multiplier Buttons
     juce::TextButton mult2xButton { "x2" };

@@ -64,7 +64,7 @@ class LooperAudio
 
 	//UNDO関連
 	void backupTrackBeforeRecord (int trackId);
-	void undoLastRecording();
+	int undoLastRecording();  // undoしたトラックIDを返す（-1は失敗）
 
 	//リスナー関係
 	void addListener(Listener* l) {listeners.add(l);}

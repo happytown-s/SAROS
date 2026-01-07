@@ -40,14 +40,26 @@ MainComponent::MainComponent()
         track->onLoopMultiplierChange = [this, newId](float multiplier)
         {
             looper.setTrackLoopMultiplier(newId, multiplier);
-            // ビジュアライザの波形も即座に更新
+            // ビジュアライザの内部状態も更新
             visualizer.setTrackMultiplier(newId, multiplier);
             
-            // x2の時のみマスターを2周表示、/2の時はマスターはそのまま（1周）
-            if (multiplier > 1.0f)
-                visualizer.setTrackMultiplier(1, multiplier);  // x2 -> マスターも2周
-            else
-                visualizer.setTrackMultiplier(1, 1.0f);        // /2 or 1x -> マスター1周
+            // 全トラックの最大倍率を計算（最長トラック基準）
+            float maxMult = 1.0f;
+            
+            // まず自分自身
+            if (multiplier > maxMult) maxMult = multiplier;
+            
+            // 他のトラック
+            for (auto& t : trackUIs)
+            {
+                if (t->getTrackId() != newId)
+                {
+                   float m = t->getLoopMultiplier();
+                   if (m > maxMult) maxMult = m;
+                }
+            }
+            
+            visualizer.setMaxMultiplier(maxMult);
         };
 		
 		addAndMakeVisible(track.get());
@@ -170,7 +182,19 @@ MainComponent::MainComponent()
 			}
 			updateStateVisual();
 		}
-		else if (action == "UNDO")   looper.undoLastRecording();
+		else if (action == "UNDO") {
+			int undoneTrackId = looper.undoLastRecording();
+			if (undoneTrackId > 0)
+			{
+				visualizer.removeWaveform(undoneTrackId);
+				// UIの状態もIdleに戻す
+				for (auto& t : trackUIs)
+				{
+					if (t->getTrackId() == undoneTrackId)
+						t->setState(LooperTrackUi::TrackState::Idle);
+				}
+			}
+		}
 		else if (action == "CLEAR") {
 		looper.allClear();
         visualizer.clear(); // Reset visualizer
@@ -893,6 +917,7 @@ void MainComponent::updateStateVisual()
 }
 
 
+
 void MainComponent::timerCallback()
 {
 	const auto& tracks = looper.getTracks();
@@ -1396,3 +1421,5 @@ bool MainComponent::keyPressed(const juce::KeyPress& key)
 	
 	return false;
 }
+
+

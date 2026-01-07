@@ -192,10 +192,16 @@ public:
         wp.originalMasterLength = masterLengthSamples;
         wp.originalRecordStart = recordStartGlobal;
         wp.originalMasterStart = masterStartGlobal;
-        wp.loopMultiplier = 1.0f;
+        wp.loopMultiplier = loopRatio; // トラック長/マスター長をmultiplierとして設定
 
         waveformPaths.insert(waveformPaths.begin(), wp);
         if (waveformPaths.size() > 8) waveformPaths.resize(8);  // 8トラック分表示
+        
+        // 現在のmaxMultiplierに基づいてパスを再生成（正しいリピート表示のため）
+        if (maxMultiplier > 0.0f && !waveformPaths.empty())
+        {
+            regenerateWaveformPath(waveformPaths.front(), 0, masterLengthSamples);
+        }
         
         // デバッグ用：リニア波形データを保存
         LinearWaveformData lwd;
@@ -229,38 +235,50 @@ public:
         repaint();
     }
     
-    // 指定トラックのloopMultiplierを変更して波形を再計算
+    // 指定トラックの波形を削除
+    void removeWaveform(int trackId)
+    {
+        waveformPaths.erase(std::remove_if(waveformPaths.begin(), waveformPaths.end(),
+            [trackId](const WaveformPath& w) { return w.trackId == trackId; }), waveformPaths.end());
+        
+        linearWaveforms.erase(std::remove_if(linearWaveforms.begin(), linearWaveforms.end(),
+            [trackId](const LinearWaveformData& w) { return w.trackId == trackId; }), linearWaveforms.end());
+        
+        DBG("🗑 Removed waveform for track " << trackId);
+        repaint();
+    }
+    
+
+    // 指定トラックのloopMultiplierを変更（再生成はしない）
     void setTrackMultiplier(int trackId, float multiplier)
     {
         DBG("🔍 setTrackMultiplier: trackId=" << trackId << " multiplier=" << multiplier);
-        
-        bool found = false;
         for (auto& wp : waveformPaths)
         {
-            if (wp.trackId == trackId && wp.originalBuffer.getNumSamples() > 0)
-            {
-                found = true;
+            if (wp.trackId == trackId)
                 wp.loopMultiplier = multiplier;
-                
-                // 新しいloopRatioを計算（multiplierを反映）
-                int effectiveTrackLength = (int)(wp.originalMasterLength * multiplier);
-                
-                // 波形パスを再生成（色はそのまま維持）
-                regenerateWaveformPath(wp, effectiveTrackLength, wp.originalMasterLength);
-                
-                DBG("✅ Updated Track " << trackId << " with " << (int)multiplier << " loops");
+        }
+    }
+    
+    
+    // 全トラックの最大倍率（最長トラック）を設定し、全ての波形を再生成
+    void setMaxMultiplier(float newMax)
+    {
+        maxMultiplier = newMax;
+        activeMultiplier = newMax;
+        
+        DBG("🔄 setMaxMultiplier: " << newMax);
+        
+        for (auto& wp : waveformPaths)
+        {
+            if (wp.originalBuffer.getNumSamples() > 0)
+            {
+                // リピート回数 = maxMultiplier / loopMultiplier
+                regenerateWaveformPath(wp, 0, wp.originalMasterLength);
             }
         }
-        
-        if (!found)
-            DBG("⚠️ Track " << trackId << " waveform not found!");
-        
-        // プレイヘッド表示用にアクティブ倍率を更新
-        activeMultiplier = multiplier;
-        
         repaint();
     }
-
     void setPlayHeadPosition(float normalizedPos)
     {
         // ループのラップアラウンドを検出してループカウントを更新
@@ -661,14 +679,33 @@ private:
         
         juce::Path newPath;
         
-        // 1周分の表示で、サンプルをloopRatio回繰り返し読む
+        // リピート係数の計算
+        // maxMultiplier: 全トラック中の最大倍率（最長トラック）
+        // loopMultiplier: このトラックの倍率
+        // 最長トラックを基準として、短いトラックは繋げて表示
+        // リピート回数 = maxMultiplier / loopMultiplier
+        // 例: x2が最長の場合、x2=1回、x1=2回、/2=4回
+        
+        double repeatFactor = 1.0;
+        if (wp.loopMultiplier > 0.0f && maxMultiplier > 0.0f)
+        {
+            repeatFactor = (double)maxMultiplier / (double)wp.loopMultiplier;
+        }
+        
+        // わずかな誤差は丸める（例: 2.0001 -> 2.0, 0.9999 -> 1.0）
+        if (std::abs(repeatFactor - std::round(repeatFactor)) < 0.01)
+        {
+            repeatFactor = std::round(repeatFactor);
+        }
+        
+        // 1周分の表示で、サンプルをrepeatFactor回繰り返し読む
         // 角度は常に0〜2π（1周）
         for (int i = 0; i <= points; ++i)
         {
             double progressRaw = (double)i / (double)points;
             
-            // サンプル位置：loopRatio回分のデータを1周に凝縮して読む
-            double sampleProgress = std::fmod(progressRaw * loopRatio, 1.0);
+            // サンプル位置
+            double sampleProgress = std::fmod(progressRaw * repeatFactor, 1.0);
             int startSample = (int)(sampleProgress * wp.originalTrackLength);
             startSample = juce::jmin(startSample, originalSamples - 1);
             
@@ -702,7 +739,7 @@ private:
         {
             double progressRaw = (double)i / (double)points;
             
-            double sampleProgress = std::fmod(progressRaw * loopRatio, 1.0);
+            double sampleProgress = std::fmod(progressRaw * repeatFactor, 1.0);
             int startSample = (int)(sampleProgress * wp.originalTrackLength);
             startSample = juce::jmin(startSample, originalSamples - 1);
             
@@ -744,7 +781,10 @@ private:
     float currentPlayHeadPos = -1.0f;
     float lastPlayHeadPos = 0.0f;
     int loopCount = 0;
-    float activeMultiplier = 1.0f;  // x2表示時は2.0、通常は1.0
+    float activeMultiplier = 1.0f;  // 現在の倍率（表示用）
+    float maxMultiplier = 1.0f;     // 全トラック中の最大倍率（最長トラック基準）
+    
+
     
     // ズーム機能用
     // ズーム機能用

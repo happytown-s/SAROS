@@ -183,7 +183,10 @@ void TransportPanel::buttonClicked(juce::Button* button)
 	}
 	else if (button == &playButton)
 	{
-		if (currentState == State::Playing)
+		// Recording、Standby、Playing状態ではSTOPを送信
+		if (currentState == State::Playing || 
+		    currentState == State::Recording || 
+		    currentState == State::Standby)
 			onAction("STOP");
 		else
 			onAction("PLAY");

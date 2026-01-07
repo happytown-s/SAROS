@@ -293,10 +293,12 @@ LooperTrackUi::LooperTrackUi(int id, TrackState initState)
             if (mult2xButton.getToggleState())
             {
                 multHalfButton.setToggleState(false, juce::dontSendNotification);
+                loopMultiplier = 2.0f; // 🆕 Update member
                 if (onLoopMultiplierChange) onLoopMultiplierChange(2.0f);
             }
             else
             {
+                loopMultiplier = 1.0f; // 🆕 Update member
                 if (onLoopMultiplierChange) onLoopMultiplierChange(1.0f);
             }
         };
@@ -306,10 +308,12 @@ LooperTrackUi::LooperTrackUi(int id, TrackState initState)
             if (multHalfButton.getToggleState())
             {
                 mult2xButton.setToggleState(false, juce::dontSendNotification);
+                loopMultiplier = 0.5f; // 🆕 Update member
                 if (onLoopMultiplierChange) onLoopMultiplierChange(0.5f);
             }
             else
             {
+                loopMultiplier = 1.0f; // 🆕 Update member
                 if (onLoopMultiplierChange) onLoopMultiplierChange(1.0f);
             }
         };
