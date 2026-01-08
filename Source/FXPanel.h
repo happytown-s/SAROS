@@ -78,6 +78,7 @@ private:
     EffectSlot slots[4];
     int selectedSlotIndex = 0;
     juce::TextButton slotButtons[4];  // エフェクトスロットボタン
+    juce::TextButton bypassButtons[4]; // オン/オフ用の丸いボタン
     
     // トラック選択ボタン（8トラック）
     juce::TextButton trackButtons[8];

@@ -47,6 +47,42 @@ FXPanel::FXPanel(LooperAudio& looperRef) : looper(looperRef)
         slotButtons[i].addMouseListener(this, false);  // FXPanelでマウスイベントを受け取る
         
         addAndMakeVisible(slotButtons[i]);
+        
+        // 縦型トグルスイッチの初期化（カスタム描画用に透明設定）
+        bypassButtons[i].setClickingTogglesState(true);
+        bypassButtons[i].setToggleState(true, juce::dontSendNotification); // 初期状態: ON（エフェクト有効）
+        bypassButtons[i].setButtonText(""); // テキストなし
+        // 透明に設定（paintOverChildrenでカスタム描画）
+        bypassButtons[i].setColour(juce::TextButton::buttonColourId, juce::Colours::transparentBlack);
+        bypassButtons[i].setColour(juce::TextButton::buttonOnColourId, juce::Colours::transparentBlack);
+        bypassButtons[i].onClick = [this, i]() {
+            bool isActive = bypassButtons[i].getToggleState();
+            slots[i].isBypassed = !isActive;
+            
+            // エフェクトの有効/無効を切り替え
+            if (currentTrackId >= 0 && slots[i].type != EffectType::None)
+            {
+                switch (slots[i].type) {
+                    case EffectType::Filter: 
+                        looper.setTrackFilterEnabled(currentTrackId, isActive); 
+                        break;
+                    case EffectType::Delay: 
+                        looper.setTrackDelayEnabled(currentTrackId, isActive); 
+                        break;
+                    case EffectType::Reverb: 
+                        looper.setTrackReverbEnabled(currentTrackId, isActive); 
+                        break;
+                    case EffectType::BeatRepeat: 
+                        looper.setTrackBeatRepeatActive(currentTrackId, isActive); 
+                        break;
+                    default: break;
+                }
+            }
+            
+            updateSliderVisibility();
+            repaint();
+        };
+        addAndMakeVisible(bypassButtons[i]);
     }
     addAndMakeVisible(visualizer);
     startTimer(30);
@@ -382,11 +418,26 @@ void FXPanel::resized()
     // エフェクトスロットボタンの配置
     int slotHeight = 45;  // 高さを縮小
     int slotSpacing = 4;
+    int toggleWidth = 24;  // 縦型トグルスイッチの幅
+    int toggleSpacing = 4;
     
     for (int i = 0; i < 4; ++i)
     {
-        auto slotRect = leftCol.removeFromTop(slotHeight);
-        slotButtons[i].setBounds(slotRect.reduced(2, 0));
+        auto slotRow = leftCol.removeFromTop(slotHeight);
+        
+        // トグルスイッチ用のスペースを右側に確保
+        auto toggleRect = slotRow.removeFromRight(toggleWidth);
+        slotRow.removeFromRight(toggleSpacing);
+        
+        // スロットボタン
+        slotButtons[i].setBounds(slotRow.reduced(2, 0));
+        
+        // 縦型トグルスイッチ（上下でオン/オフ）
+        bypassButtons[i].setBounds(toggleRect.reduced(0, 4));
+        
+        // エフェクトがNoneの場合はトグルスイッチを非表示
+        bypassButtons[i].setVisible(slots[i].type != EffectType::None);
+        
         leftCol.removeFromTop(slotSpacing);
     }
     
@@ -435,13 +486,13 @@ void FXPanel::resized()
 
     // FILTER
     if(filterSlider.isVisible()) {
-        // Visualizer at the top
-        int vizHeight = 120;
+        // Visualizer at the top (高さを縮小)
+        int vizHeight = 70;
         visualizer.setBounds(rightArea.getX(), startY, rightArea.getWidth(), vizHeight);
         
         // Controls below visualizer
         int originalStartY = startY;
-        startY += vizHeight + 15; 
+        startY += vizHeight + 10; 
         
         placeControls({ {&filterSlider, &filterLabel}, {&filterResSlider, &filterResLabel} }, &filterTypeButton);
         
@@ -669,9 +720,53 @@ void FXPanel::handleMidiControl(const juce::String& controlId, float value)
 
 void FXPanel::paintOverChildren(juce::Graphics& g)
 {
+    // 縦型トグルスイッチのカスタム描画
+    for (int i = 0; i < 4; ++i)
+    {
+        if (!bypassButtons[i].isVisible()) continue;
+        
+        auto bounds = bypassButtons[i].getBounds().toFloat();
+        bool isOn = bypassButtons[i].getToggleState();
+        
+        // スイッチの背景（角丸長方形）
+        float cornerRadius = bounds.getWidth() * 0.3f;
+        
+        // 背景色（暗いグレー）
+        g.setColour(juce::Colour(30, 30, 35));
+        g.fillRoundedRectangle(bounds, cornerRadius);
+        
+        // 枠線
+        g.setColour(isOn ? ThemeColours::PlayingGreen.withAlpha(0.8f) : ThemeColours::Silver.withAlpha(0.3f));
+        g.drawRoundedRectangle(bounds.reduced(1.0f), cornerRadius, 1.5f);
+        
+        // スイッチノブ（上下に動く）
+        float knobHeight = bounds.getHeight() * 0.45f;
+        float knobWidth = bounds.getWidth() - 6.0f;
+        float knobX = bounds.getX() + 3.0f;
+        float knobY = isOn ? (bounds.getY() + 3.0f) : (bounds.getBottom() - knobHeight - 3.0f);
+        
+        juce::Rectangle<float> knobRect(knobX, knobY, knobWidth, knobHeight);
+        
+        // ノブのグラデーション
+        juce::Colour knobColour = isOn ? ThemeColours::PlayingGreen : juce::Colour(80, 80, 85);
+        g.setColour(knobColour);
+        g.fillRoundedRectangle(knobRect, cornerRadius * 0.7f);
+        
+        // ノブのハイライト
+        g.setColour(knobColour.brighter(0.3f));
+        g.drawRoundedRectangle(knobRect.reduced(1.0f), cornerRadius * 0.7f, 1.0f);
+        
+        // ON/OFFインジケータ（小さなドット）
+        float dotSize = 4.0f;
+        float dotX = bounds.getCentreX() - dotSize / 2.0f;
+        float dotY = isOn ? (bounds.getBottom() - 8.0f) : (bounds.getY() + 4.0f);
+        g.setColour(isOn ? ThemeColours::PlayingGreen.withAlpha(0.5f) : ThemeColours::Silver.withAlpha(0.3f));
+        g.fillEllipse(dotX, dotY, dotSize, dotSize);
+    }
+    
+    // MIDI Learnモード時のオーバーレイ
     if (midiManager == nullptr || !midiManager->isLearnModeActive())
         return;
-    
     // 可視状態のスライダーに対してのみオーバーレイを描画
     std::vector<juce::Slider*> sliders = {
         &filterSlider, &filterResSlider,
