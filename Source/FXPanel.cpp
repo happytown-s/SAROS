@@ -56,6 +56,16 @@ FXPanel::FXPanel(LooperAudio& looperRef) : looper(looperRef)
         bypassButtons[i].setColour(juce::TextButton::buttonColourId, juce::Colours::transparentBlack);
         bypassButtons[i].setColour(juce::TextButton::buttonOnColourId, juce::Colours::transparentBlack);
         bypassButtons[i].onClick = [this, i]() {
+            // MIDI Learnモード時は学習対象として設定
+            if (midiManager != nullptr && midiManager->isLearnModeActive())
+            {
+                juce::String controlId = "fx_slot" + juce::String(i + 1) + "_bypass";
+                midiManager->setLearnTarget(controlId);
+                DBG("MIDI Learn: Waiting for input - " << controlId);
+                repaint();
+                return;
+            }
+            
             bool isActive = bypassButtons[i].getToggleState();
             slots[i].isBypassed = !isActive;
             
@@ -302,10 +312,36 @@ void FXPanel::setTargetTrackId(int trackId)
     currentTrackId = trackId;
     looper.setMonitorTrackId(trackId); // Monitor audio for this track
     
+    // スロットポインタを現在のトラックに切り替え
+    if (trackId >= 1 && trackId <= 8)
+        slots = trackSlots[trackId - 1];
+    else
+        slots = trackSlots[0];
+    
+    // スロットボタンとバイパスボタンの状態を更新
+    for (int i = 0; i < 4; ++i)
+    {
+        // スロットボタンのテキスト更新
+        juce::String typeStr;
+        switch(slots[i].type) {
+            case EffectType::Filter: typeStr = "Filter"; break;
+            case EffectType::Compressor: typeStr = "Comp"; break;
+            case EffectType::Delay: typeStr = "Delay"; break;
+            case EffectType::Reverb: typeStr = "Reverb"; break;
+            case EffectType::BeatRepeat: typeStr = "Repeat"; break;
+            default: typeStr = "Empty"; break;
+        }
+        slotButtons[i].setButtonText(typeStr);
+        
+        // バイパスボタンの状態更新
+        bypassButtons[i].setToggleState(!slots[i].isBypassed, juce::dontSendNotification);
+    }
+    
     // Update button states
     for (int i = 0; i < 8; ++i)
         trackButtons[i].setToggleState((i + 1) == trackId, juce::dontSendNotification);
     
+    updateSliderVisibility();
     repaint();
 }
 
@@ -715,6 +751,19 @@ void FXPanel::handleMidiControl(const juce::String& controlId, float value)
         {
             repeatActiveButton.setToggleState(value > 0.5f, juce::sendNotificationSync);
         }
+        // FXスロットバイパスボタン対応
+        else if (controlId.startsWith("fx_slot") && controlId.endsWith("_bypass"))
+        {
+            // fx_slot1_bypass -> slot index 0
+            int slotIndex = controlId.substring(7, 8).getIntValue() - 1;
+            if (slotIndex >= 0 && slotIndex < 4)
+            {
+                // トグル動作（MIDIトリガーで切り替え）
+                bool newState = !bypassButtons[slotIndex].getToggleState();
+                bypassButtons[slotIndex].setToggleState(newState, juce::sendNotificationSync);
+                bypassButtons[slotIndex].onClick(); // コールバックを呼び出してエフェクト状態も更新
+            }
+        }
     });
 }
 
@@ -828,6 +877,13 @@ void FXPanel::paintOverChildren(juce::Graphics& g)
     };
     drawButtonOverlay(filterTypeButton, "fx_filter_type");
     drawButtonOverlay(repeatActiveButton, "fx_repeat_active");
+    
+    // FXスロットバイパスボタン
+    for (int i = 0; i < 4; ++i)
+    {
+        juce::String ctrlId = "fx_slot" + juce::String(i + 1) + "_bypass";
+        drawButtonOverlay(bypassButtons[i], ctrlId);
+    }
 }
 
 void FXPanel::sliderValueChanged(juce::Slider* slider)
@@ -848,4 +904,82 @@ void FXPanel::sliderDragStarted(juce::Slider* slider)
             repaint();
         }
     }
+}
+
+// =====================================================
+// トラック別FXトグルメソッド
+// =====================================================
+
+void FXPanel::toggleSlotBypass(int trackId, int slotIndex)
+{
+    if (trackId < 1 || trackId > 8 || slotIndex < 0 || slotIndex >= 4)
+        return;
+    
+    auto& slot = trackSlots[trackId - 1][slotIndex];
+    slot.isBypassed = !slot.isBypassed;
+    
+    // エフェクトの有効/無効を切り替え
+    bool isActive = !slot.isBypassed;
+    
+    switch (slot.type) {
+        case EffectType::Filter: 
+            looper.setTrackFilterEnabled(trackId, isActive); 
+            break;
+        case EffectType::Delay: 
+            looper.setTrackDelayEnabled(trackId, isActive); 
+            break;
+        case EffectType::Reverb: 
+            looper.setTrackReverbEnabled(trackId, isActive); 
+            break;
+        case EffectType::BeatRepeat: 
+            looper.setTrackBeatRepeatActive(trackId, isActive); 
+            break;
+        default: break;
+    }
+    
+    // 現在表示中のトラックならUIを更新
+    if (trackId == currentTrackId)
+    {
+        bypassButtons[slotIndex].setToggleState(isActive, juce::dontSendNotification);
+        updateSliderVisibility();
+        repaint();
+    }
+    
+    DBG("FX Slot Toggle: Track " << trackId << " Slot " << (slotIndex + 1) << " -> " << (isActive ? "ON" : "OFF"));
+}
+
+void FXPanel::toggleFilterType(int trackId)
+{
+    // フィルタータイプは現在グローバルなので、選択中のトラックに対して操作
+    if (trackId < 1 || trackId > 8)
+        return;
+    
+    // 現在の状態を反転
+    bool newState = !filterTypeButton.getToggleState();
+    filterTypeButton.setToggleState(newState, juce::sendNotificationSync);
+    
+    DBG("Filter Type Toggle: Track " << trackId << " -> " << (newState ? "HPF" : "LPF"));
+}
+
+void FXPanel::toggleRepeatActive(int trackId)
+{
+    if (trackId < 1 || trackId > 8)
+        return;
+    
+    // 現在の状態を反転
+    bool newState = !repeatActiveButton.getToggleState();
+    repeatActiveButton.setToggleState(newState, juce::sendNotificationSync);
+    
+    // looperにも反映
+    looper.setTrackBeatRepeatActive(trackId, newState);
+    
+    DBG("Beat Repeat Toggle: Track " << trackId << " -> " << (newState ? "ON" : "OFF"));
+}
+
+bool FXPanel::isSlotBypassed(int trackId, int slotIndex) const
+{
+    if (trackId < 1 || trackId > 8 || slotIndex < 0 || slotIndex >= 4)
+        return false;
+    
+    return trackSlots[trackId - 1][slotIndex].isBypassed;
 }

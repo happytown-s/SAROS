@@ -74,11 +74,23 @@ private:
     PlanetKnobLookAndFeel planetLnF;
     FXSlotButtonLookAndFeel slotLnF;
 
-    // Slots
-    EffectSlot slots[4];
+    // Slots - トラック別に管理（8トラック × 4スロット）
+    EffectSlot trackSlots[8][4];
+    EffectSlot* slots = trackSlots[0];  // 現在のトラックのスロットへのポインタ
     int selectedSlotIndex = 0;
     juce::TextButton slotButtons[4];  // エフェクトスロットボタン
     juce::TextButton bypassButtons[4]; // オン/オフ用の丸いボタン
+    
+public:
+    // 外部からトラック別にFXスロットをトグル
+    void toggleSlotBypass(int trackId, int slotIndex);
+    void toggleFilterType(int trackId);
+    void toggleRepeatActive(int trackId);
+    
+    // 現在のトラックのスロット状態を取得
+    bool isSlotBypassed(int trackId, int slotIndex) const;
+    
+private:
     
     // トラック選択ボタン（8トラック）
     juce::TextButton trackButtons[8];

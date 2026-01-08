@@ -1419,6 +1419,28 @@ bool MainComponent::keyPressed(const juce::KeyPress& key)
 		return true;
 	}
 	
+	// === FX Toggle Actions (トラック別) ===
+	int trackId, slotIndex;
+	juce::String actionType;
+	if (KeyboardMappingManager::parseFXActionId(action, trackId, slotIndex, actionType))
+	{
+		if (actionType == "slot_bypass")
+		{
+			fxPanel.toggleSlotBypass(trackId, slotIndex);
+			return true;
+		}
+		else if (actionType == "filter_type")
+		{
+			fxPanel.toggleFilterType(trackId);
+			return true;
+		}
+		else if (actionType == "repeat_active")
+		{
+			fxPanel.toggleRepeatActive(trackId);
+			return true;
+		}
+	}
+	
 	return false;
 }
 

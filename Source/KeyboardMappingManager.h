@@ -25,6 +25,9 @@ public:
     static constexpr const char* ACTION_VISUAL_MODE = "visual_mode";
     static constexpr const char* ACTION_FX_MODE = "fx_mode";
     
+    // FXトグルアクションはgetAllActions()で動的生成
+    // パターン: fx_t{trackId}_slot{slotId}_bypass, fx_t{trackId}_filter_type, fx_t{trackId}_repeat_active
+    
     KeyboardMappingManager()
     {
         // 設定ファイル初期化
@@ -53,7 +56,7 @@ public:
     // 全アクションのリストを取得
     static std::vector<ActionInfo> getAllActions()
     {
-        return {
+        std::vector<ActionInfo> actions = {
             { ACTION_REC, "REC (Record)" },
             { ACTION_PLAY, "PLAY" },
             { ACTION_UNDO, "UNDO" },
@@ -69,7 +72,78 @@ public:
             { ACTION_VISUAL_MODE, "VISUAL MODE Toggle" },
             { ACTION_FX_MODE, "FX MODE Toggle" }
         };
+        
+        // FXトグルアクションを動的生成（8トラック × 6アクション = 48個）
+        // これらはグリッドUIで別途表示するため、通常リストには追加しない
+        // グリッド用のメソッドで取得する
+        
+        return actions;
     }
+    
+    // グリッドUI用：FXトグルアクションのリストを取得
+    static std::vector<ActionInfo> getFXToggleActions()
+    {
+        std::vector<ActionInfo> actions;
+        
+        // 8トラック × 4スロット = 32個のスロットバイパスのみ
+        for (int t = 1; t <= 8; ++t)
+        {
+            for (int s = 1; s <= 4; ++s)
+            {
+                juce::String id = "fx_t" + juce::String(t) + "_slot" + juce::String(s) + "_bypass";
+                juce::String name = "T" + juce::String(t) + " Slot" + juce::String(s);
+                actions.push_back({ id.toStdString(), name.toStdString() });
+            }
+        }
+        
+        return actions;
+    }
+    
+    // FXアクションIDからトラックIDとスロットインデックスを抽出
+    static bool parseFXActionId(const juce::String& actionId, int& trackId, int& slotIndex, juce::String& actionType)
+    {
+        // パターン: fx_t{trackId}_slot{slotId}_bypass または fx_t{trackId}_filter_type または fx_t{trackId}_repeat_active
+        if (!actionId.startsWith("fx_t"))
+            return false;
+        
+        // トラックID抽出
+        int underscorePos = actionId.indexOf(4, "_");
+        if (underscorePos < 0)
+            return false;
+        
+        trackId = actionId.substring(4, underscorePos).getIntValue();
+        if (trackId < 1 || trackId > 8)
+            return false;
+        
+        juce::String remainder = actionId.substring(underscorePos + 1);
+        
+        if (remainder.startsWith("slot"))
+        {
+            // スロットバイパス
+            int slotNum = remainder.substring(4, 5).getIntValue();
+            if (slotNum >= 1 && slotNum <= 4 && remainder.endsWith("_bypass"))
+            {
+                slotIndex = slotNum - 1;
+                actionType = "slot_bypass";
+                return true;
+            }
+        }
+        else if (remainder == "filter_type")
+        {
+            slotIndex = -1;
+            actionType = "filter_type";
+            return true;
+        }
+        else if (remainder == "repeat_active")
+        {
+            slotIndex = -1;
+            actionType = "repeat_active";
+            return true;
+        }
+        
+        return false;
+    }
+    
     
     // キーコードからアクションIDを取得（見つからなければ空文字）
     juce::String getActionForKey(int keyCode) const

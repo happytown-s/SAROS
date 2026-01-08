@@ -392,13 +392,32 @@ public:
                          flameRadius * 2.0f, flameRadius * 2.0f, strokeWidth);
         }
         
-        // イベントホライズン（本体） - 完全な円形、漆黒
-        g.setColour(juce::Colours::black);
-        g.fillEllipse(centre.x - coreRadius, centre.y - coreRadius, coreRadius * 2.0f, coreRadius * 2.0f);
+        // イベントホライズン（本体） - 外周に向かって透けるグラデーション（シアン混ぜ）
+        {
+            // 背景に馴染むようシアンを少し混ぜた暗い色
+            juce::Colour cyanBlack = juce::Colour::fromRGB(5, 15, 20);  // 暗いシアン系
+            
+            juce::ColourGradient blackHoleGradient(
+                juce::Colours::black,  // 中心色（完全不透明）
+                centre.x, centre.y,
+                cyanBlack.withAlpha(0.0f),  // 外周色（シアン混じりで透明）
+                centre.x + coreRadius * 1.2f, centre.y,
+                true  // ラジアルグラデーション
+            );
+            // 中心からのフェードを調整
+            blackHoleGradient.addColour(0.5, juce::Colours::black.withAlpha(0.98f));  // 中間点は濃い
+            blackHoleGradient.addColour(0.7, cyanBlack.withAlpha(0.85f));  // シアンが少し見え始める
+            blackHoleGradient.addColour(0.85, cyanBlack.withAlpha(0.5f));  // 外周に近づくと透け始める
+            blackHoleGradient.addColour(0.95, cyanBlack.withAlpha(0.2f));  // 外周でさらに透ける
+            
+            g.setGradientFill(blackHoleGradient);
+            g.fillEllipse(centre.x - coreRadius * 1.2f, centre.y - coreRadius * 1.2f, 
+                         coreRadius * 2.4f, coreRadius * 2.4f);
+        }
         
-        // 追加の闇（中心をより深く見せる）
-        g.setColour(juce::Colours::black.withAlpha(0.95f));
-        g.fillEllipse(centre.x - coreRadius*0.9f, centre.y - coreRadius*0.9f, coreRadius * 1.8f, coreRadius * 1.8f);
+        // 追加の闘（中心をより深く見せる）
+        g.setColour(juce::Colours::black);
+        g.fillEllipse(centre.x - coreRadius*0.7f, centre.y - coreRadius*0.7f, coreRadius * 1.4f, coreRadius * 1.4f);
 
         // 極細の光輪
         float coronaAlpha = juce::jlimit(0.05f, 0.3f, 0.1f + masterLevel * 0.15f);
@@ -978,6 +997,18 @@ private:
             {
                 resetParticle(i);
                 continue;
+            }
+            
+            // ドラッグ中はパーティクルをより頻繁にリスポーン（生成速度加速）
+            if (std::abs(dragVelocityRemaining) > 0.5f)
+            {
+                // ドラッグ強度に応じてリスポーン確率を上げる
+                float respawnChance = std::abs(dragVelocityRemaining) * 0.02f;
+                if (juce::Random::getSystemRandom().nextFloat() < respawnChance)
+                {
+                    resetParticle(i);
+                    continue;
+                }
             }
             
             // ========================================
