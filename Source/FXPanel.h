@@ -139,6 +139,7 @@ private:
     
     // MIDI Learn
     MidiLearnManager* midiManager = nullptr;
+    std::map<juce::Slider*, double> lastSliderValues; // MIDI Learn中の値復元用
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FXPanel)
 };

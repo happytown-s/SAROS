@@ -265,6 +265,11 @@ LooperTrackUi::LooperTrackUi(int id, TrackState initState)
 		if(onGainChange)
 			onGainChange((float)gainSlider.getValue());
 	};
+    
+    gainSlider.onDragStart = [this]() {
+        if (onGainSliderDragStart)
+            onGainSliderDragStart();
+    };
 
 	addAndMakeVisible(gainSlider);
 

@@ -113,6 +113,11 @@ FXPanel::FXPanel(LooperAudio& looperRef) : looper(looperRef)
             return juce::String(static_cast<int>(value)) + "Hz";
     };
     filterSlider.onValueChange = [this]() {
+        if (midiManager && midiManager->isLearnModeActive()) {
+            if (lastSliderValues.count(&filterSlider))
+                filterSlider.setValue(lastSliderValues[&filterSlider], juce::dontSendNotification);
+            return;
+        }
         float freq = (float)filterSlider.getValue();
         looper.setTrackFilterCutoff(currentTrackId, freq);
         visualizer.setFilterParameters(freq, (float)filterResSlider.getValue(), filterTypeButton.getToggleState() ? 1 : 0);
@@ -125,6 +130,11 @@ FXPanel::FXPanel(LooperAudio& looperRef) : looper(looperRef)
         return juce::String(value, 1);  // Q値は小数点1桁
     };
     filterResSlider.onValueChange = [this]() {
+        if (midiManager && midiManager->isLearnModeActive()) {
+            if (lastSliderValues.count(&filterResSlider))
+                filterResSlider.setValue(lastSliderValues[&filterResSlider], juce::dontSendNotification);
+            return;
+        }
         float res = (float)filterResSlider.getValue();
         looper.setTrackFilterResonance(currentTrackId, res);
         visualizer.setFilterParameters((float)filterSlider.getValue(), res, filterTypeButton.getToggleState() ? 1 : 0);
@@ -149,6 +159,11 @@ FXPanel::FXPanel(LooperAudio& looperRef) : looper(looperRef)
         return juce::String(static_cast<int>(value)) + "dB";
     };
     compThreshSlider.onValueChange = [this]() {
+        if (midiManager && midiManager->isLearnModeActive()) {
+            if (lastSliderValues.count(&compThreshSlider))
+                compThreshSlider.setValue(lastSliderValues[&compThreshSlider], juce::dontSendNotification);
+            return;
+        }
         looper.setTrackCompressor(currentTrackId, 
                                    (float)compThreshSlider.getValue(), 
                                    (float)compRatioSlider.getValue());
@@ -161,6 +176,11 @@ FXPanel::FXPanel(LooperAudio& looperRef) : looper(looperRef)
         return juce::String(value, 1) + ":1";
     };
     compRatioSlider.onValueChange = [this]() {
+        if (midiManager && midiManager->isLearnModeActive()) {
+            if (lastSliderValues.count(&compRatioSlider))
+                compRatioSlider.setValue(lastSliderValues[&compRatioSlider], juce::dontSendNotification);
+            return;
+        }
         looper.setTrackCompressor(currentTrackId, 
                                    (float)compThreshSlider.getValue(), 
                                    (float)compRatioSlider.getValue());
@@ -174,7 +194,11 @@ FXPanel::FXPanel(LooperAudio& looperRef) : looper(looperRef)
         return juce::String(static_cast<int>(value)) + "ms";
     };
     delaySlider.onValueChange = [this]() {
-        // 内部値は0〜1に変換
+        if (midiManager && midiManager->isLearnModeActive()) {
+            if (lastSliderValues.count(&delaySlider))
+                delaySlider.setValue(lastSliderValues[&delaySlider], juce::dontSendNotification);
+            return;
+        }
         looper.setTrackDelayMix(currentTrackId, (float)delayMixSlider.getValue() / 100.0f, (float)delaySlider.getValue() / 1000.0f);
     };
     
@@ -185,6 +209,11 @@ FXPanel::FXPanel(LooperAudio& looperRef) : looper(looperRef)
         return juce::String(static_cast<int>(value)) + "%";
     };
     delayFeedbackSlider.onValueChange = [this]() {
+        if (midiManager && midiManager->isLearnModeActive()) {
+            if (lastSliderValues.count(&delayFeedbackSlider))
+                delayFeedbackSlider.setValue(lastSliderValues[&delayFeedbackSlider], juce::dontSendNotification);
+            return;
+        }
         looper.setTrackDelayFeedback(currentTrackId, (float)delayFeedbackSlider.getValue() / 100.0f);
     };
     
@@ -195,6 +224,11 @@ FXPanel::FXPanel(LooperAudio& looperRef) : looper(looperRef)
         return juce::String(static_cast<int>(value)) + "%";
     };
     delayMixSlider.onValueChange = [this]() {
+        if (midiManager && midiManager->isLearnModeActive()) {
+            if (lastSliderValues.count(&delayMixSlider))
+                delayMixSlider.setValue(lastSliderValues[&delayMixSlider], juce::dontSendNotification);
+            return;
+        }
         looper.setTrackDelayMix(currentTrackId, (float)delayMixSlider.getValue() / 100.0f, (float)delaySlider.getValue() / 1000.0f); 
     };
 
@@ -206,6 +240,11 @@ FXPanel::FXPanel(LooperAudio& looperRef) : looper(looperRef)
         return juce::String(static_cast<int>(value)) + "%";
     };
     reverbSlider.onValueChange = [this]() {
+        if (midiManager && midiManager->isLearnModeActive()) {
+            if (lastSliderValues.count(&reverbSlider))
+                reverbSlider.setValue(lastSliderValues[&reverbSlider], juce::dontSendNotification);
+            return;
+        }
         looper.setTrackReverbMix(currentTrackId, (float)reverbSlider.getValue() / 100.0f);
     };
     
@@ -216,6 +255,11 @@ FXPanel::FXPanel(LooperAudio& looperRef) : looper(looperRef)
         return juce::String(static_cast<int>(value)) + "%";
     };
     reverbDecaySlider.onValueChange = [this]() {
+        if (midiManager && midiManager->isLearnModeActive()) {
+            if (lastSliderValues.count(&reverbDecaySlider))
+                reverbDecaySlider.setValue(lastSliderValues[&reverbDecaySlider], juce::dontSendNotification);
+            return;
+        }
         looper.setTrackReverbRoomSize(currentTrackId, (float)reverbDecaySlider.getValue() / 100.0f);
     };
     
@@ -233,6 +277,11 @@ FXPanel::FXPanel(LooperAudio& looperRef) : looper(looperRef)
         return std::log2(std::max(1, div));
     };
     repeatDivSlider.onValueChange = [this]() {
+        if (midiManager && midiManager->isLearnModeActive()) {
+            if (lastSliderValues.count(&repeatDivSlider))
+                repeatDivSlider.setValue(lastSliderValues[&repeatDivSlider], juce::dontSendNotification);
+            return;
+        }
         int div = 1 << static_cast<int>(repeatDivSlider.getValue());
         looper.setTrackBeatRepeatDiv(currentTrackId, div);
     };
@@ -241,6 +290,11 @@ FXPanel::FXPanel(LooperAudio& looperRef) : looper(looperRef)
     repeatThreshSlider.setRange(0.01, 0.5, 0.01);
     repeatThreshSlider.setValue(0.1);
     repeatThreshSlider.onValueChange = [this]() {
+        if (midiManager && midiManager->isLearnModeActive()) {
+            if (lastSliderValues.count(&repeatThreshSlider))
+                repeatThreshSlider.setValue(lastSliderValues[&repeatThreshSlider], juce::dontSendNotification);
+            return;
+        }
         looper.setTrackBeatRepeatThresh(currentTrackId, (float)repeatThreshSlider.getValue());
     };
     
@@ -896,6 +950,9 @@ void FXPanel::sliderDragStarted(juce::Slider* slider)
     // MIDI Learnモード時はスライダーの操作をマッピング登録に変える
     if (midiManager != nullptr && midiManager->isLearnModeActive())
     {
+        // 現在値を保存（onValueChangeで復元するため）
+        lastSliderValues[slider] = slider->getValue();
+        
         juce::String controlId = getControlIdForSlider(slider);
         if (controlId.isNotEmpty())
         {

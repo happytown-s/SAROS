@@ -30,11 +30,35 @@ MainComponent::MainComponent()
 		auto track = std::make_unique<LooperTrackUi>(newId, LooperTrackUi::TrackState::Idle);
 		track->setListener(this);
 		
-		// フェーダー操作時のコールバック
-		track->onGainChange = [this, newId](float gain)
-		{
-			looper.setTrackGain(newId, gain);
-		};
+        // フェーダー操作時のコールバック
+        track->onGainChange = [this, newId](float gain)
+        {
+            // MIDI Learnモード時は値を変更せず、元の値に戻す（UIロック）
+            if (midiLearnManager.isLearnModeActive())
+            {
+                if (lastGainValues.count(newId) && newId <= trackUIs.size())
+                {
+                    trackUIs[newId - 1]->setGainValue(lastGainValues[newId]);
+                }
+                return;
+            }
+            looper.setTrackGain(newId, gain);
+        };
+        
+        // ドラッグ開始時のコールバック（MIDI Learn用）
+        track->onGainSliderDragStart = [this, newId]()
+        {
+            if (midiLearnManager.isLearnModeActive())
+            {
+                // 現在値を保存
+                if (newId <= trackUIs.size())
+                    lastGainValues[newId] = trackUIs[newId - 1]->getGain();
+                
+                juce::String controlId = "track_" + juce::String(newId) + "_gain";
+                midiLearnManager.setLearnTarget(controlId);
+                DBG("MIDI Learn: Waiting for input - " << controlId);
+            }
+        };
         
         // 倍率変更時のコールバック
         track->onLoopMultiplierChange = [this, newId](float multiplier)

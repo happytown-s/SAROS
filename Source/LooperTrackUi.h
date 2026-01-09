@@ -96,8 +96,12 @@ public:
     class ResetSlider : public juce::Slider
     {
     public:
+        std::function<void()> onDragStart;
+        
         void mouseDown(const juce::MouseEvent& e) override
         {
+            if (onDragStart) onDragStart();
+            
             if (e.mods.isRightButtonDown())
             {
                 setValue(0.75); // Reset to Default
@@ -107,11 +111,12 @@ public:
         }
     };
     
-	ResetSlider gainSlider;
+    ResetSlider gainSlider;
 	float currentRmsLevel = 0.0f;
 
 public:
 	std::function<void(float)> onGainChange;
+	std::function<void()> onGainSliderDragStart; // 🆕 Added callback
 
     // Multiplier Buttons
     juce::TextButton mult2xButton { "x2" };
@@ -119,5 +124,6 @@ public:
 
 	void setLevel(float rms);
 	float getGain() const { return (float)gainSlider.getValue(); }
+    void setGainValue(float newGain) { gainSlider.setValue(newGain, juce::dontSendNotification); } // 🆕 Added setter
 };
 

@@ -78,6 +78,8 @@ public MidiLearnManager::Listener
 	
 	// ===== MIDI Learn =====
 	MidiLearnManager midiLearnManager;
+	std::map<int, float> lastGainValues; // <ReferenceTrackId, GainValue>
+
 	
 	// ===== Keyboard Mapping =====
 	KeyboardMappingManager keyboardMappingManager;
