@@ -45,7 +45,8 @@ class LooperAudio
     void startRecordingWithLookback(int trackId, const juce::AudioBuffer<float>& lookbackData);
 	void stopRecording(int trackId);
 	void startPlaying(int trackId, bool syncToMaster = true);
-	void stopPlaying(int trackId);
+    void startAllPlayback(); // 全トラックを一斉に再生開始（同期ズレ防止）
+    void stopPlaying(int trackId);
 	void clearTrack(int trackId);
 
 	void startSequentialRecording(const std::vector<int>& selectedTracks);
@@ -225,17 +226,28 @@ public:
     int getMasterStartSample() const { return masterStartSample; }
     
     // 現在の最大ループ倍率を取得
+    // 現在の最大ループ倍率を取得
     float getMaxLoopMultiplier() const 
     { 
+        // マスター未確定時は1.0
         if (masterLoopLength == 0) return 1.0f;
+        
         float maxMult = 1.0f;
         for(const auto& t : tracks)
         {
+            float mult = 1.0f;
+            // 録音済みの場合は実際の長さから倍率を計算
             if (t.second.recordLength > 0)
             {
-                float mult = (float)t.second.recordLength / (float)masterLoopLength;
-                if (mult > maxMult) maxMult = mult;
+                mult = (float)t.second.recordLength / (float)masterLoopLength;
             }
+            // 未録世の場合は設定されている倍率を使用
+            else
+            {
+                mult = t.second.loopMultiplier;
+            }
+            
+            if (mult > maxMult) maxMult = mult;
         }
         return maxMult; 
     }
@@ -261,6 +273,8 @@ private:
 	int currentRecordingIndex = -1;
 
 	juce::ListenerList<Listener> listeners;
+    
+    juce::CriticalSection audioLock;
 
 	juce::TriggerEvent* triggerRef = nullptr;
 

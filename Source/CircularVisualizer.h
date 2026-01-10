@@ -65,16 +65,19 @@ public:
         double startAngleRatio = 0.0;
         if (masterLengthSamples > 0 && trackLengthSamples > 0)
         {
-            // バッファ先頭(i=0)の位相を計算
-            double recordPhase = (double)(recordStartGlobal % masterLengthSamples) / (double)masterLengthSamples;
+            // シンプルかつ最強の計算式 (修正版):
+            // 円周全体の長さ(Master * MaxMult)に対する、録音開始位置(MasterStartからの相対)の割合。
+            // MasterStart を引かないと、アプリ起動からの絶対時間になってしまい、再生バー(MasterStart基準)とズレる。
             
-            // bufferAngleSpan: 録音開始絶対位置分だけオフセットを戻す（これにより0スタート等になる）
-            double anglePerSample = loopRatio / (double)trackLengthSamples / (double)maxMultiplier;
-            double bufferAngleSpan = (double)recordStartGlobal * anglePerSample;
+            double totalCircumference = (double)masterLengthSamples * maxMultiplier;
+            long long relativeStart = (long long)recordStartGlobal - (long long)masterStartGlobal;
             
-            startAngleRatio = recordPhase - bufferAngleSpan;
+            // 負の値（PreRoll等でMasterStartより前になった場合）のModulo対策
+            while (relativeStart < 0) relativeStart += (long long)totalCircumference;
             
-            // 正規化
+            startAngleRatio = (double)(relativeStart % (long long)totalCircumference) / totalCircumference;
+            
+            // 正規化（念のため）
             while (startAngleRatio < 0.0) startAngleRatio += 1.0;
             while (startAngleRatio >= 1.0) startAngleRatio -= 1.0;
         }

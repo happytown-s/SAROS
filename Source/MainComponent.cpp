@@ -189,15 +189,18 @@ MainComponent::MainComponent()
                  looper.stopRecording(looper.getCurrentTrackId());
              }
              
+             // PLAYボタン: 全トラックを一斉に再生開始（同期ズレなし）
              const auto& tracks = looper.getTracks();
-             bool anyStarted = false;
-             for (const auto& [id, data] : tracks) {
-                 if (data.recordLength > 0) {
-                     looper.startPlaying(id, false);
-                     anyStarted = true;
-                 }
+             bool anyExists = false;
+             for(const auto& [id, data] : tracks) {
+                 if(data.recordLength > 0) { anyExists = true; break; }
              }
-             if (!anyStarted) DBG("⚠️ No tracks to play");
+             
+             if (anyExists) {
+                 looper.startAllPlayback();
+             } else {
+                 DBG("⚠️ No tracks to play");
+             }
         }
 		else if (action == "STOP")
 		{

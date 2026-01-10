@@ -25,6 +25,8 @@ void LooperAudio::prepareToPlay(int samplesPerBlockExpected, double sr)
 void LooperAudio::processBlock(juce::AudioBuffer<float>& output,
                                const juce::AudioBuffer<float>& input)
 {
+    const juce::ScopedLock sl(audioLock); // 再生開始処理(startAllPlayback)との競合を防ぐ
+
     // 録音・再生処理
     output.clear();
     recordIntoTracks(input);
@@ -130,6 +132,9 @@ void LooperAudio::startRecording(int trackId)
                 }
             }
             
+            // DISABLING Smart Phase Alignment based on user feedback.
+            // visualizer should reflect absolute recording time, even if it's on the 2nd loop (odd index).
+            /*
             if (!hasOtherLongTracks)
             {
                 int64_t rel = currentSamplePosition - masterStartSample;
@@ -140,6 +145,7 @@ void LooperAudio::startRecording(int trackId)
                     DBG("🔄 Smart Phase Alignment: Shifted Master Start by 1 loop to align x2 start to 0");
                 }
             }
+            */
         }
 
         // A. Trigger録音の場合：ブロック内の正確なトリガー位置を使用
@@ -155,24 +161,30 @@ void LooperAudio::startRecording(int trackId)
 
         track.writePosition = (int)(relativeGlobal % trackLoopLength);
         
-        // Visualizerの描画開始位置: writePosition（バッファ内の絶対インデックス）
-        // Visualizer側でこの値を使って、位相（Phase）とバッファオフセットの両方を計算する
-        track.recordStartSample = (int)track.writePosition;
+        // Visualizerの描画開始位置: 絶対時刻を使用する
+        track.recordStartSample = (int)exactTriggerPosition;
         track.recordingStartPhase = track.writePosition;
         
         DBG("🎬 Start recording track " << trackId
             << " (Precision Aligned). AbsDiff: " << relativeGlobal 
             << " (sampleInBlock: " << sampleIdxInBlock << ")"
-            << " -> WritePos: " << track.writePosition);
+            << " -> WritePos: " << track.writePosition
+            << " | RecordStartSample: " << track.recordStartSample);
     }
     // TriggerEventが有効なら記録開始位置として反映
     else if (triggerRef && triggerRef->triggerd)
     {
         int sampleIdx = triggerRef->sampleInBlock >= 0 ? triggerRef->sampleInBlock : 0;
-        track.recordStartSample = static_cast<int>(triggerRef->absIndex);
-        track.writePosition = juce::jlimit(0, maxSamples - 1, (int)triggerRef->absIndex);
+        
+        // absIndexが有効な場合はそれを使用、無効（-1）の場合は現在位置＋オフセットで計算
+        int64_t triggerAbsTime = (triggerRef->absIndex >= 0) 
+            ? triggerRef->absIndex 
+            : (currentSamplePosition + sampleIdx);
+        
+        track.recordStartSample = static_cast<int>(triggerAbsTime);
+        track.writePosition = juce::jlimit(0, maxSamples - 1, (int)(triggerAbsTime % maxSamples));
         DBG("🎬 Start recording track " << trackId
-            << " triggered at " << triggerRef->absIndex << " (sampleIdx: " << sampleIdx << ")");
+            << " triggered at " << triggerAbsTime << " (sampleIdx: " << sampleIdx << ")");
     }
     else
     {
@@ -250,6 +262,9 @@ void LooperAudio::startRecordingWithLookback(int trackId, const juce::AudioBuffe
             // Increase recorded length so loop completes sooner (as we already have data)
             track.recordLength += samplesToCopy;
             track.recordingStartPhase = (track.recordingStartPhase - samplesToCopy + loopLimit) % loopLimit;
+            
+            // Visualizerのために開始位置も調整（PreRoll分戻す）
+            track.recordStartSample -= samplesToCopy; 
         }
 
         DBG("🔙 Lookback injected: " << samplesToCopy << " samples. Adjusted start: " << track.recordStartSample);
@@ -374,6 +389,23 @@ void LooperAudio::startPlaying(int trackId, bool syncToMaster)
             DBG("▶️ Start playing track " << trackId << " from position 0");
         }
     }
+}
+
+void LooperAudio::startAllPlayback()
+{
+    // 全トラックを一斉に0位置からスタートさせる（ループで個別に呼ぶとコールバック割り込みでズレるため）
+    const juce::ScopedLock sl(audioLock); // 必要ならロック
+    
+    // まずマスタートラックがあるか確認（あればそれもリセット）
+    for (auto& [id, track] : tracks)
+    {
+        if (track.recordLength > 0)
+        {
+            track.isPlaying = true;
+            track.readPosition = 0;
+        }
+    }
+    DBG("▶️ Start ALL tracks from position 0 (Perfect Sync)");
 }
 
 void LooperAudio::stopPlaying(int trackId)
@@ -1248,6 +1280,18 @@ void LooperAudio::setTrackLoopMultiplier(int trackId, float multiplier)
     if (auto it = tracks.find(trackId); it != tracks.end())
     {
         it->second.loopMultiplier = multiplier;
-        DBG("Track " << trackId << " loop multiplier set to " << multiplier);
+        
+        // 再生位置を現在の絶対時刻に合わせて再計算（x2切り替え時のズレ防止）
+        if (masterLoopLength > 0)
+        {
+            int64_t relativePos = currentSamplePosition - masterStartSample;
+            int effectiveLoopLength = (int)(masterLoopLength * multiplier);
+            if (effectiveLoopLength > 0)
+            {
+                it->second.readPosition = (int)(relativePos % effectiveLoopLength);
+            }
+        }
+        
+        DBG("Track " << trackId << " loop multiplier set to " << multiplier << " | ReadPos adjusted to " << it->second.readPosition);
     }
 }

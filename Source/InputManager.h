@@ -55,9 +55,10 @@ class InputManager
 	void setTriggerEvent(){triggerEvent.triggerd = false;}
 
 	//TriggerEvent& getTriggerEvent() {return triggerEvent;}
+	//TriggerEvent& getTriggerEvent() {return triggerEvent;}
 	void processInput (const juce::AudioBuffer<float>& input)
 	{}
-
+    
 	//設定
 	void setConfig(const SmartRecConfig& newConfig) noexcept;
 	const SmartRecConfig& getConfig() const noexcept;
