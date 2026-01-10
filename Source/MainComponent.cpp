@@ -193,7 +193,7 @@ MainComponent::MainComponent()
              bool anyStarted = false;
              for (const auto& [id, data] : tracks) {
                  if (data.recordLength > 0) {
-                     looper.startPlaying(id);
+                     looper.startPlaying(id, false);
                      anyStarted = true;
                  }
              }

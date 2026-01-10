@@ -276,8 +276,11 @@ LooperTrackUi::LooperTrackUi(int id, TrackState initState)
     // Multiplier Buttons (Skip for Master Track 1)
     if (trackId != 1)
     {
-        addAndMakeVisible(mult2xButton);
-        addAndMakeVisible(multHalfButton);
+        // 一時的に非表示（問題切り分けのため）
+        mult2xButton.setVisible(false);
+        multHalfButton.setVisible(false);
+        // addAndMakeVisible(mult2xButton);
+        // addAndMakeVisible(multHalfButton);
         
         // Style
         mult2xButton.setColour(juce::TextButton::buttonColourId, juce::Colours::black.withAlpha(0.6f));

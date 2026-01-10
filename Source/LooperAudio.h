@@ -44,7 +44,7 @@ class LooperAudio
 	void startRecording(int trackId);
     void startRecordingWithLookback(int trackId, const juce::AudioBuffer<float>& lookbackData);
 	void stopRecording(int trackId);
-	void startPlaying(int trackId);
+	void startPlaying(int trackId, bool syncToMaster = true);
 	void stopPlaying(int trackId);
 	void clearTrack(int trackId);
 

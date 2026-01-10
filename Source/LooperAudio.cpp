@@ -155,10 +155,9 @@ void LooperAudio::startRecording(int trackId)
 
         track.writePosition = (int)(relativeGlobal % trackLoopLength);
         
-        // Visualizerの描画開始位置: マスターループ内での録音開始位置を計算
-        // x2の場合でもマスターループ1周内の位置に正規化することで、
-        // 円周上の正しい角度（例: 50%なら6時方向）から描画される
-        track.recordStartSample = (int)(track.writePosition % masterLoopLength);
+        // Visualizerの描画開始位置: writePosition（バッファ内の絶対インデックス）
+        // Visualizer側でこの値を使って、位相（Phase）とバッファオフセットの両方を計算する
+        track.recordStartSample = (int)track.writePosition;
         track.recordingStartPhase = track.writePosition;
         
         DBG("🎬 Start recording track " << trackId
@@ -343,42 +342,36 @@ void LooperAudio::stopRecording(int trackId)
     listeners.call([&](Listener& l) { l.onRecordingStopped(trackId); });
 }
 
-void LooperAudio::startPlaying(int trackId)
+void LooperAudio::startPlaying(int trackId, bool syncToMaster)
 {
     if (auto it = tracks.find(trackId); it != tracks.end())
     {
         auto& track = it->second;
         track.isPlaying = true;
 
-        if (masterLoopLength > 0)
+        if (trackId == masterTrackId)
         {
-            // マスタートラックの場合は、stopRecordingで設定されたreadPositionを維持
-            // （stopRecordingで0にリセット済みなので再計算しない）
-            if (trackId == masterTrackId && track.readPosition == 0)
-            {
-                // マスタートラックで0スタートの場合はそのまま
-                DBG("▶️ Start playing master track " << trackId << " from position 0");
-            }
-            else
-            {
-                // スレーブトラック: 録音時と同じ基準で同期
-                // 録音はcurrentSamplePosition - masterStartSampleベースで行われるため、
-                // 再生もこの基準を使用
-                int effectiveLoopLength = (int)(masterLoopLength * track.loopMultiplier);
-                if (effectiveLoopLength < 1) effectiveLoopLength = 1;
+            // マスタートラックは常に位置0から
+            track.readPosition = 0;
+            DBG("▶️ Start playing master track " << trackId << " from position 0");
+        }
+        else if (syncToMaster && masterLoopLength > 0)
+        {
+            // スレーブトラック: マスターの現在位置に同期（録音後の自動再生用）
+            int effectiveLoopLength = (int)(masterLoopLength * track.loopMultiplier);
+            if (effectiveLoopLength < 1) effectiveLoopLength = 1;
 
-                // 録音時と同じ計算方法で再生位置を決定
-                int64_t relativePos = currentSamplePosition - masterStartSample;
-                track.readPosition = (int)(relativePos % effectiveLoopLength);
-                
-                DBG("▶️ Start playing track " << trackId
-                    << " synced to master at " << track.readPosition);
-            }
+            int64_t relativePos = currentSamplePosition - masterStartSample;
+            track.readPosition = (int)(relativePos % effectiveLoopLength);
+            
+            DBG("▶️ Start playing track " << trackId
+                << " synced to master at " << track.readPosition);
         }
         else
         {
+            // 手動停止→再生時: 位置0から
             track.readPosition = 0;
-            DBG("▶️ Start playing track " << trackId << " from position 0 (no master)");
+            DBG("▶️ Start playing track " << trackId << " from position 0");
         }
     }
 }

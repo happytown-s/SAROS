@@ -1,0 +1,1 @@
+visualizerのmasterとプレイヘッドは絶対に修正しないように
