@@ -495,8 +495,9 @@ public:
             // プレイヘッド付近のセグメントを強調
             if (currentPlayHeadPos >= 0.0f && wp.segmentAngles.size() > 1) // 全レイヤーに適用
             {
-                // 角度を 0 ~ 2PI に正規化
-                float playHeadAngle = std::fmod(currentPlayHeadPos * juce::MathConstants<float>::twoPi, juce::MathConstants<float>::twoPi);
+                // 角度を 0 ~ 2PI に正規化しつつ、12時基準(-PI/2)に合わせる
+                float playHeadAngleRaw = currentPlayHeadPos * juce::MathConstants<float>::twoPi - juce::MathConstants<float>::halfPi;
+                float playHeadAngle = std::fmod(playHeadAngleRaw, juce::MathConstants<float>::twoPi);
                 if (playHeadAngle < 0) playHeadAngle += juce::MathConstants<float>::twoPi;
                 
                 float highlightRange = 0.15f; // プレイヘッド前後の強調範囲（ラジアン）
@@ -583,8 +584,8 @@ public:
         if (currentPlayHeadPos >= 0.0f)
         {
             // プレイヘッドは累積位置（setPlayHeadPositionで計算済み）を使用
-            // 波形と同じく0.0（3時）を開始点とする（ユーザー指定）
-            float manualOffset = 0.0f;
+            // 波形と同じく12時（-90度）を開始点とする
+            float manualOffset = -juce::MathConstants<float>::halfPi;
             float angle = (currentPlayHeadPos * juce::MathConstants<float>::twoPi) + manualOffset;
             
             // プレイヘッドライン (レーダーのように中心から外へ)
@@ -804,8 +805,8 @@ private:
             startAngleRatio = (double)relativeStartSample / (double)masterLengthSamples;
         }
         
-        // ★修正: 12時基準(-halfPi)を廃止し、3時基準(0.0)に統一
-        double manualOffset = 0.0;
+        // ★修正: ユーザー要望により12時基準（-90度）に戻す
+        double manualOffset = -juce::MathConstants<double>::halfPi;
         
         juce::Path newPath;
         
