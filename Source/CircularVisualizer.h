@@ -492,10 +492,10 @@ public:
             g.strokePath(p, juce::PathStrokeType(0.3f));
             
             // === プレイヘッド位置ハイライト + RMS振動 ===
-            // 「ホースの水」効果: プレイヘッド付近のセグメントを太く描画
-            if (currentPlayHeadPos >= 0.0f && wp.segmentAngles.size() > 1 && i == 0) // 最内周のみ
+            // プレイヘッド付近のセグメントを強調
+            if (currentPlayHeadPos >= 0.0f && wp.segmentAngles.size() > 1) // 全レイヤーに適用
             {
-                float playHeadAngle = currentPlayHeadPos * juce::MathConstants<float>::twoPi - juce::MathConstants<float>::halfPi;
+                float playHeadAngle = currentPlayHeadPos * juce::MathConstants<float>::twoPi;
                 float highlightRange = 0.15f; // プレイヘッド前後の強調範囲（ラジアン）
                 
                 juce::Random& rng = juce::Random::getSystemRandom();
