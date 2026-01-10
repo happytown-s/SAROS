@@ -537,28 +537,11 @@ public:
                         float y2 = centre.y + r2 * finalScale * std::sin(angle2);
                         
                         // 振動ライン（音量に応じて太さと透明度が変化）
-                        float vibeAlpha = 0.15f + masterLevel * 0.5f;
-                        float vibeThickness = 1.0f + masterLevel * 3.0f;
-                        g.setColour(wp.colour.brighter(0.5f).withAlpha(juce::jlimit(0.0f, 0.6f, vibeAlpha)));
+                        // 白くなりすぎないようアルファ値を抑えめに調整
+                        float vibeAlpha = 0.1f + masterLevel * 0.4f;
+                        float vibeThickness = 1.0f + masterLevel * 2.0f;
+                        g.setColour(wp.colour.brighter(0.4f).withAlpha(juce::jlimit(0.0f, 0.5f, vibeAlpha)));
                         g.drawLine(x1, y1, x2, y2, vibeThickness);
-                    }
-                    
-                    // プレイヘッド付近のハイライト（太く明るく）
-                    if (highlightIntensity > 0.0f)
-                    {
-                        float thickness = 2.0f + highlightIntensity * 6.0f; // 2px → 8px
-                        float extraAlpha = highlightIntensity * 0.5f;
-                        
-                        float r1 = (inner1 + outer1) * 0.5f;
-                        float r2 = (inner2 + outer2) * 0.5f;
-                        
-                        float x1 = centre.x + r1 * finalScale * std::cos(angle1);
-                        float y1 = centre.y + r1 * finalScale * std::sin(angle1);
-                        float x2 = centre.x + r2 * finalScale * std::cos(angle2);
-                        float y2 = centre.y + r2 * finalScale * std::sin(angle2);
-                        
-                        g.setColour(juce::Colours::white.withAlpha(juce::jlimit(0.0f, 0.8f, baseAlpha * 0.6f + extraAlpha)));
-                        g.drawLine(x1, y1, x2, y2, thickness);
                     }
                 }
             }
