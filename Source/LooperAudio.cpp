@@ -155,10 +155,10 @@ void LooperAudio::startRecording(int trackId)
 
         track.writePosition = (int)(relativeGlobal % trackLoopLength);
         
-        // Visualizerの描画開始位置を「バッファ先頭＝3時」から逆算して調整
-        // Offset = RecordStart - MasterStart = -WritePos となるように設定
-        // StartAngle = -WritePos (時計回りに戻すことで、音のあるWritePos地点を3時に合わせる)
-        track.recordStartSample = (int)(masterStartSample - track.writePosition);
+        // Visualizerの描画開始位置: マスターループ内での録音開始位置を計算
+        // x2の場合でもマスターループ1周内の位置に正規化することで、
+        // 円周上の正しい角度（例: 50%なら6時方向）から描画される
+        track.recordStartSample = (int)(track.writePosition % masterLoopLength);
         track.recordingStartPhase = track.writePosition;
         
         DBG("🎬 Start recording track " << trackId

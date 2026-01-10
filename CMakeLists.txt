@@ -29,6 +29,8 @@ juce_add_gui_app(SAROS
     PRODUCT_NAME "SAROS"
     OUTPUT_NAME "SAROS"
     OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/SAROSApp"
+    ICON_BIG "${CMAKE_CURRENT_SOURCE_DIR}/Source/Assets/icon.png"
+    ICON_SMALL "${CMAKE_CURRENT_SOURCE_DIR}/Source/Assets/icon.png"
 )
 
 # バイナリデータ（フォントなど）の定義

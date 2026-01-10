@@ -65,14 +65,9 @@ public:
         double startAngleRatio = 0.0;
         if (masterLengthSamples > 0)
         {
-            // 安定したアラインメント（Phase-Alignment）のため、modulo masterLengthSamples を使用
-            // これにより、どのループ周回で録音しても、同じビート位相なら同じ角度から開始される
-            long offsetFromStart = (long)recordStartGlobal - (long)masterStartGlobal;
-            long relativeStart = offsetFromStart % (long)masterLengthSamples;
-            while (relativeStart < 0) relativeStart += (long)masterLengthSamples;
-            
-            // 円周全体（maxMultiplier周分）の中での比率に変換
-            startAngleRatio = (double)relativeStart / (double)(masterLengthSamples * maxMultiplier);
+            // recordStartGlobal = マスターループ内での録音開始位置（mod済み）
+            // マスターループ1周を基準にした角度比率を算出
+            startAngleRatio = (double)recordStartGlobal / (double)masterLengthSamples;
         }
 
         // 🔍 DEBUG LOGGING
@@ -780,12 +775,8 @@ private:
         double startAngleRatio = 0.0;
         if (masterLengthSamples > 0)
         {
-            // 安定したアラインメント（Phase-Alignment）のため
-            long offsetFromStart = (long)wp.originalRecordStart - (long)wp.originalMasterStart;
-            long relativeStart = offsetFromStart % (long)masterLengthSamples;
-            while (relativeStart < 0) relativeStart += (long)masterLengthSamples;
-            
-            startAngleRatio = (double)relativeStart / (double)(masterLengthSamples * maxMultiplier);
+            // originalRecordStart = マスターループ内での録音開始位置（mod済み）
+            startAngleRatio = (double)wp.originalRecordStart / (double)masterLengthSamples;
         }
         
         // ★ オフセット設定: マスターもスレーブも12時（-halfPi）
