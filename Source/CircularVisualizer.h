@@ -456,12 +456,12 @@ public:
             juce::Random& rng = juce::Random::getSystemRandom();
             
             // 🔊 低音連動のジッター（位置揺れ）
-            float jitterAmount = bassLevel * 2.0f; // 控えめ: 0〜2ピクセル
+            float jitterAmount = bassLevel * 0.5f; // さらに控えめに調整: 0〜0.5ピクセル
             float jitterX = jitterAmount * (rng.nextFloat() - 0.5f);
             float jitterY = jitterAmount * (rng.nextFloat() - 0.5f);
             
             // 🎵 高音連動の微小回転（スピン揺れ）
-            float spinAmount = midHighLevel * 0.01f; // 控えめ: 約0.5度
+            float spinAmount = midHighLevel * 0.002f; // さらに控えめに調整
             float spin = spinAmount * (rng.nextFloat() - 0.5f);
             
             auto transform = juce::AffineTransform::rotation(spin)
@@ -522,8 +522,8 @@ public:
                     
                     // リアルタイム音量連動の振動
                     // 基本振動（常時）+ 音量連動で振幅増加
-                    float baseVibration = 0.01f; // 常時の微振動
-                    float audioVibration = masterLevel * 0.3f; // 音量連動
+                    float baseVibration = 0.005f; // 常時の微振動（さらに微細に）
+                    float audioVibration = masterLevel * 0.05f; // 音量連動（繊細な動きに）
                     float totalVibration = (baseVibration + audioVibration) * (rng.nextFloat() - 0.5f);
                     
                     // 全セグメントに振動を適用
