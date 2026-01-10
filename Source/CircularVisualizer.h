@@ -495,7 +495,10 @@ public:
             // プレイヘッド付近のセグメントを強調
             if (currentPlayHeadPos >= 0.0f && wp.segmentAngles.size() > 1) // 全レイヤーに適用
             {
-                float playHeadAngle = currentPlayHeadPos * juce::MathConstants<float>::twoPi;
+                // 角度を 0 ~ 2PI に正規化
+                float playHeadAngle = std::fmod(currentPlayHeadPos * juce::MathConstants<float>::twoPi, juce::MathConstants<float>::twoPi);
+                if (playHeadAngle < 0) playHeadAngle += juce::MathConstants<float>::twoPi;
+                
                 float highlightRange = 0.15f; // プレイヘッド前後の強調範囲（ラジアン）
                 
                 juce::Random& rng = juce::Random::getSystemRandom();
@@ -511,11 +514,14 @@ public:
                     float outer1 = wp.segmentOuterR[seg - 1];
                     float outer2 = wp.segmentOuterR[seg];
                     
-                    // プレイヘッドからの角度距離を計算
+                    // プレイヘッドからの角度距離を計算 (最短距離ロジック)
                     float midAngle = (angle1 + angle2) * 0.5f;
-                    float angleDiff = std::abs(midAngle - playHeadAngle);
-                    if (angleDiff > juce::MathConstants<float>::pi)
-                        angleDiff = juce::MathConstants<float>::twoPi - angleDiff;
+                    float angleDiff = midAngle - playHeadAngle;
+                    
+                    // -PI ~ +PI の範囲に正規化して最短距離をとる
+                    while (angleDiff < -juce::MathConstants<float>::pi) angleDiff += juce::MathConstants<float>::twoPi;
+                    while (angleDiff > juce::MathConstants<float>::pi)  angleDiff -= juce::MathConstants<float>::twoPi;
+                    angleDiff = std::abs(angleDiff);
                     
                     // ハイライト強度（距離が近いほど強い）
                     float highlightIntensity = juce::jmax(0.0f, 1.0f - angleDiff / highlightRange);
