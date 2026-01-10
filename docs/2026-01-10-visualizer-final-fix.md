@@ -39,6 +39,14 @@
 - **Track 7-8 (Punch-in @ Bar 2, Beat 4)**:
     - Displayed at approx **10.5 o'clock (315°)**.
     - Start is at Beat 7. 7/8 of the x2 circle is 315°.
+
+## Note on Visualizer Behavior for Multipliers
+- **x2 Multiplier (Double Length)**: 
+    - The visualizer circle represents the full length of the x2 track (2 master loops).
+    - Recordings made during the **even** master loops (1st, 3rd...) appear in the **first half** of the circle (0-180°, right side).
+    - Recordings made during the **odd** master loops (2nd, 4th...) appear in the **second half** of the circle (180-360°, left side).
+- **Absolute Time Grid**: 
+    - The position is strictly based on the absolute sample time modulo the total track length. If a recording seems "shifted by half a circle", it likely means it was recorded during the odd/even loop opposite to the user's perception, which is the correct behavior for representing absolute time.
  これにより、等倍だけでなくx2倍速や/2半速トラックでも、録音された音がマスターループと完全に同期した角度に表示されるようになりました。
     *   スレーブトラックのオフセット（+60度など）を廃止し、全トラックをマスターと同じ12時基準（-90度オフセット）に統一しました。
 
