@@ -522,8 +522,9 @@ public:
                     
                     // リアルタイム音量連動の振動
                     // 基本振動（常時）+ 音量連動で振幅増加
-                    float baseVibration = 0.005f; // 常時の微振動（さらに微細に）
-                    float audioVibration = masterLevel * 0.05f; // 音量連動（繊細な動きに）
+                    // 以前ほど派手ではないが、視認できるレベルに戻す
+                    float baseVibration = 0.008f; 
+                    float audioVibration = masterLevel * 0.15f; 
                     float totalVibration = (baseVibration + audioVibration) * (rng.nextFloat() - 0.5f);
                     
                     // 全セグメントに振動を適用
@@ -538,10 +539,35 @@ public:
                         
                         // 振動ライン（音量に応じて太さと透明度が変化）
                         // 白くなりすぎないようアルファ値を抑えめに調整
-                        float vibeAlpha = 0.1f + masterLevel * 0.4f;
-                        float vibeThickness = 1.0f + masterLevel * 2.0f;
-                        g.setColour(wp.colour.brighter(0.4f).withAlpha(juce::jlimit(0.0f, 0.5f, vibeAlpha)));
+                        float vibeAlpha = 0.15f + masterLevel * 0.5f; // 少し戻す
+                        float vibeThickness = 1.0f + masterLevel * 3.0f; // 少し戻す
+                        g.setColour(wp.colour.brighter(0.5f).withAlpha(juce::jlimit(0.0f, 0.6f, vibeAlpha)));
                         g.drawLine(x1, y1, x2, y2, vibeThickness);
+                    }
+                    
+                    // プレイヘッド付近のハイライト（復活させるが、以前より控えめに）
+                    // ユーザーが「白いのはいらない」と言ったのは「太すぎる白線」のことだと推測されるため
+                    // 色味を波形カラーベースにし、太さを控えめにして復活させる
+                    if (highlightIntensity > 0.0f)
+                    {
+                        // 以前: 2.0 + 6.0
+                        float thickness = 2.0f + highlightIntensity * 4.0f; 
+                        
+                        // 以前: white.withAlpha(0.8) -> 白すぎて浮いていた
+                        // 修正: 波形の色を極端に明るくしたものを使用し、馴染ませる
+                        float extraAlpha = highlightIntensity * 0.6f;
+                        
+                        float r1 = (inner1 + outer1) * 0.5f;
+                        float r2 = (inner2 + outer2) * 0.5f;
+                        
+                        float x1 = centre.x + r1 * finalScale * std::cos(angle1);
+                        float y1 = centre.y + r1 * finalScale * std::sin(angle1);
+                        float x2 = centre.x + r2 * finalScale * std::cos(angle2);
+                        float y2 = centre.y + r2 * finalScale * std::sin(angle2);
+                        
+                        // 完全な白ではなく、波形カラーの超高輝度版を使う
+                        g.setColour(wp.colour.brighter(0.9f).withAlpha(juce::jlimit(0.0f, 0.9f, baseAlpha * 0.5f + extraAlpha)));
+                        g.drawLine(x1, y1, x2, y2, thickness);
                     }
                 }
             }
