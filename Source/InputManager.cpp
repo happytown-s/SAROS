@@ -108,10 +108,14 @@ void InputManager::analyze(const juce::AudioBuffer<float>& input)
 	if (trig && !triggered)
 	{
 		triggered = true;
+        
+        // AudioInputBuffer から正確なサンプルインデックスを取得
+        int sampleIdx = inputBuffer.getLastTriggerIndexInBlock();
+        
         // Fire trigger! AbsIndex is managed by AudioInputBuffer internally mostly,
         // but we signal capability via the event.
-		triggerEvent.fire(0, -1);
-		DBG("🔥 Trigger Fired! High threshold exceeded.");
+		triggerEvent.fire(sampleIdx, -1);
+		DBG("🔥 Trigger Fired! High threshold exceeded (sampleIdx: " << sampleIdx << ").");
 	}
 	else if (triggered)
 	{

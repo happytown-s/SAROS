@@ -67,10 +67,12 @@ public:
         long offsetFromMasterStart = (long)recordStartGlobal - (long)masterStartGlobal;
         double startAngleRatio = 0.0;
         
-        if (masterLengthSamples > 0 && offsetFromMasterStart > 0)
+        if (masterLengthSamples > 0)
         {
-            int relativeStartSample = (int)(offsetFromMasterStart % masterLengthSamples);
-            startAngleRatio = (double)relativeStartSample / (double)masterLengthSamples;
+            // 正負両方のオフセットを正しく処理
+            long relativeStart = offsetFromMasterStart % masterLengthSamples;
+            if (relativeStart < 0) relativeStart += masterLengthSamples; // 負の剰余を正に変換
+            startAngleRatio = (double)relativeStart / (double)masterLengthSamples;
         }
 
         // 🔍 DEBUG LOGGING (バッファサイズ確認追加)
@@ -87,9 +89,8 @@ public:
         // ポイント間の正確なサンプル数ステップ（浮動小数点）
         // ★ numSamples (実際読み取る範囲) を基準にする
         double sampleStep = (double)numSamples / (double)points;
-        // マニュアルオフセット: -π/2 で12時開始
-        // cos/sinでは-π/2 = (0, -1) = 12時
-        double manualOffset = -juce::MathConstants<double>::halfPi;
+        // マニュアルオフセット: 0.0で3時開始 (プレイヘッドに合わせる)
+        double manualOffset = 0.0;
 
         for (int i = 0; i <= points; ++i)
         {
@@ -451,8 +452,21 @@ public:
             float baseAlpha = (0.9f - layerOffset * 0.5f) * wp.spawnProgress;
             if (baseAlpha < 0.0f) baseAlpha = 0.0f;
             
-            auto transform = juce::AffineTransform::scale(finalScale, finalScale)
-                                                   .translated(centre.x, centre.y);
+            // 🔊 低音連動のジッター（波形全体が揺れる）
+            juce::Random& rng = juce::Random::getSystemRandom();
+            
+            // 🔊 低音連動のジッター（位置揺れ）
+            float jitterAmount = bassLevel * 2.0f; // 控えめ: 0〜2ピクセル
+            float jitterX = jitterAmount * (rng.nextFloat() - 0.5f);
+            float jitterY = jitterAmount * (rng.nextFloat() - 0.5f);
+            
+            // 🎵 高音連動の微小回転（スピン揺れ）
+            float spinAmount = midHighLevel * 0.01f; // 控えめ: 約0.5度
+            float spin = spinAmount * (rng.nextFloat() - 0.5f);
+            
+            auto transform = juce::AffineTransform::rotation(spin)
+                                                   .scaled(finalScale, finalScale)
+                                                   .translated(centre.x + jitterX, centre.y + jitterY);
             
             juce::Path p = wp.path;
             p.applyTransform(transform);
@@ -476,12 +490,85 @@ public:
             // Neon edge (extra bright)
             g.setColour(juce::Colours::white.withAlpha(juce::jlimit(0.1f, 0.6f, baseAlpha * 0.7f)));
             g.strokePath(p, juce::PathStrokeType(0.3f));
+            
+            // === プレイヘッド位置ハイライト + RMS振動 ===
+            // 「ホースの水」効果: プレイヘッド付近のセグメントを太く描画
+            if (currentPlayHeadPos >= 0.0f && wp.segmentAngles.size() > 1 && i == 0) // 最内周のみ
+            {
+                float playHeadAngle = currentPlayHeadPos * juce::MathConstants<float>::twoPi - juce::MathConstants<float>::halfPi;
+                float highlightRange = 0.15f; // プレイヘッド前後の強調範囲（ラジアン）
+                
+                juce::Random& rng = juce::Random::getSystemRandom();
+                
+                for (size_t seg = 1; seg < wp.segmentAngles.size(); ++seg)
+                {
+                    float angle1 = wp.segmentAngles[seg - 1];
+                    float angle2 = wp.segmentAngles[seg];
+                    float rms1 = wp.segmentRms[seg - 1];
+                    float rms2 = wp.segmentRms[seg];
+                    float inner1 = wp.segmentInnerR[seg - 1];
+                    float inner2 = wp.segmentInnerR[seg];
+                    float outer1 = wp.segmentOuterR[seg - 1];
+                    float outer2 = wp.segmentOuterR[seg];
+                    
+                    // プレイヘッドからの角度距離を計算
+                    float midAngle = (angle1 + angle2) * 0.5f;
+                    float angleDiff = std::abs(midAngle - playHeadAngle);
+                    if (angleDiff > juce::MathConstants<float>::pi)
+                        angleDiff = juce::MathConstants<float>::twoPi - angleDiff;
+                    
+                    // ハイライト強度（距離が近いほど強い）
+                    float highlightIntensity = juce::jmax(0.0f, 1.0f - angleDiff / highlightRange);
+                    
+                    // リアルタイム音量連動の振動
+                    // 基本振動（常時）+ 音量連動で振幅増加
+                    float baseVibration = 0.01f; // 常時の微振動
+                    float audioVibration = masterLevel * 0.3f; // 音量連動
+                    float totalVibration = (baseVibration + audioVibration) * (rng.nextFloat() - 0.5f);
+                    
+                    // 全セグメントに振動を適用
+                    {
+                        float r1 = (inner1 + outer1) * 0.5f + totalVibration;
+                        float r2 = (inner2 + outer2) * 0.5f + totalVibration;
+                        
+                        float x1 = centre.x + r1 * finalScale * std::cos(angle1);
+                        float y1 = centre.y + r1 * finalScale * std::sin(angle1);
+                        float x2 = centre.x + r2 * finalScale * std::cos(angle2);
+                        float y2 = centre.y + r2 * finalScale * std::sin(angle2);
+                        
+                        // 振動ライン（音量に応じて太さと透明度が変化）
+                        float vibeAlpha = 0.15f + masterLevel * 0.5f;
+                        float vibeThickness = 1.0f + masterLevel * 3.0f;
+                        g.setColour(wp.colour.brighter(0.5f).withAlpha(juce::jlimit(0.0f, 0.6f, vibeAlpha)));
+                        g.drawLine(x1, y1, x2, y2, vibeThickness);
+                    }
+                    
+                    // プレイヘッド付近のハイライト（太く明るく）
+                    if (highlightIntensity > 0.0f)
+                    {
+                        float thickness = 2.0f + highlightIntensity * 6.0f; // 2px → 8px
+                        float extraAlpha = highlightIntensity * 0.5f;
+                        
+                        float r1 = (inner1 + outer1) * 0.5f;
+                        float r2 = (inner2 + outer2) * 0.5f;
+                        
+                        float x1 = centre.x + r1 * finalScale * std::cos(angle1);
+                        float y1 = centre.y + r1 * finalScale * std::sin(angle1);
+                        float x2 = centre.x + r2 * finalScale * std::cos(angle2);
+                        float y2 = centre.y + r2 * finalScale * std::sin(angle2);
+                        
+                        g.setColour(juce::Colours::white.withAlpha(juce::jlimit(0.0f, 0.8f, baseAlpha * 0.6f + extraAlpha)));
+                        g.drawLine(x1, y1, x2, y2, thickness);
+                    }
+                }
+            }
         }
         
         // --- Draw Playhead ---
         if (currentPlayHeadPos >= 0.0f)
         {
             // プレイヘッドは累積位置（setPlayHeadPositionで計算済み）を使用
+            // 波形と同じく0.0（3時）を開始点とする（ユーザー指定）
             float manualOffset = 0.0f;
             float angle = (currentPlayHeadPos * juce::MathConstants<float>::twoPi) + manualOffset;
             
@@ -668,6 +755,12 @@ private:
         int originalMasterLength = 0;
         int originalRecordStart = 0;
         int originalMasterStart = 0;
+        
+        // セグメント描画用データ（プレイヘッド太さ変化・振動用）
+        std::vector<float> segmentAngles;   // 各ポイントの角度
+        std::vector<float> segmentRms;      // 各ポイントのRMS値（0-1）
+        std::vector<float> segmentInnerR;   // 各ポイントの内側半径（0-1正規化）
+        std::vector<float> segmentOuterR;   // 各ポイントの外側半径（0-1正規化）
     };
     std::vector<WaveformPath> waveformPaths;
     
@@ -717,6 +810,16 @@ private:
             repeatFactor = std::round(repeatFactor);
         }
         
+        // セグメントデータをクリアして再生成
+        wp.segmentAngles.clear();
+        wp.segmentRms.clear();
+        wp.segmentInnerR.clear();
+        wp.segmentOuterR.clear();
+        wp.segmentAngles.reserve(points + 1);
+        wp.segmentRms.reserve(points + 1);
+        wp.segmentInnerR.reserve(points + 1);
+        wp.segmentOuterR.reserve(points + 1);
+        
         // 1周分の表示で、サンプルをrepeatFactor回繰り返し読む
         // 角度は常に0〜2π（1周）
         for (int i = 0; i <= points; ++i)
@@ -744,6 +847,14 @@ private:
             float angle = (float)angleVal;
             
             float rInner = juce::jmax(0.1f, 1.0f - (rms * maxAmpWidth));
+            float rOuter = 1.0f + (rms * maxAmpWidth);
+            
+            // セグメントデータを保存
+            wp.segmentAngles.push_back(angle);
+            wp.segmentRms.push_back(rms);
+            wp.segmentInnerR.push_back(rInner);
+            wp.segmentOuterR.push_back(rOuter);
+            
             float xIn = rInner * std::cos(angle);
             float yIn = rInner * std::sin(angle);
             

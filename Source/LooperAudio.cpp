@@ -1,4 +1,4 @@
-#include "LooperAudio.h"
+                                                                        #include "LooperAudio.h"
 #include <juce_events/juce_events.h>
 
 LooperAudio::LooperAudio(double sr, int max)
@@ -83,16 +83,24 @@ void LooperAudio::startRecording(int trackId)
     auto& track = tracks[trackId];
     
     // Safety: Ensure buffer is full size if we are defining a new master loop
-    if (masterLoopLength <= 0 && track.buffer.getNumSamples() < maxSamples)
+    if (masterLoopLength <= 0)
     {
-        track.buffer.setSize(2, maxSamples);
-        DBG("🔧 Resized Track " << trackId << " buffer to maxSamples (" << maxSamples << ")");
+        if (track.buffer.getNumSamples() < maxSamples)
+        {
+            track.buffer.setSize(2, maxSamples);
+            DBG("🔧 Resized Track " << trackId << " buffer to maxSamples (" << maxSamples << ")");
+        }
+        
+        // 新しいマスターループの基準時間を設定
+        masterStartSample = currentSamplePosition;
+        DBG("🏁 Master Start Sample reset to " << masterStartSample);
     }
     // Optimization/Safety: If Slave, ensure at least Master Length * multiplier
     else if (masterLoopLength > 0)
     {
         int requiredSize = (int)(masterLoopLength * track.loopMultiplier);
-        if (track.buffer.getNumSamples() < requiredSize)
+        // サイズが異なる場合は必ずリサイズ（大きすぎる場合も縮小してVisualizerの表示ズレを防ぐ）
+        if (track.buffer.getNumSamples() != requiredSize)
         {
             track.buffer.setSize(2, requiredSize);
             DBG("🔧 Resized Track " << trackId << " buffer to " << requiredSize 
@@ -107,20 +115,65 @@ void LooperAudio::startRecording(int trackId)
     // マスターが再生中なら、その位置から録音開始
     if (masterLoopLength > 0 && tracks.find(masterTrackId) != tracks.end() && tracks[masterTrackId].isPlaying)
     {
-        // マスターの位置に同期させる
-        track.writePosition = masterReadPosition;
-        track.recordStartSample = masterReadPosition;
-        track.recordingStartPhase = masterReadPosition;
+        // === x2位相のスマート調整 (Smart Phase Alignment) ===
+        // もしこれが「最初の長尺トラック（倍率>1）」の録音で、かつ奇数週目（裏拍）なら、
+        // グローバル時間をシフトして「偶数週目（表拍）」に合わせる。
+        if (track.loopMultiplier > 1.0f)
+        {
+            bool hasOtherLongTracks = false;
+            for (const auto& [id, t] : tracks)
+            {
+                if (id != trackId && t.loopMultiplier > 1.0f && t.buffer.getNumSamples() > 0 && (t.isPlaying || t.recordLength > 0))
+                {
+                    hasOtherLongTracks = true;
+                    break;
+                }
+            }
+            
+            if (!hasOtherLongTracks)
+            {
+                int64_t rel = currentSamplePosition - masterStartSample;
+                int64_t loopIdx = rel / masterLoopLength;
+                if (loopIdx % 2 != 0) // 奇数（1, 3, 5...） = 裏拍
+                {
+                    masterStartSample += masterLoopLength;
+                    DBG("🔄 Smart Phase Alignment: Shifted Master Start by 1 loop to align x2 start to 0");
+                }
+            }
+        }
+
+        // A. Trigger録音の場合：ブロック内の正確なトリガー位置を使用
+        int sampleIdxInBlock = (triggerRef && triggerRef->triggerd) ? triggerRef->sampleInBlock : 0;
+        if (sampleIdxInBlock < 0) sampleIdxInBlock = 0;
+
+        // マスターの位置に同期させる: 絶対位置から計算することで、x2等の長いトラックでの「2周目」を正しく判定
+        // currentSamplePosition（ブロック先頭）にブロック内オフセットを加算
+        int64_t exactTriggerPosition = currentSamplePosition + sampleIdxInBlock;
+        int64_t relativeGlobal = exactTriggerPosition - masterStartSample;
+        int trackLoopLength = track.buffer.getNumSamples();
+        if (relativeGlobal < 0) relativeGlobal = 0;
+
+        track.writePosition = (int)(relativeGlobal % trackLoopLength);
+        
+        // Visualizerの描画開始位置を「バッファ先頭＝3時」から逆算して調整
+        // Offset = RecordStart - MasterStart = -WritePos となるように設定
+        // StartAngle = -WritePos (時計回りに戻すことで、音のあるWritePos地点を3時に合わせる)
+        track.recordStartSample = (int)(masterStartSample - track.writePosition);
+        track.recordingStartPhase = track.writePosition;
+        
         DBG("🎬 Start recording track " << trackId
-            << " aligned with master at position " << masterReadPosition);
+            << " (Precision Aligned). AbsDiff: " << relativeGlobal 
+            << " (sampleInBlock: " << sampleIdxInBlock << ")"
+            << " -> WritePos: " << track.writePosition);
     }
     // TriggerEventが有効なら記録開始位置として反映
     else if (triggerRef && triggerRef->triggerd)
     {
+        int sampleIdx = triggerRef->sampleInBlock >= 0 ? triggerRef->sampleInBlock : 0;
         track.recordStartSample = static_cast<int>(triggerRef->absIndex);
         track.writePosition = juce::jlimit(0, maxSamples - 1, (int)triggerRef->absIndex);
         DBG("🎬 Start recording track " << trackId
-            << " triggered at " << triggerRef->absIndex);
+            << " triggered at " << triggerRef->absIndex << " (sampleIdx: " << sampleIdx << ")");
     }
     else
     {
@@ -146,8 +199,9 @@ void LooperAudio::startRecordingWithLookback(int trackId, const juce::AudioBuffe
         int numLookback = lookbackData.getNumSamples();
         if (numLookback <= 0) return;
 
-        // Loop limit definition
-        const int loopLimit = (masterLoopLength > 0) ? masterLoopLength : maxSamples;
+        // Loop limit definition: Use track's buffer size (handles x2, etc.)
+        const int loopLimit = track.buffer.getNumSamples();
+        if (loopLimit <= 0) return;
 
         // Calculate write start position (go back in time)
         int startWritePos = track.writePosition - numLookback;
@@ -155,8 +209,8 @@ void LooperAudio::startRecordingWithLookback(int trackId, const juce::AudioBuffe
 
         // Limit lookback to loop size (sanity check)
         int samplesToCopy = numLookback;
-        if (masterLoopLength > 0 && samplesToCopy > masterLoopLength)
-            samplesToCopy = masterLoopLength;
+        if (samplesToCopy > loopLimit)
+            samplesToCopy = loopLimit;
 
         // --- Wrap-around Copy Logic ---
         int currentWritePos = startWritePos;
@@ -203,10 +257,42 @@ void LooperAudio::startRecordingWithLookback(int trackId, const juce::AudioBuffe
     }
 }
 
+void shiftBufferLeft(juce::AudioBuffer<float>& buffer, int numSamplesToShift)
+{
+    if (numSamplesToShift <= 0 || numSamplesToShift >= buffer.getNumSamples()) return;
+
+    int numChannels = buffer.getNumChannels();
+    int bufferSize = buffer.getNumSamples();
+    int remaining = bufferSize - numSamplesToShift;
+
+    // 一時バッファを使用
+    juce::AudioBuffer<float> tempBuffer(numChannels, numSamplesToShift);
+    
+    for (int ch = 0; ch < numChannels; ++ch)
+    {
+        // 1. 先頭（0〜shift-1）を退避
+        tempBuffer.copyFrom(ch, 0, buffer, ch, 0, numSamplesToShift);
+        
+        // 2. 後半を先頭へ (memmoveを使用: AudioBuffer::copyFromはオーバーラップ未対応のため)
+        auto* writePtr = buffer.getWritePointer(ch);
+        std::memmove(writePtr, writePtr + numSamplesToShift, remaining * sizeof(float));
+        
+        // 3. 退避したデータを末尾へ
+        buffer.copyFrom(ch, remaining, tempBuffer, ch, 0, numSamplesToShift);
+    }
+}
+
 void LooperAudio::stopRecording(int trackId)
 {
     auto& track = tracks[trackId];
     track.isRecording = false;
+
+    track.isRecording = false;
+
+    track.isRecording = false;
+
+    // バッファアラインメント（強制シフト）は削除
+    // (リズム優先のため、Sync録音された通りの配置を維持する)
 
     const int recordedLength = track.recordLength;
     if (recordedLength <= 0) return;
@@ -265,20 +351,34 @@ void LooperAudio::startPlaying(int trackId)
 
         if (masterLoopLength > 0)
         {
-            // Sync based on absolute position
-            int64_t relativePos = currentSamplePosition - masterStartSample;
-            int effectiveLoopLength = (int)(masterLoopLength * track.loopMultiplier);
-            if (effectiveLoopLength < 1) effectiveLoopLength = 1;
+            // マスタートラックの場合は、stopRecordingで設定されたreadPositionを維持
+            // （stopRecordingで0にリセット済みなので再計算しない）
+            if (trackId == masterTrackId && track.readPosition == 0)
+            {
+                // マスタートラックで0スタートの場合はそのまま
+                DBG("▶️ Start playing master track " << trackId << " from position 0");
+            }
+            else
+            {
+                // スレーブトラック: 録音時と同じ基準で同期
+                // 録音はcurrentSamplePosition - masterStartSampleベースで行われるため、
+                // 再生もこの基準を使用
+                int effectiveLoopLength = (int)(masterLoopLength * track.loopMultiplier);
+                if (effectiveLoopLength < 1) effectiveLoopLength = 1;
 
-            track.readPosition = relativePos % effectiveLoopLength;
+                // 録音時と同じ計算方法で再生位置を決定
+                int64_t relativePos = currentSamplePosition - masterStartSample;
+                track.readPosition = (int)(relativePos % effectiveLoopLength);
+                
+                DBG("▶️ Start playing track " << trackId
+                    << " synced to master at " << track.readPosition);
+            }
         }
         else
         {
             track.readPosition = 0;
+            DBG("▶️ Start playing track " << trackId << " from position 0 (no master)");
         }
-
-        DBG("▶️ Start playing track " << trackId
-            << " aligned to master at " << track.readPosition);
     }
 }
 
@@ -314,9 +414,15 @@ void LooperAudio::recordIntoTracks(const juce::AudioBuffer<float>& input)
         int currentWritePos;
         if (masterLoopLength > 0)
         {
-             // Sync based on absolute position
+            // x2の場合: 2周分のデータを正しく配置するため、相対位置を使用
+            // /2の場合: 半周で同じ位置に戻るため、これも正しく動作
+            int effectiveLoopLength = (int)(masterLoopLength * track.loopMultiplier);
+            
+            // マスターの累積ループカウントを考慮した書き込み位置
+            // masterReadPositionだけでは2周目以降の位置がわからないため、
+            // 絶対サンプル位置から計算
             int64_t relativePos = currentSamplePosition - masterStartSample;
-            currentWritePos = relativePos % loopLimit;
+            currentWritePos = (int)(relativePos % effectiveLoopLength);
         }
         else
         {
@@ -355,14 +461,44 @@ void LooperAudio::recordIntoTracks(const juce::AudioBuffer<float>& input)
 
         track.writePosition = currentWritePos;
 
-        // loopMultiplierを考慮した録音長での自動停止（x2なら2倍、/2なら半分）
-        int targetRecordLength = (int)(masterLoopLength * track.loopMultiplier);
-        if (masterLoopLength > 0 && track.recordLength >= targetRecordLength)
+        // マスター位置ベースの自動録音終了
+        // 録音開始位置（recordingStartPhase）をマスターが再通過したら終了
+        if (masterLoopLength > 0)
         {
-            stopRecording(id);
-            startPlaying(id);
-            DBG("✅ Master-synced loop complete for Track " << id
-                << " | length=" << targetRecordLength << " (multiplier=" << track.loopMultiplier << ")");
+            int targetRecordLength = (int)(masterLoopLength * track.loopMultiplier);
+            int startPhase = track.recordingStartPhase;
+            
+            // x2: 2周分録音したい → recordLengthがtargetRecordLengthに達したら終了
+            // x1: 1周分録音したい → recordLengthがmasterLoopLengthに達したら終了
+            // /2: 半周分録音したい → recordLengthがmasterLoopLength/2に達したら終了
+            
+            // さらに、録音開始位置に戻ったタイミングで終了（境界同期）
+            bool reachedTarget = track.recordLength >= targetRecordLength;
+            
+            // マスターが録音開始位置を通過したかチェック（より正確な終了タイミング）
+            // prevMasterPos から現在の masterReadPosition の間に startPhase があるか
+            int prevMasterPos = (masterReadPosition - numSamples + masterLoopLength) % masterLoopLength;
+            bool crossedStart = false;
+            
+            if (track.loopMultiplier >= 1.0f)
+            {
+                // x1以上: 録音開始位置を通過したかチェック
+                if (prevMasterPos > masterReadPosition) {
+                    // ループ境界を跨いだ
+                    crossedStart = (prevMasterPos >= startPhase || masterReadPosition < startPhase);
+                } else {
+                    crossedStart = (prevMasterPos < startPhase && masterReadPosition >= startPhase);
+                }
+            }
+            
+            // 録音終了条件：サンプル数が目標に達した
+            if (reachedTarget)
+            {
+                stopRecording(id);
+                startPlaying(id);
+                DBG("✅ Master-synced loop complete for Track " << id
+                    << " | length=" << track.recordLength << " (multiplier=" << track.loopMultiplier << ")");
+            }
         }
     }
 }
@@ -631,6 +767,7 @@ void LooperAudio::allClear()
         track.writePosition = 0;
         track.readPosition = 0;
         track.recordLength = 0;
+        track.loopMultiplier = 1.0f; // Multiplierもリセット
     }
     masterTrackId = -1;
     masterLoopLength = 0;
@@ -645,6 +782,7 @@ void LooperAudio::stopAllTracks()
     {
         track.isRecording = false;
         track.isPlaying = false;
+        track.readPosition = 0; // 停止時に読み込み位置を先頭に戻す
     }
     masterReadPosition = 0;
 }

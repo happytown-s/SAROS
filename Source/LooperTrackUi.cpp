@@ -421,6 +421,7 @@ void LooperTrackUi::setState(TrackState newState)
                 multHalfButton.setAlpha(1.0f);
                 mult2xButton.setToggleState(false, juce::dontSendNotification);
                 multHalfButton.setToggleState(false, juce::dontSendNotification);
+                loopMultiplier = 1.0f; // 内部変数もリセット
             }
         }
         

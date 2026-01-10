@@ -25,6 +25,7 @@ public:
         writePos = 0;
         // Reset state
         potentialStartIndex = -1;
+        lastTriggerIndexInBlock = -1;
         inPreRoll = false;
         silenceCounter = 0;
         this->sampleRate = sampleRate;
@@ -103,11 +104,12 @@ public:
             if (absSample > highThresh && inPreRoll)
             {
                 // Trigger confirmed!
-                // We return true immediately. The potentialStartIndex is correctly set.
+                lastTriggerIndexInBlock = i;
                 return true;
             }
         }
         
+        lastTriggerIndexInBlock = -1;
         return false;
     }
     
@@ -170,8 +172,11 @@ public:
     {
         inPreRoll = false;
         potentialStartIndex = -1;
+        lastTriggerIndexInBlock = -1;
         silenceCounter = 0;
     }
+    
+    int getLastTriggerIndexInBlock() const { return lastTriggerIndexInBlock; }
     
     // Helper to clear buffer
     void clear()
@@ -188,6 +193,7 @@ private:
     double sampleRate = 48000.0;
     
     int potentialStartIndex = -1; // The ring buffer index where Low Threshold was crossed
+    int lastTriggerIndexInBlock = -1; // The sample index within the processing block where High Threshold was crossed
     bool inPreRoll = false;       // Are we tracking a potential sound?
     int silenceCounter = 0;       // Buffer counters for silence logic
     int lastWrittenBlockSize = 0; // 最後に書き込まれたブロックサイズ（二重記録防止用）

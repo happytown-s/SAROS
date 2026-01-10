@@ -100,6 +100,9 @@ public MidiLearnManager::Listener
     
     // MIDI Learn 機能
     juce::ToggleButton midiLearnButton;
+    
+    // トリガーデバウンス制御
+    juce::int64 lastTriggerTime = 0;
 
 
 	std::vector<std::unique_ptr<LooperTrackUi>> trackUIs;
