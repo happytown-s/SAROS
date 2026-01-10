@@ -62,65 +62,48 @@ public:
         // マスターとほぼ同じ長さなら、誤差を許容して 1.0 に丸める
         if (loopRatio > 0.95 && loopRatio < 1.05) loopRatio = 1.0;
 
-        // 開始位置のオフセット計算
-        // recordStartGlobal と masterStartGlobal が同じなら startAngleRatio = 0
-        long offsetFromMasterStart = (long)recordStartGlobal - (long)masterStartGlobal;
         double startAngleRatio = 0.0;
-        
         if (masterLengthSamples > 0)
         {
-            // 正負両方のオフセットを正しく処理 (Modulo wrapping)
-            long relativeStart = offsetFromMasterStart % masterLengthSamples;
-            while (relativeStart < 0) relativeStart += masterLengthSamples;
-            startAngleRatio = (double)relativeStart / (double)masterLengthSamples;
+            // 安定したアラインメント（Phase-Alignment）のため、modulo masterLengthSamples を使用
+            // これにより、どのループ周回で録音しても、同じビート位相なら同じ角度から開始される
+            long offsetFromStart = (long)recordStartGlobal - (long)masterStartGlobal;
+            long relativeStart = offsetFromStart % (long)masterLengthSamples;
+            while (relativeStart < 0) relativeStart += (long)masterLengthSamples;
+            
+            // 円周全体（maxMultiplier周分）の中での比率に変換
+            startAngleRatio = (double)relativeStart / (double)(masterLengthSamples * maxMultiplier);
         }
 
         // 🔍 DEBUG LOGGING
         DBG("🌊 AddWaveform T" << trackId 
-            << " | BufferSize: " << actualBufferSize
             << " | TrackLen: " << trackLengthSamples 
             << " | MasterLen: " << masterLengthSamples 
-            << " | loopRatio: " << loopRatio
-            << " | StartAngleRatio: " << startAngleRatio);
+            << " | maxMult: " << maxMultiplier
+            << " | startAngleRatio: " << startAngleRatio);
 
         juce::Path newPath;
         const float maxAmpWidth = 0.3f;
-
-        // ポイント間の正確なサンプル数ステップ（浮動小数点）
-        // ★ numSamples (実際読み取る範囲) を基準にする
         double sampleStep = (double)numSamples / (double)points;
         
-        // ★修正: マスターを12時(-halfPi)に固定し、スレーブのみを11時(-120 = -2pi/3)に設定
-        double manualOffset = (trackId == 1) ? -juce::MathConstants<double>::halfPi 
-                                             : -2.0 * juce::MathConstants<double>::pi / 3.0;
+        // ★ オフセット設定: マスターもスレーブも12時（-halfPi）
+        double manualOffset = -juce::MathConstants<double>::halfPi;
 
         for (int i = 0; i <= points; ++i)
         {
             float rms = 0.0f;
-             // 浮動小数点ステップで開始位置を決定
             double startSampleRaw = i * sampleStep;
             int startSample = (int)startSampleRaw;
-            
-            // 平均化する範囲も正確に計算 (最低1サンプル)
             int samplesToAverage = (int)sampleStep;
             if (samplesToAverage < 1) samplesToAverage = 1;
-
-            for (int j = 0; j < samplesToAverage; ++j)
-            {
-                if (startSample + j < numSamples)
-                    rms += std::abs(data[startSample + j]);
+            for (int j = 0; j < samplesToAverage; ++j) {
+                if (startSample + j < numSamples) rms += std::abs(data[startSample + j]);
             }
             rms /= (float)samplesToAverage;
             rms = std::pow(rms, 0.6f);
 
-            // 進行度: i / points (直線波形と同じ計算)
-            // ★ 直線波形は i / linearPoints で位置を決定している
             double progressRaw = (double)i / (double)points;
-            
-            // 角度計算: startAngle + (progressRaw * loopRatio)
-            double currentAngleRatio = startAngleRatio + (progressRaw * loopRatio);
-            
-            // オフセット適用
+            double currentAngleRatio = startAngleRatio + (progressRaw * loopRatio / maxMultiplier);
             double angleVal = juce::MathConstants<double>::twoPi * currentAngleRatio + manualOffset;
             float angle = (float)angleVal;
             
@@ -135,26 +118,19 @@ public:
         // 外側の点を逆順に追加
         for (int i = points; i >= 0; --i)
         {
-            // 同じロジックで再計算
+            float rms = 0.0f;
             double startSampleRaw = i * sampleStep;
             int startSample = (int)startSampleRaw;
             int samplesToAverage = (int)sampleStep;
             if (samplesToAverage < 1) samplesToAverage = 1;
-
-            float rms = 0.0f;
-            for (int j = 0; j < samplesToAverage; ++j)
-            {
-                if (startSample + j < numSamples)
-                    rms += std::abs(data[startSample + j]);
+            for (int j = 0; j < samplesToAverage; ++j) {
+                if (startSample + j < numSamples) rms += std::abs(data[startSample + j]);
             }
             rms /= (float)samplesToAverage;
             rms = std::pow(rms, 0.6f);
 
-            // ★ 同様に i / points で計算
             double progressRaw = (double)i / (double)points;
-            
-            double currentAngleRatio = startAngleRatio + (progressRaw * loopRatio);
-            
+            double currentAngleRatio = startAngleRatio + (progressRaw * loopRatio / maxMultiplier);
             double angleVal = juce::MathConstants<double>::twoPi * currentAngleRatio + manualOffset;
             float angle = (float)angleVal;
             
@@ -498,9 +474,8 @@ public:
             // プレイヘッド付近のセグメントを強調
             if (currentPlayHeadPos >= 0.0f && wp.segmentAngles.size() > 1) // 全レイヤーに適用
             {
-                // ★修正: プレイヘッドは3時基準(0.0)に戻ったため、ハイライト判定もそれに合わせる
-                // 波形が何度ずれていようと、プレイヘッドがある位置(0.0基準)のセグメントを光らせる必要がある
-                float playHeadAngleRaw = currentPlayHeadPos * juce::MathConstants<float>::twoPi;
+                // ★修正: 波形が12時基準になったので、ハイライト判定も-halfPiを加算して合わせる
+                float playHeadAngleRaw = currentPlayHeadPos * juce::MathConstants<float>::twoPi - juce::MathConstants<float>::halfPi;
                 float playHeadAngle = std::fmod(playHeadAngleRaw, juce::MathConstants<float>::twoPi);
                 if (playHeadAngle < 0) playHeadAngle += juce::MathConstants<float>::twoPi;
                 
@@ -802,25 +777,23 @@ private:
         double loopRatio = (double)usedTrackLength / (double)masterLengthSamples;
         if (loopRatio > 0.95 && loopRatio < 1.05) loopRatio = 1.0;
         
-        // 開始角度の計算
-        // 開始角度の計算（正負のオフセットに対応）
-        long offsetFromMasterStart = (long)wp.originalRecordStart - (long)wp.originalMasterStart;
         double startAngleRatio = 0.0;
         if (masterLengthSamples > 0)
         {
-            // 正負にかかわらず剰余を計算し、確実に 0.0~1.0 に戻す
-            long relativeStartSample = offsetFromMasterStart % masterLengthSamples;
-            while (relativeStartSample < 0) relativeStartSample += masterLengthSamples;
-            startAngleRatio = (double)relativeStartSample / (double)masterLengthSamples;
+            // 安定したアラインメント（Phase-Alignment）のため
+            long offsetFromStart = (long)wp.originalRecordStart - (long)wp.originalMasterStart;
+            long relativeStart = offsetFromStart % (long)masterLengthSamples;
+            while (relativeStart < 0) relativeStart += (long)masterLengthSamples;
+            
+            startAngleRatio = (double)relativeStart / (double)(masterLengthSamples * maxMultiplier);
         }
         
-        // ★修正: マスターを12時(-halfPi)に固定し、スレーブのみを11時(-120 = -2pi/3)に設定
-        double manualOffset = (wp.trackId == 1) ? -juce::MathConstants<double>::halfPi 
-                                                : -2.0 * juce::MathConstants<double>::pi / 3.0;
+        // ★ オフセット設定: マスターもスレーブも12時（-halfPi）
+        double manualOffset = -juce::MathConstants<double>::halfPi;
         
         juce::Path newPath;
         
-        // リピート係数の計算
+        // リピート回数の計算
         // maxMultiplier: 全トラック中の最大倍率（最長トラック）
         // loopMultiplier: このトラックの倍率
         // 最長トラックを基準として、短いトラックは繋げて表示
@@ -828,7 +801,7 @@ private:
         // 例: x2が最長の場合、x2=1回、x1=2回、/2=4回
         
         double repeatFactor = 1.0;
-        if (wp.loopMultiplier > 0.0f && maxMultiplier > 0.0f)
+        if (maxMultiplier > 0 && wp.loopMultiplier > 0)
         {
             repeatFactor = (double)maxMultiplier / (double)wp.loopMultiplier;
         }
@@ -849,6 +822,7 @@ private:
         wp.segmentInnerR.reserve(points + 1);
         wp.segmentOuterR.reserve(points + 1);
         
+
         // 1周分の表示で、サンプルをrepeatFactor回繰り返し読む
         // 角度は常に0〜2π（1周）
         for (int i = 0; i <= points; ++i)
@@ -870,7 +844,8 @@ private:
             rms /= (float)samplesToAverage;
             rms = std::pow(rms, 0.6f);
             
-            // 角度計算：常に1周（0〜2π）
+            // 角度計算：円周全体の位相 alignment に基づく
+            // progressRaw 自体が 0..1 で円周全体の進行度を表す
             double currentAngleRatio = startAngleRatio + progressRaw;
             double angleVal = juce::MathConstants<double>::twoPi * currentAngleRatio + manualOffset;
             float angle = (float)angleVal;
@@ -893,33 +868,13 @@ private:
                 newPath.lineTo(xIn, yIn);
         }
         
-        // 外側のポイントを逆順に追加
+        // 外側のラインを追加
         for (int i = points; i >= 0; --i)
         {
-            double progressRaw = (double)i / (double)points;
-            
-            double sampleProgress = std::fmod(progressRaw * repeatFactor, 1.0);
-            int startSample = (int)(sampleProgress * wp.originalTrackLength);
-            startSample = juce::jmin(startSample, originalSamples - 1);
-            
-            int samplesToAverage = juce::jmax(1, (int)(wp.originalTrackLength / points));
-            float rms = 0.0f;
-            for (int j = 0; j < samplesToAverage; ++j)
-            {
-                int idx = (startSample + j) % originalSamples;
-                rms += std::abs(data[idx]);
-            }
-            rms /= (float)samplesToAverage;
-            rms = std::pow(rms, 0.6f);
-            
-            double currentAngleRatio = startAngleRatio + progressRaw;
-            double angleVal = juce::MathConstants<double>::twoPi * currentAngleRatio + manualOffset;
-            float angle = (float)angleVal;
-            
-            float rOuter = 1.0f + (rms * maxAmpWidth);
+            float angle = wp.segmentAngles[i];
+            float rOuter = wp.segmentOuterR[i];
             float xOut = rOuter * std::cos(angle);
             float yOut = rOuter * std::sin(angle);
-            
             newPath.lineTo(xOut, yOut);
         }
         

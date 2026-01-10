@@ -333,7 +333,8 @@ void LooperAudio::stopRecording(int trackId)
         track.lengthInSample = effectiveLength;
         track.recordLength = recordedLength; 
 
-        track.recordStartSample = masterStartSample;
+        // ★ 重要: recordStartSampleは録音開始時に設定済み。ここで上書きしない。
+        // (以前は masterStartSample で上書きしていたが、それが startAngleRatio=0 の原因だった)
 
         DBG("🟢 Track " << trackId << ": aligned to " << effectiveLength 
             << " samples (master=" << masterLoopLength << " * multiplier=" << track.loopMultiplier << ")");
