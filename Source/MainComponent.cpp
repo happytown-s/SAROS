@@ -275,12 +275,14 @@ MainComponent::MainComponent()
 	{
 		DBG("🧪 Generating visual alignment test waveforms...");
 		looper.generateTestWaveformsForVisualTest();
-		// UIを更新（最初の3トラックをPlaying状態に）
-		for (int i = 0; i < 3 && i < (int)trackUIs.size(); ++i)
+		// UIを更新（トラック1-6をPlaying状態に）
+		for (int i = 0; i < 6 && i < (int)trackUIs.size(); ++i)
 		{
 			trackUIs[i]->setState(LooperTrackUi::TrackState::Playing);
             if (i == 1) trackUIs[i]->setLoopMultiplier(2.0f);
             if (i == 2) trackUIs[i]->setLoopMultiplier(0.5f);
+            if (i == 4) trackUIs[i]->setLoopMultiplier(2.0f); // Track 5: x2 (Punch-in)
+            if (i == 5) trackUIs[i]->setLoopMultiplier(0.5f); // Track 6: /2 (Punch-in)
 		}
 		updateStateVisual();
 	};
@@ -1535,12 +1537,14 @@ bool MainComponent::keyPressed(const juce::KeyPress& key)
 	{
 		DBG("🧪 Generating test waveforms for visual alignment test...");
 		looper.generateTestWaveformsForVisualTest();
-		// UIを更新（最初の3トラックをPlaying状態に）
-		for (int i = 0; i < 3 && i < (int)trackUIs.size(); ++i)
+		// UIを更新（トラック1-6をPlaying状態に）
+		for (int i = 0; i < 6 && i < (int)trackUIs.size(); ++i)
 		{
 			trackUIs[i]->setState(LooperTrackUi::TrackState::Playing);
             if (i == 1) trackUIs[i]->setLoopMultiplier(2.0f);
             if (i == 2) trackUIs[i]->setLoopMultiplier(0.5f);
+            if (i == 4) trackUIs[i]->setLoopMultiplier(2.0f); // Track 5: x2 (Punch-in)
+            if (i == 5) trackUIs[i]->setLoopMultiplier(0.5f); // Track 6: /2 (Punch-in)
 		}
 		updateStateVisual();
 		return true;

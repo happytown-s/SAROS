@@ -969,7 +969,72 @@ void LooperAudio::generateTestWaveformsForVisualTest()
         listeners.call([](Listener& l) { l.onRecordingStopped(3); });
     }
     
-    DBG("✅ Visual test waveforms generated: Track1=x1, Track2=x2, Track3=/2");
+    // ===== トラック4: x1 (2拍目から録音開始、長さは1周分) =====
+    {
+        auto& track = tracks[4];
+        track.buffer.setSize(2, masterSamples); // フル尺確保
+        track.buffer.clear();
+        
+        // 録音開始直後（バッファ先頭）にクリック
+        generateClick(track.buffer, 0);
+        
+        track.recordLength = masterSamples;
+        track.lengthInSample = masterSamples;
+        // 2拍目（1拍終わったところ）から録音開始
+        track.recordStartSample = samplesPerBeat; 
+        track.loopMultiplier = 1.0f;
+        track.readPosition = 0;
+        track.isPlaying = true;
+        track.isRecording = false;
+        
+        DBG("🎵 Track 4 (x1, Start@Beat2): click at buffer start, len: " << masterSamples);
+        listeners.call([](Listener& l) { l.onRecordingStopped(4); });
+    }
+
+    // ===== トラック5: x2 (2拍目から録音開始、長さはx2周分) =====
+    {
+        auto& track = tracks[5];
+        int x2Samples = masterSamples * 2;
+        track.buffer.setSize(2, x2Samples); // フル尺確保
+        track.buffer.clear();
+        
+        // 最初の小節の2拍目（バッファ先頭）にのみクリック。2小節目（後半）は無音。
+        generateClick(track.buffer, 0);
+        
+        track.recordLength = x2Samples;
+        track.lengthInSample = x2Samples;
+        track.recordStartSample = samplesPerBeat; 
+        track.loopMultiplier = 2.0f;
+        track.readPosition = 0;
+        track.isPlaying = true;
+        track.isRecording = false;
+        
+        DBG("🎵 Track 5 (x2, Start@Beat2): click at buffer start, len: " << x2Samples);
+        listeners.call([](Listener& l) { l.onRecordingStopped(5); });
+    }
+
+    // ===== トラック6: /2 (2拍目から録音開始、長さは/2周分) =====
+    {
+        auto& track = tracks[6];
+        int halfSamples = masterSamples / 2;
+        track.buffer.setSize(2, halfSamples); // フル尺確保
+        track.buffer.clear();
+        
+        generateClick(track.buffer, 0);
+        
+        track.recordLength = halfSamples;
+        track.lengthInSample = halfSamples;
+        track.recordStartSample = samplesPerBeat; 
+        track.loopMultiplier = 0.5f;
+        track.readPosition = 0;
+        track.isPlaying = true;
+        track.isRecording = false;
+        
+        DBG("🎵 Track 6 (/2, Start@Beat2): click at buffer start, len: " << halfSamples);
+        listeners.call([](Listener& l) { l.onRecordingStopped(6); });
+    }
+    
+    DBG("✅ Visual test waveforms generated: T1-3(Full), T4-6(Punch-in @ Beat2, Full Len)");
 }
 
 void LooperAudio::setTrackFilterCutoff(int trackId, float freq)
