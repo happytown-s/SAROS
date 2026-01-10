@@ -69,13 +69,13 @@ public:
         
         if (masterLengthSamples > 0)
         {
-            // 正負両方のオフセットを正しく処理
+            // 正負両方のオフセットを正しく処理 (Modulo wrapping)
             long relativeStart = offsetFromMasterStart % masterLengthSamples;
-            if (relativeStart < 0) relativeStart += masterLengthSamples; // 負の剰余を正に変換
+            while (relativeStart < 0) relativeStart += masterLengthSamples;
             startAngleRatio = (double)relativeStart / (double)masterLengthSamples;
         }
 
-        // 🔍 DEBUG LOGGING (バッファサイズ確認追加)
+        // 🔍 DEBUG LOGGING
         DBG("🌊 AddWaveform T" << trackId 
             << " | BufferSize: " << actualBufferSize
             << " | TrackLen: " << trackLengthSamples 
@@ -89,8 +89,9 @@ public:
         // ポイント間の正確なサンプル数ステップ（浮動小数点）
         // ★ numSamples (実際読み取る範囲) を基準にする
         double sampleStep = (double)numSamples / (double)points;
-        // マニュアルオフセット: 0.0で3時開始 (プレイヘッドに合わせる)
-        double manualOffset = 0.0;
+        
+        // ★修正: 1時方向(-60)からさらに30度右へ -> -30度 (-pi/6) = 2時方向
+        double manualOffset = -juce::MathConstants<double>::pi / 6.0;
 
         for (int i = 0; i <= points; ++i)
         {
@@ -794,8 +795,10 @@ private:
         const int points = 1024;
         const float maxAmpWidth = 0.3f;
         
-        // ループ比率を計算
-        double loopRatio = (double)effectiveTrackLength / (double)masterLengthSamples;
+        // 描画比率の計算
+        // effectiveTrackLength が0の場合は元のトラック長を使用する（スレーブ表示崩れ対策）
+        int usedTrackLength = (effectiveTrackLength > 0) ? effectiveTrackLength : wp.originalTrackLength;
+        double loopRatio = (double)usedTrackLength / (double)masterLengthSamples;
         if (loopRatio > 0.95 && loopRatio < 1.05) loopRatio = 1.0;
         
         // 開始角度の計算
@@ -804,13 +807,14 @@ private:
         double startAngleRatio = 0.0;
         if (masterLengthSamples > 0)
         {
-            // 正負にかかわらず剰余を計算し、0.0~1.0の範囲に正規化
+            // 正負にかかわらず剰余を計算し、確実に 0.0~1.0 に戻す
             long relativeStartSample = offsetFromMasterStart % masterLengthSamples;
+            while (relativeStartSample < 0) relativeStartSample += masterLengthSamples;
             startAngleRatio = (double)relativeStartSample / (double)masterLengthSamples;
         }
         
-        // ★修正: 「1時間分前のめり」との指摘により、-90度から30度右へ回して -60度（1時方向）とする
-        double manualOffset = -juce::MathConstants<double>::pi / 3.0;
+        // ★修正: 「1時間分前のめり」を完全に解消するため、-30度 (-pi/6) = 2時方向（3時の隣）に設定
+        double manualOffset = -juce::MathConstants<double>::pi / 6.0;
         
         juce::Path newPath;
         
