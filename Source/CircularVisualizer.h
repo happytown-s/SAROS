@@ -63,19 +63,21 @@ public:
         if (loopRatio > 0.95 && loopRatio < 1.05) loopRatio = 1.0;
 
         double startAngleRatio = 0.0;
-        if (masterLengthSamples > 0)
+        if (masterLengthSamples > 0 && trackLengthSamples > 0)
         {
-            // Phase: マスターループ内での録音タイミング（本来波形が表示されるべき角度）
-            double phase = (double)(recordStartGlobal % masterLengthSamples) / (double)masterLengthSamples;
+            // recordPhase: マスターループ内での録音開始位置（0-1の範囲）
+            // これが「波形のこの部分がどの角度に表示されるべきか」を決める基準
+            double recordPhase = (double)(recordStartGlobal % masterLengthSamples) / (double)masterLengthSamples;
             
-            // BufferOffset: バッファの先頭(0)から録音データ開始位置(writePos)までの距離を角度換算したもの
-            // addWaveformはバッファ0から描画するので、writePosにある実際の音は遅れて描画される。
-            // その分だけ開始角度を戻す（マイナスする）必要がある。
-            double bufferOffset = (double)recordStartGlobal / (double)(masterLengthSamples * maxMultiplier);
+            // bufferAngleSpan: buffer[writePos]が描画される角度（開始角度からの相対位置）
+            // 描画式: angleRatio(i) = startAngleRatio + (i / trackLen) * (loopRatio / maxMult)
+            // buffer[writePos]をrecordPhaseの位置に表示したいので、逆算してstartAngleRatioを求める
+            double anglePerSample = loopRatio / (double)trackLengthSamples / (double)maxMultiplier;
+            double bufferAngleSpan = (double)recordStartGlobal * anglePerSample;
             
-            startAngleRatio = phase - bufferOffset;
+            startAngleRatio = recordPhase - bufferAngleSpan;
             
-            // 負の値になった場合の正規化（念のため）
+            // 正規化（0-1の範囲に収める）
             while (startAngleRatio < 0.0) startAngleRatio += 1.0;
             while (startAngleRatio >= 1.0) startAngleRatio -= 1.0;
         }
@@ -92,12 +94,7 @@ public:
         double sampleStep = (double)numSamples / (double)points;
         
         // ★ オフセット設定: 12時基準（-halfPi）
-        // スレーブ（trackId != 1）は60度時計回りに追加オフセット
         double manualOffset = -juce::MathConstants<double>::halfPi;
-        if (trackId != 1)
-        {
-            manualOffset += juce::MathConstants<double>::pi / 3.0;  // +60度時計回り = +π/3
-        }
 
         for (int i = 0; i <= points; ++i)
         {
@@ -788,27 +785,24 @@ private:
         if (loopRatio > 0.95 && loopRatio < 1.05) loopRatio = 1.0;
         
         double startAngleRatio = 0.0;
-        if (masterLengthSamples > 0)
+        if (masterLengthSamples > 0 && usedTrackLength > 0)
         {
-            // Phase: マスターループ内での録音タイミング
-            double phase = (double)(wp.originalRecordStart % masterLengthSamples) / (double)masterLengthSamples;
+            // recordPhase: マスターループ内での録音開始位置（0-1の範囲）
+            double recordPhase = (double)(wp.originalRecordStart % masterLengthSamples) / (double)masterLengthSamples;
             
-            // BufferOffset: バッファ内インデックスによる表示遅延の補正
-            double bufferOffset = (double)wp.originalRecordStart / (double)(masterLengthSamples * maxMultiplier);
+            // bufferAngleSpan: buffer[writePos]が描画される角度（開始角度からの相対位置）
+            double anglePerSample = loopRatio / (double)usedTrackLength / (double)maxMultiplier;
+            double bufferAngleSpan = (double)wp.originalRecordStart * anglePerSample;
             
-            startAngleRatio = phase - bufferOffset;
+            startAngleRatio = recordPhase - bufferAngleSpan;
             
+            // 正規化（0-1の範囲に収める）
             while (startAngleRatio < 0.0) startAngleRatio += 1.0;
             while (startAngleRatio >= 1.0) startAngleRatio -= 1.0;
         }
         
         // ★ オフセット設定: 12時基準（-halfPi）
-        // スレーブ（trackId != 1）は60度時計回りに追加オフセット
         double manualOffset = -juce::MathConstants<double>::halfPi;
-        if (wp.trackId != 1)
-        {
-            manualOffset += juce::MathConstants<double>::pi / 3.0;  // +60度時計回り = +π/3
-        }
         
         juce::Path newPath;
         

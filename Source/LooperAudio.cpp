@@ -873,7 +873,104 @@ void LooperAudio::generateTestClick(int trackId)
     listeners.call([trackId](Listener& l) { l.onRecordingStopped(trackId); });
 }
 
-// ================= FX Setters (Per-Track) =================
+void LooperAudio::generateTestWaveformsForVisualTest()
+{
+    // 120BPM = 0.5秒/ビート、4ビート = 2秒がマスターループ
+    const int samplesPerBeat = static_cast<int>(sampleRate * 0.5);
+    const int masterSamples = samplesPerBeat * 4;  // マスター: 4拍
+    
+    // クリック音のパラメータ
+    const float clickFrequency = 1000.0f;
+    const int clickDuration = static_cast<int>(sampleRate * 0.02);
+    
+    auto generateClick = [this, clickFrequency, clickDuration](juce::AudioBuffer<float>& buffer, int position) {
+        for (int i = 0; i < clickDuration && (position + i) < buffer.getNumSamples(); ++i)
+        {
+            float envelope = std::exp(-5.0f * (float)i / (float)clickDuration);
+            float phase = juce::MathConstants<float>::twoPi * clickFrequency * (float)i / (float)sampleRate;
+            float sample = std::sin(phase) * envelope * 0.8f;
+            
+            for (int ch = 0; ch < buffer.getNumChannels(); ++ch)
+                buffer.setSample(ch, position + i, sample);
+        }
+    };
+    
+    // ===== トラック1: マスター（等倍）=====
+    {
+        auto& track = tracks[1];
+        track.buffer.setSize(2, masterSamples);
+        track.buffer.clear();
+        
+        // 4拍のクリック音（各拍の先頭）
+        for (int beat = 0; beat < 4; ++beat)
+            generateClick(track.buffer, beat * samplesPerBeat);
+        
+        track.recordLength = masterSamples;
+        track.lengthInSample = masterSamples;
+        track.recordStartSample = 0;
+        track.loopMultiplier = 1.0f;
+        track.readPosition = 0;
+        track.isPlaying = true;
+        track.isRecording = false;
+        
+        masterLoopLength = masterSamples;
+        masterStartSample = 0;
+        masterReadPosition = 0;
+        masterTrackId = 1;
+        
+        DBG("🎵 Track 1 (Master x1): " << masterSamples << " samples, 4 clicks");
+        listeners.call([](Listener& l) { l.onRecordingStopped(1); });
+    }
+    
+    // ===== トラック2: x2（先頭にクリック）=====
+    {
+        auto& track = tracks[2];
+        int x2Samples = masterSamples * 2;  // x2 = 8拍分
+        track.buffer.setSize(2, x2Samples);
+        track.buffer.clear();
+        
+        // 先頭にクリック（x2ループの開始点を示す）
+        generateClick(track.buffer, 0);
+        
+        // マスターループ2周目の先頭にもクリック（2周目開始を示す）
+        generateClick(track.buffer, masterSamples);
+        
+        track.recordLength = x2Samples;
+        track.lengthInSample = x2Samples;
+        track.recordStartSample = 0;  // バッファ先頭から録音開始
+        track.loopMultiplier = 2.0f;
+        track.readPosition = 0;
+        track.isPlaying = true;
+        track.isRecording = false;
+        
+        DBG("🎵 Track 2 (x2): " << x2Samples << " samples, clicks at 0 and " << masterSamples);
+        listeners.call([](Listener& l) { l.onRecordingStopped(2); });
+    }
+    
+    // ===== トラック3: /2（先頭にクリック）=====
+    {
+        auto& track = tracks[3];
+        int halfSamples = masterSamples / 2;  // /2 = 2拍分
+        track.buffer.setSize(2, halfSamples);
+        track.buffer.clear();
+        
+        // 先頭にクリック（/2ループの開始点を示す）
+        generateClick(track.buffer, 0);
+        
+        track.recordLength = halfSamples;
+        track.lengthInSample = halfSamples;
+        track.recordStartSample = 0;  // バッファ先頭から録音開始
+        track.loopMultiplier = 0.5f;
+        track.readPosition = 0;
+        track.isPlaying = true;
+        track.isRecording = false;
+        
+        DBG("🎵 Track 3 (/2): " << halfSamples << " samples, click at 0");
+        listeners.call([](Listener& l) { l.onRecordingStopped(3); });
+    }
+    
+    DBG("✅ Visual test waveforms generated: Track1=x1, Track2=x2, Track3=/2");
+}
 
 void LooperAudio::setTrackFilterCutoff(int trackId, float freq)
 {

@@ -273,25 +273,14 @@ MainComponent::MainComponent()
 	};
 	transportPanel.onTestClick = [this]()
 	{
-		bool processed = false;
-		// 選択されているトラックにテストクリックを生成
-		for (auto& t : trackUIs)
+		DBG("🧪 Generating visual alignment test waveforms...");
+		looper.generateTestWaveformsForVisualTest();
+		// UIを更新（最初の3トラックをPlaying状態に）
+		for (int i = 0; i < 3 && i < (int)trackUIs.size(); ++i)
 		{
-			if (t->getIsSelected())
-			{
-				looper.generateTestClick(t->getTrackId());
-				t->setState(LooperTrackUi::TrackState::Playing);
-				processed = true;
-				break;
-			}
-		}
-		
-		// 選択されていない場合はトラック1に
-		if (!processed)
-		{
-			looper.generateTestClick(1);
-			if (!trackUIs.empty())
-				trackUIs[0]->setState(LooperTrackUi::TrackState::Playing);
+			trackUIs[i]->setState(LooperTrackUi::TrackState::Playing);
+            if (i == 1) trackUIs[i]->setLoopMultiplier(2.0f);
+            if (i == 2) trackUIs[i]->setLoopMultiplier(0.5f);
 		}
 		updateStateVisual();
 	};
@@ -1539,6 +1528,22 @@ bool MainComponent::keyPressed(const juce::KeyPress& key)
 			fxPanel.toggleRepeatActive(trackId);
 			return true;
 		}
+	}
+	
+	// === テスト波形生成 (Tキー) ===
+	if (key.getKeyCode() == 'T' || key.getKeyCode() == 't')
+	{
+		DBG("🧪 Generating test waveforms for visual alignment test...");
+		looper.generateTestWaveformsForVisualTest();
+		// UIを更新（最初の3トラックをPlaying状態に）
+		for (int i = 0; i < 3 && i < (int)trackUIs.size(); ++i)
+		{
+			trackUIs[i]->setState(LooperTrackUi::TrackState::Playing);
+            if (i == 1) trackUIs[i]->setLoopMultiplier(2.0f);
+            if (i == 2) trackUIs[i]->setLoopMultiplier(0.5f);
+		}
+		updateStateVisual();
+		return true;
 	}
 	
 	return false;

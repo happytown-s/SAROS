@@ -59,6 +59,9 @@ class LooperAudio
 	
 	// テスト用: 120BPM 4拍のクリック音を生成してトラックに入れる
 	void generateTestClick(int trackId);
+	
+	// 波形アライメントテスト用: トラック1=等倍、トラック2=x2、トラック3=/2
+	void generateTestWaveformsForVisualTest();
 
 	void stopAllTracks();
 

@@ -80,6 +80,7 @@ class LooperTrackUi : public juce::Component,juce::Timer
 public:
 	std::function<void(float)> onLoopMultiplierChange; // 🆕 Added public callback
 	float getLoopMultiplier() const { return loopMultiplier; } // 🆕 Added accessor
+	void setLoopMultiplier(float multiplier); // 🆕 Added setter for test/preset
 
 	// Volume Fader
     class FaderLookAndFeel : public juce::LookAndFeel_V4

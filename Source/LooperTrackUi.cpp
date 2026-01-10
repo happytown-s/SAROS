@@ -276,11 +276,8 @@ LooperTrackUi::LooperTrackUi(int id, TrackState initState)
     // Multiplier Buttons (Skip for Master Track 1)
     if (trackId != 1)
     {
-        // 一時的に非表示（問題切り分けのため）
-        mult2xButton.setVisible(false);
-        multHalfButton.setVisible(false);
-        // addAndMakeVisible(mult2xButton);
-        // addAndMakeVisible(multHalfButton);
+        addAndMakeVisible(mult2xButton);
+        addAndMakeVisible(multHalfButton);
         
         // Style
         mult2xButton.setColour(juce::TextButton::buttonColourId, juce::Colours::black.withAlpha(0.6f));
@@ -475,3 +472,32 @@ void LooperTrackUi::drawGlowingBorder(juce::Graphics& g, juce::Colour glowColour
     drawGlowingBorder(g, glowColour, getLocalBounds().toFloat()); 
 }
 
+
+void LooperTrackUi::setLoopMultiplier(float multiplier)
+{
+    loopMultiplier = multiplier;
+    
+    // UIボタンのトグル状態を更新
+    // dontSendNotificationを使うことで、コールバックのループを防ぐ
+    if (std::abs(multiplier - 2.0f) < 0.001f)
+    {
+        mult2xButton.setToggleState(true, juce::dontSendNotification);
+        multHalfButton.setToggleState(false, juce::dontSendNotification);
+    }
+    else if (std::abs(multiplier - 0.5f) < 0.001f)
+    {
+        mult2xButton.setToggleState(false, juce::dontSendNotification);
+        multHalfButton.setToggleState(true, juce::dontSendNotification);
+    }
+    else
+    {
+        mult2xButton.setToggleState(false, juce::dontSendNotification);
+        multHalfButton.setToggleState(false, juce::dontSendNotification);
+    }
+    
+    // 変更通知（必要であれば）
+    if (onLoopMultiplierChange)
+        onLoopMultiplierChange(loopMultiplier);
+        
+    repaint();
+}
