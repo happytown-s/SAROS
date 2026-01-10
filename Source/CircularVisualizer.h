@@ -584,8 +584,9 @@ public:
         if (currentPlayHeadPos >= 0.0f)
         {
             // プレイヘッドは累積位置（setPlayHeadPositionで計算済み）を使用
-            // 波形と同じく12時（-90度）を開始点とする
-            float manualOffset = -juce::MathConstants<float>::halfPi;
+            // ★修正: ユーザー要望によりプレイヘッドだけは3時（0度）基準に戻す
+            // 波形は12時スタートだが、プレイヘッドは3時スタートという変則配置
+            float manualOffset = 0.0f;
             float angle = (currentPlayHeadPos * juce::MathConstants<float>::twoPi) + manualOffset;
             
             // プレイヘッドライン (レーダーのように中心から外へ)
