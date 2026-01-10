@@ -493,10 +493,12 @@ public:
             
             // === プレイヘッド位置ハイライト + RMS振動 ===
             // プレイヘッド付近のセグメントを強調
+            // プレイヘッド付近のセグメントを強調
             if (currentPlayHeadPos >= 0.0f && wp.segmentAngles.size() > 1) // 全レイヤーに適用
             {
-                // 角度を 0 ~ 2PI に正規化しつつ、12時基準(-PI/2)に合わせる
-                float playHeadAngleRaw = currentPlayHeadPos * juce::MathConstants<float>::twoPi - juce::MathConstants<float>::halfPi;
+                // ★修正: プレイヘッドは3時基準(0.0)に戻ったため、ハイライト判定もそれに合わせる
+                // 波形が何度ずれていようと、プレイヘッドがある位置(0.0基準)のセグメントを光らせる必要がある
+                float playHeadAngleRaw = currentPlayHeadPos * juce::MathConstants<float>::twoPi;
                 float playHeadAngle = std::fmod(playHeadAngleRaw, juce::MathConstants<float>::twoPi);
                 if (playHeadAngle < 0) playHeadAngle += juce::MathConstants<float>::twoPi;
                 
@@ -807,8 +809,8 @@ private:
             startAngleRatio = (double)relativeStartSample / (double)masterLengthSamples;
         }
         
-        // ★修正: ユーザー要望により12時基準（-90度）に戻す
-        double manualOffset = -juce::MathConstants<double>::halfPi;
+        // ★修正: 「1時間分前のめり」との指摘により、-90度から30度右へ回して -60度（1時方向）とする
+        double manualOffset = -juce::MathConstants<double>::pi / 3.0;
         
         juce::Path newPath;
         
