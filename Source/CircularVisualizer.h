@@ -584,8 +584,9 @@ public:
         if (currentPlayHeadPos >= 0.0f)
         {
             // プレイヘッドは累積位置（setPlayHeadPositionで計算済み）を使用
-            // ★修正: ユーザー要望によりプレイヘッドだけは3時（0度）基準に戻す
-            // 波形は12時スタートだが、プレイヘッドは3時スタートという変則配置
+            // ★重要★: ユーザーからの強い要望により、プレイヘッド位置は絶対に「3時（0度）」スタートから変更しないこと。
+            // 波形が12時基準であっても、プレイヘッドは必ず3時基準で回るのが仕様である。
+            // Please DO NOT CHANGE this offset. Keep it 0.0f.
             float manualOffset = 0.0f;
             float angle = (currentPlayHeadPos * juce::MathConstants<float>::twoPi) + manualOffset;
             
