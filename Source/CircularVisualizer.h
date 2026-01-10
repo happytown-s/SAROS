@@ -90,8 +90,9 @@ public:
         // ★ numSamples (実際読み取る範囲) を基準にする
         double sampleStep = (double)numSamples / (double)points;
         
-        // ★修正: 1時方向(-60)からさらに30度右へ -> -30度 (-pi/6) = 2時方向
-        double manualOffset = -juce::MathConstants<double>::pi / 6.0;
+        // ★修正: マスターを12時(-halfPi)に固定し、スレーブのみを11時(-120 = -2pi/3)に設定
+        double manualOffset = (trackId == 1) ? -juce::MathConstants<double>::halfPi 
+                                             : -2.0 * juce::MathConstants<double>::pi / 3.0;
 
         for (int i = 0; i <= points; ++i)
         {
@@ -813,8 +814,9 @@ private:
             startAngleRatio = (double)relativeStartSample / (double)masterLengthSamples;
         }
         
-        // ★修正: 「1時間分前のめり」を完全に解消するため、-30度 (-pi/6) = 2時方向（3時の隣）に設定
-        double manualOffset = -juce::MathConstants<double>::pi / 6.0;
+        // ★修正: マスターを12時(-halfPi)に固定し、スレーブのみを11時(-120 = -2pi/3)に設定
+        double manualOffset = (wp.trackId == 1) ? -juce::MathConstants<double>::halfPi 
+                                                : -2.0 * juce::MathConstants<double>::pi / 3.0;
         
         juce::Path newPath;
         
