@@ -223,6 +223,22 @@ public:
     
     // マスター作成時の開始絶対位置を取得 (トラックの相対位置計算用)
     int getMasterStartSample() const { return masterStartSample; }
+    
+    // 現在の最大ループ倍率を取得
+    float getMaxLoopMultiplier() const 
+    { 
+        if (masterLoopLength == 0) return 1.0f;
+        float maxMult = 1.0f;
+        for(const auto& t : tracks)
+        {
+            if (t.second.recordLength > 0)
+            {
+                float mult = (float)t.second.recordLength / (float)masterLoopLength;
+                if (mult > maxMult) maxMult = mult;
+            }
+        }
+        return maxMult; 
+    }
 
 
 private:

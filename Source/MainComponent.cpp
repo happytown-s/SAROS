@@ -275,14 +275,16 @@ MainComponent::MainComponent()
 	{
 		DBG("🧪 Generating visual alignment test waveforms...");
 		looper.generateTestWaveformsForVisualTest();
-		// UIを更新（トラック1-6をPlaying状態に）
-		for (int i = 0; i < 6 && i < (int)trackUIs.size(); ++i)
+		// UIを更新（トラック1-8をPlaying状態に）
+		for (int i = 0; i < 8 && i < (int)trackUIs.size(); ++i)
 		{
 			trackUIs[i]->setState(LooperTrackUi::TrackState::Playing);
             if (i == 1) trackUIs[i]->setLoopMultiplier(2.0f);
             if (i == 2) trackUIs[i]->setLoopMultiplier(0.5f);
             if (i == 4) trackUIs[i]->setLoopMultiplier(2.0f); // Track 5: x2 (Punch-in)
             if (i == 5) trackUIs[i]->setLoopMultiplier(0.5f); // Track 6: /2 (Punch-in)
+            if (i == 6) trackUIs[i]->setLoopMultiplier(2.0f); // Track 7: x2 (Punch-in Bar2)
+            if (i == 7) trackUIs[i]->setLoopMultiplier(0.5f); // Track 8: /2 (Punch-in Bar2)
 		}
 		updateStateVisual();
 	};
@@ -1161,6 +1163,9 @@ void MainComponent::onRecordingStopped(int trackID)
         updateStateVisual();
         
         // 5. 🌊 ビジュアライザに波形を送る
+        // その前に MaxMultiplier を最新化（テスト生成時などに重要）
+        visualizer.setMaxMultiplier((double)looper.getMaxLoopMultiplier());
+        
         if (auto* buffer = looper.getTrackBuffer(trackID))
         {
             // 録音開始位置とマスター開始位置から、正しい描画オフセットを計算
@@ -1537,14 +1542,16 @@ bool MainComponent::keyPressed(const juce::KeyPress& key)
 	{
 		DBG("🧪 Generating test waveforms for visual alignment test...");
 		looper.generateTestWaveformsForVisualTest();
-		// UIを更新（トラック1-6をPlaying状態に）
-		for (int i = 0; i < 6 && i < (int)trackUIs.size(); ++i)
+		// UIを更新（トラック1-8をPlaying状態に）
+		for (int i = 0; i < 8 && i < (int)trackUIs.size(); ++i)
 		{
 			trackUIs[i]->setState(LooperTrackUi::TrackState::Playing);
             if (i == 1) trackUIs[i]->setLoopMultiplier(2.0f);
             if (i == 2) trackUIs[i]->setLoopMultiplier(0.5f);
             if (i == 4) trackUIs[i]->setLoopMultiplier(2.0f); // Track 5: x2 (Punch-in)
             if (i == 5) trackUIs[i]->setLoopMultiplier(0.5f); // Track 6: /2 (Punch-in)
+            if (i == 6) trackUIs[i]->setLoopMultiplier(2.0f); // Track 7: x2 (Punch-in Bar2)
+            if (i == 7) trackUIs[i]->setLoopMultiplier(0.5f); // Track 8: /2 (Punch-in Bar2)
 		}
 		updateStateVisual();
 		return true;

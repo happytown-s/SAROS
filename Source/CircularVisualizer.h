@@ -65,19 +65,16 @@ public:
         double startAngleRatio = 0.0;
         if (masterLengthSamples > 0 && trackLengthSamples > 0)
         {
-            // recordPhase: マスターループ内での録音開始位置（0-1の範囲）
-            // これが「波形のこの部分がどの角度に表示されるべきか」を決める基準
+            // バッファ先頭(i=0)の位相を計算
             double recordPhase = (double)(recordStartGlobal % masterLengthSamples) / (double)masterLengthSamples;
             
-            // bufferAngleSpan: buffer[writePos]が描画される角度（開始角度からの相対位置）
-            // 描画式: angleRatio(i) = startAngleRatio + (i / trackLen) * (loopRatio / maxMult)
-            // buffer[writePos]をrecordPhaseの位置に表示したいので、逆算してstartAngleRatioを求める
+            // bufferAngleSpan: 録音開始絶対位置分だけオフセットを戻す（これにより0スタート等になる）
             double anglePerSample = loopRatio / (double)trackLengthSamples / (double)maxMultiplier;
             double bufferAngleSpan = (double)recordStartGlobal * anglePerSample;
             
             startAngleRatio = recordPhase - bufferAngleSpan;
             
-            // 正規化（0-1の範囲に収める）
+            // 正規化
             while (startAngleRatio < 0.0) startAngleRatio += 1.0;
             while (startAngleRatio >= 1.0) startAngleRatio -= 1.0;
         }
@@ -787,15 +784,14 @@ private:
         double startAngleRatio = 0.0;
         if (masterLengthSamples > 0 && usedTrackLength > 0)
         {
-            // recordPhase: マスターループ内での録音開始位置（0-1の範囲）
-            double recordPhase = (double)(wp.originalRecordStart % masterLengthSamples) / (double)masterLengthSamples;
-            
-            // bufferAngleSpan: buffer[writePos]が描画される角度（開始角度からの相対位置）
-            double anglePerSample = loopRatio / (double)usedTrackLength / (double)maxMultiplier;
-            double bufferAngleSpan = (double)wp.originalRecordStart * anglePerSample;
-            
-            startAngleRatio = recordPhase - bufferAngleSpan;
-            
+            // recordPhase: マスターループ内での録音開始位置
+        double recordPhase = (double)(wp.originalRecordStart % masterLengthSamples) / (double)masterLengthSamples;
+        
+        double anglePerSample = loopRatio / (double)usedTrackLength / (double)maxMultiplier;
+        double bufferAngleSpan = (double)wp.originalRecordStart * anglePerSample;
+        
+        startAngleRatio = recordPhase - bufferAngleSpan;
+        
             // 正規化（0-1の範囲に収める）
             while (startAngleRatio < 0.0) startAngleRatio += 1.0;
             while (startAngleRatio >= 1.0) startAngleRatio -= 1.0;

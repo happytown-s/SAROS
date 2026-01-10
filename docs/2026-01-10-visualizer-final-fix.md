@@ -14,12 +14,32 @@
 1.  **録音開始位置の表示修正**
     *   `LooperAudio.cpp`: `recordStartSample` の計算で、以前は `masterStartSample` からの差分を反転させていましたが、`writePosition`（ループ内の絶対位置）をそのまま使用するように修正しました。これにより、録音を開始した時点の角度（例：ループの50%時点で録音開始したら6時の位置）から正しく波形が描画されるようになりました。
 
-2.  **x2倍速/半速波形描画アルゴリズムの修正**
-    *   `CircularVisualizer.h`: `startAngleRatio` の計算式を根本的に見直し、以下の新しいアルゴリズムを導入しました。
-        ```cpp
-        startAngleRatio = recordPhase - (bufferIndex / trackLength) * (loopRatio / maxMultiplier)
-        ```
-        これにより、等倍だけでなくx2倍速や/2半速トラックでも、録音された音がマスターループと完全に同期した角度に表示されるようになりました。
+2. 
+- **Correction of Test Data logic**:
+    - Initially, `recordStartSample` for tracks 7 and 8 was incorrectly set to the 4th beat of the *first* bar (Beat 3) instead of the second bar (Beat 7).
+    - Fixed to `samplesPerBeat * 7` to correctly represent "Start @ Bar 2, Beat 4".
+
+- **Fixing `maxMultiplier` Propagation**:
+    - Discovered that `CircularVisualizer` was adding waveforms using a stale `maxMultiplier` (default 1) during test generation, causing incorrect angle calculations even if the formula was correct.
+    - Updated `MainComponent::onRecordingStopped` to explicitly call `visualizer.setMaxMultiplier(looper.getMaxLoopMultiplier())` *before* adding the waveform.
+    - Added `getMaxLoopMultiplier()` to `LooperAudio`.
+
+- **Restoring Calculation Logic**:
+    - Reverted the `startAngleRatio` calculation in `CircularVisualizer.h` to the "subtraction method" (`recordPhase - bufferAngleSpan`).
+    - With the correct `maxMultiplier` (2.0) supplied, this formula correctly calculates angles relative to the entire extended loop circle.
+    - **Result**:
+        - Track 4 (x1, Start@Beat2): Calculated as `0.125` (45 degrees, or 1.5 o'clock) -> Correct for x2 scale.
+        - Track 7 (x2, Start@Beat7): Calculated as `0.875` (315 degrees, or 10.5 o'clock) -> Correct.
+
+## Verification Results
+- **Track 1-3**: Full length waveforms displayed correctly.
+- **Track 4-6 (Punch-in @ Beat 2)**:
+    - Displayed at approx **1.5 o'clock (45°)**.
+    - This is correct because with an x2 track present, the circle represents 8 beats (2 bars). Beat 2 is 1/4 of a standard bar, but 1/8 of the x2 circle. 1/8 of 360° is 45°.
+- **Track 7-8 (Punch-in @ Bar 2, Beat 4)**:
+    - Displayed at approx **10.5 o'clock (315°)**.
+    - Start is at Beat 7. 7/8 of the x2 circle is 315°.
+ これにより、等倍だけでなくx2倍速や/2半速トラックでも、録音された音がマスターループと完全に同期した角度に表示されるようになりました。
     *   スレーブトラックのオフセット（+60度など）を廃止し、全トラックをマスターと同じ12時基準（-90度オフセット）に統一しました。
 
 3.  **テスト機能の強化**

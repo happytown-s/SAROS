@@ -1033,8 +1033,59 @@ void LooperAudio::generateTestWaveformsForVisualTest()
         DBG("🎵 Track 6 (/2, Start@Beat2): click at buffer start, len: " << halfSamples);
         listeners.call([](Listener& l) { l.onRecordingStopped(6); });
     }
+
+    // ===== トラック7: x2 (2小節目の4拍目から録音開始) =====
+    {
+        auto& track = tracks[7];
+        int x2Samples = masterSamples * 2;
+        track.buffer.setSize(2, x2Samples);
+        track.buffer.clear();
+        
+        // 録音開始直後（バッファ先頭）にクリック
+        generateClick(track.buffer, 0);
+        
+        track.recordLength = x2Samples;
+        track.lengthInSample = x2Samples;
+        
+        // 2小節目の4拍目 = 通算8拍目(index 7)
+        // Master(4拍)内での位置は 7 % 4 = 3 (4拍目)
+        track.recordStartSample = samplesPerBeat * 7; // Start@Bar2-Beat4 
+        
+        track.loopMultiplier = 2.0f;
+        track.readPosition = 0;
+        track.isPlaying = true;
+        track.isRecording = false;
+        
+        DBG("🎵 Track 7 (x2, Start@Bar2-Beat4): click at buffer start");
+        listeners.call([](Listener& l) { l.onRecordingStopped(7); });
+    }
+
+    // ===== トラック8: /2 (2小節目の4拍目から録音開始) =====
+    {
+        auto& track = tracks[8];
+        int halfSamples = masterSamples / 2;
+        track.buffer.setSize(2, halfSamples);
+        track.buffer.clear();
+        
+        generateClick(track.buffer, 0);
+        
+        track.recordLength = halfSamples;
+        track.lengthInSample = halfSamples;
+        
+        // 2小節目の4拍目 = 通算8拍目(index 7)
+        // Master(4拍)内での位置は 7 % 4 = 3 (4拍目)
+        track.recordStartSample = samplesPerBeat * 7; 
+
+        track.loopMultiplier = 0.5f;
+        track.readPosition = 0;
+        track.isPlaying = true;
+        track.isRecording = false;
+        
+        DBG("🎵 Track 8 (/2, Start@Bar2-Beat4): click at buffer start");
+        listeners.call([](Listener& l) { l.onRecordingStopped(8); });
+    }
     
-    DBG("✅ Visual test waveforms generated: T1-3(Full), T4-6(Punch-in @ Beat2, Full Len)");
+    DBG("✅ Visual test waveforms generated: T1-3(Full), T4-6(Punch-in @ Beat2), T7-8(Punch-in @ Bar2-Beat4)");
 }
 
 void LooperAudio::setTrackFilterCutoff(int trackId, float freq)
