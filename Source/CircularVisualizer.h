@@ -794,15 +794,18 @@ private:
         if (loopRatio > 0.95 && loopRatio < 1.05) loopRatio = 1.0;
         
         // 開始角度の計算
+        // 開始角度の計算（正負のオフセットに対応）
         long offsetFromMasterStart = (long)wp.originalRecordStart - (long)wp.originalMasterStart;
         double startAngleRatio = 0.0;
-        if (masterLengthSamples > 0 && offsetFromMasterStart > 0)
+        if (masterLengthSamples > 0)
         {
-            int relativeStartSample = (int)(offsetFromMasterStart % masterLengthSamples);
+            // 正負にかかわらず剰余を計算し、0.0~1.0の範囲に正規化
+            long relativeStartSample = offsetFromMasterStart % masterLengthSamples;
             startAngleRatio = (double)relativeStartSample / (double)masterLengthSamples;
         }
         
-        double manualOffset = -juce::MathConstants<double>::halfPi;
+        // ★修正: 12時基準(-halfPi)を廃止し、3時基準(0.0)に統一
+        double manualOffset = 0.0;
         
         juce::Path newPath;
         
