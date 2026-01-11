@@ -98,3 +98,16 @@ target_link_libraries(SAROS PRIVATE
     juce::juce_core
     juce::juce_events
 )
+
+# 🔏 ビルド後に自動コード署名 (macOSのみ)
+# 署名IDはSHA-1ハッシュで指定（環境変数 CODESIGN_SHA1 を使用）
+# ハッシュは `security find-identity -v -p codesigning` で確認可能
+if(APPLE AND DEFINED ENV{CODESIGN_SHA1})
+    add_custom_command(TARGET SAROS POST_BUILD
+        COMMAND codesign --force --deep --sign $ENV{CODESIGN_SHA1} "$<TARGET_BUNDLE_DIR:SAROS>"
+        COMMENT "🔏 Code signing SAROS.app..."
+    )
+elseif(APPLE)
+    message(STATUS "⚠️ CODESIGN_SHA1 not set. Skipping code signing.")
+endif()
+
