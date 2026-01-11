@@ -116,6 +116,13 @@ private:
         float chorusDepth = 0.5f;
         float chorusMix = 0.5f;
 
+        // Tremolo (LFO-based volume modulation)
+        bool tremoloEnabled = false;
+        float tremoloRate = 4.0f;    // Hz
+        float tremoloDepth = 0.5f;   // 0.0-1.0
+        int tremoloShape = 0;        // 0=Sine, 1=Square, 2=Triangle
+        double tremoloPhase = 0.0;   // LFO phase state
+
         // Beat Repeat (Stutter)
         struct BeatRepeatState
         {
@@ -183,6 +190,12 @@ public:
     void setTrackChorusRate(int trackId, float rate);
     void setTrackChorusDepth(int trackId, float depth);
     void setTrackChorusMix(int trackId, float mix);
+
+    // Tremolo
+    void setTrackTremoloEnabled(int trackId, bool enabled);
+    void setTrackTremoloRate(int trackId, float rate);
+    void setTrackTremoloDepth(int trackId, float depth);
+    void setTrackTremoloShape(int trackId, int shape);
 
     void setTrackReverbMix(int trackId, float mix); // 0.0 - 1.0
     void setTrackReverbDamping(int trackId, float damping);

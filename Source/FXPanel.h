@@ -34,6 +34,7 @@ public:
         Reverb,
         Flanger,
         Chorus,
+        Tremolo,
         BeatRepeat
     };
 
@@ -150,6 +151,13 @@ private:
     juce::Label chorusDepthLabel;
     juce::Slider chorusMixSlider;
     juce::Label chorusMixLabel;
+
+    // Tremolo
+    juce::Slider tremoloRateSlider;
+    juce::Label tremoloRateLabel;
+    juce::Slider tremoloDepthSlider;
+    juce::Label tremoloDepthLabel;
+    juce::TextButton tremoloShapeButton { "SINE" };
 
     void setupSlider(juce::Slider& slider, juce::Label& label, const juce::String& name, const juce::String& style);
     void showEffectMenu(int slotIndex);

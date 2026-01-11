@@ -400,6 +400,49 @@ FXPanel::FXPanel(LooperAudio& looperRef) : looper(looperRef)
         looper.setTrackChorusMix(currentTrackId, (float)chorusMixSlider.getValue() / 100.0f);
     };
 
+    // --- TREMOLO ---
+    setupSlider(tremoloRateSlider, tremoloRateLabel, "RATE", "IceBlue");
+    tremoloRateSlider.setRange(0.5, 20.0, 0.5);
+    tremoloRateSlider.setValue(4.0);
+    tremoloRateSlider.textFromValueFunction = [](double value) {
+        return juce::String(value, 1) + "Hz";
+    };
+    tremoloRateSlider.onValueChange = [this]() {
+        if (midiManager && midiManager->isLearnModeActive()) {
+            if (lastSliderValues.count(&tremoloRateSlider))
+                tremoloRateSlider.setValue(lastSliderValues[&tremoloRateSlider], juce::dontSendNotification);
+            return;
+        }
+        looper.setTrackTremoloRate(currentTrackId, (float)tremoloRateSlider.getValue());
+    };
+
+    setupSlider(tremoloDepthSlider, tremoloDepthLabel, "DEPTH", "IceBlue");
+    tremoloDepthSlider.setRange(0.0, 100.0, 1.0);
+    tremoloDepthSlider.setValue(50.0);
+    tremoloDepthSlider.textFromValueFunction = [](double value) {
+        return juce::String(static_cast<int>(value)) + "%";
+    };
+    tremoloDepthSlider.onValueChange = [this]() {
+        if (midiManager && midiManager->isLearnModeActive()) {
+            if (lastSliderValues.count(&tremoloDepthSlider))
+                tremoloDepthSlider.setValue(lastSliderValues[&tremoloDepthSlider], juce::dontSendNotification);
+            return;
+        }
+        looper.setTrackTremoloDepth(currentTrackId, (float)tremoloDepthSlider.getValue() / 100.0f);
+    };
+
+    // Shape Button (Sine -> Square -> Triangle cycle)
+    addChildComponent(tremoloShapeButton);
+    tremoloShapeButton.setClickingTogglesState(false);
+    tremoloShapeButton.setColour(juce::TextButton::buttonColourId, juce::Colours::darkgrey);
+    tremoloShapeButton.onClick = [this]() {
+        static int currentShape = 0;
+        currentShape = (currentShape + 1) % 3;
+        juce::String shapes[] = { "SINE", "SQUARE", "TRI" };
+        tremoloShapeButton.setButtonText(shapes[currentShape]);
+        looper.setTrackTremoloShape(currentTrackId, currentShape);
+    };
+
     updateSliderVisibility();
 }
 
@@ -430,6 +473,8 @@ FXPanel::~FXPanel()
     chorusRateSlider.setLookAndFeel(nullptr);
     chorusDepthSlider.setLookAndFeel(nullptr);
     chorusMixSlider.setLookAndFeel(nullptr);
+    tremoloRateSlider.setLookAndFeel(nullptr);
+    tremoloDepthSlider.setLookAndFeel(nullptr);
 }
 
 void FXPanel::setupSlider(juce::Slider& slider, juce::Label& label, const juce::String& name, const juce::String& style)
@@ -482,6 +527,7 @@ void FXPanel::setTargetTrackId(int trackId)
             case EffectType::Reverb: typeStr = "Reverb"; break;
             case EffectType::Flanger: typeStr = "Flanger"; break;
             case EffectType::Chorus: typeStr = "Chorus"; break;
+            case EffectType::Tremolo: typeStr = "Tremolo"; break;
             case EffectType::BeatRepeat: typeStr = "Repeat"; break;
             default: typeStr = "Empty"; break;
         }
@@ -526,6 +572,9 @@ void FXPanel::updateSliderVisibility()
     hide(chorusRateSlider); hide(chorusRateLabel);
     hide(chorusDepthSlider); hide(chorusDepthLabel);
     hide(chorusMixSlider); hide(chorusMixLabel);
+    hide(tremoloRateSlider); hide(tremoloRateLabel);
+    hide(tremoloDepthSlider); hide(tremoloDepthLabel);
+    hide(tremoloShapeButton);
     
     visualizer.setVisible(false);
 
@@ -565,6 +614,11 @@ void FXPanel::updateSliderVisibility()
             chorusRateSlider.setVisible(true); chorusRateLabel.setVisible(true);
             chorusDepthSlider.setVisible(true); chorusDepthLabel.setVisible(true);
             chorusMixSlider.setVisible(true); chorusMixLabel.setVisible(true);
+            break;
+        case EffectType::Tremolo:
+            tremoloRateSlider.setVisible(true); tremoloRateLabel.setVisible(true);
+            tremoloDepthSlider.setVisible(true); tremoloDepthLabel.setVisible(true);
+            tremoloShapeButton.setVisible(true);
             break;
         default: break;
     }
@@ -734,6 +788,11 @@ void FXPanel::resized()
     if(chorusRateSlider.isVisible()) {
         placeControls({ {&chorusRateSlider, &chorusRateLabel}, {&chorusDepthSlider, &chorusDepthLabel}, {&chorusMixSlider, &chorusMixLabel} });
     }
+
+    // TREMOLO
+    if(tremoloRateSlider.isVisible()) {
+        placeControls({ {&tremoloRateSlider, &tremoloRateLabel}, {&tremoloDepthSlider, &tremoloDepthLabel} }, &tremoloShapeButton);
+    }
 }
 
 void FXPanel::mouseDown(const juce::MouseEvent& e)
@@ -798,7 +857,8 @@ void FXPanel::showEffectMenu(int slotIndex)
     m.addItem(4, "Reverb", true, slots[slotIndex].type == EffectType::Reverb);
     m.addItem(5, "Flanger", true, slots[slotIndex].type == EffectType::Flanger);
     m.addItem(6, "Chorus", true, slots[slotIndex].type == EffectType::Chorus);
-    m.addItem(7, "Beat Repeat", true, slots[slotIndex].type == EffectType::BeatRepeat);
+    m.addItem(7, "Tremolo", true, slots[slotIndex].type == EffectType::Tremolo);
+    m.addItem(8, "Beat Repeat", true, slots[slotIndex].type == EffectType::BeatRepeat);
     m.addSeparator();
     m.addItem(99, "Clear", true, false);
 
@@ -816,7 +876,8 @@ void FXPanel::showEffectMenu(int slotIndex)
         else if (result == 4) newType = EffectType::Reverb;
         else if (result == 5) newType = EffectType::Flanger;
         else if (result == 6) newType = EffectType::Chorus;
-        else if (result == 7) newType = EffectType::BeatRepeat;
+        else if (result == 7) newType = EffectType::Tremolo;
+        else if (result == 8) newType = EffectType::BeatRepeat;
         
         // Disable old effect
         if (oldType != newType && currentTrackId >= 0)
@@ -827,6 +888,7 @@ void FXPanel::showEffectMenu(int slotIndex)
                 case EffectType::Reverb: looper.setTrackReverbEnabled(currentTrackId, false); break;
                 case EffectType::Flanger: looper.setTrackFlangerEnabled(currentTrackId, false); break;
                 case EffectType::Chorus: looper.setTrackChorusEnabled(currentTrackId, false); break;
+                case EffectType::Tremolo: looper.setTrackTremoloEnabled(currentTrackId, false); break;
                 case EffectType::BeatRepeat: looper.setTrackBeatRepeatActive(currentTrackId, false); break;
                 default: break;
             }
@@ -843,6 +905,7 @@ void FXPanel::showEffectMenu(int slotIndex)
             case EffectType::Reverb: typeStr = "Reverb"; break;
             case EffectType::Flanger: typeStr = "Flanger"; break;
             case EffectType::Chorus: typeStr = "Chorus"; break;
+            case EffectType::Tremolo: typeStr = "Tremolo"; break;
             case EffectType::BeatRepeat: typeStr = "Repeat"; break;
             default: typeStr = "Empty"; break;
         }
@@ -857,6 +920,7 @@ void FXPanel::showEffectMenu(int slotIndex)
                 case EffectType::Reverb: looper.setTrackReverbEnabled(currentTrackId, true); break;
                 case EffectType::Flanger: looper.setTrackFlangerEnabled(currentTrackId, true); break;
                 case EffectType::Chorus: looper.setTrackChorusEnabled(currentTrackId, true); break;
+                case EffectType::Tremolo: looper.setTrackTremoloEnabled(currentTrackId, true); break;
                 default: break;
             }
         }
@@ -906,6 +970,9 @@ juce::String FXPanel::getControlIdForSlider(juce::Slider* slider)
     if (slider == &chorusRateSlider)     return "fx_chorus_rate";
     if (slider == &chorusDepthSlider)    return "fx_chorus_depth";
     if (slider == &chorusMixSlider)      return "fx_chorus_mix";
+    
+    if (slider == &tremoloRateSlider)     return "fx_tremolo_rate";
+    if (slider == &tremoloDepthSlider)    return "fx_tremolo_depth";
     return "";
 }
 
@@ -930,6 +997,9 @@ juce::Slider* FXPanel::getSliderForControlId(const juce::String& controlId)
     if (controlId == "fx_chorus_rate")       return &chorusRateSlider;
     if (controlId == "fx_chorus_depth")      return &chorusDepthSlider;
     if (controlId == "fx_chorus_mix")        return &chorusMixSlider;
+    
+    if (controlId == "fx_tremolo_rate")       return &tremoloRateSlider;
+    if (controlId == "fx_tremolo_depth")      return &tremoloDepthSlider;
     return nullptr;
 }
 

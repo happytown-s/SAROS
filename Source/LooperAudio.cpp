@@ -675,6 +675,42 @@ void LooperAudio::mixTracksToOutput(juce::AudioBuffer<float>& output)
         if (track.fx.chorusEnabled)
             track.fx.chorus.process(context);
 
+        // Tremolo (LFO-based amplitude modulation)
+        if (track.fx.tremoloEnabled)
+        {
+            auto* left = trackBuffer.getWritePointer(0);
+            auto* right = trackBuffer.getWritePointer(1);
+            double phaseIncrement = track.fx.tremoloRate / sampleRate;
+
+            for (int i = 0; i < numSamples; ++i)
+            {
+                // LFO waveform calculation
+                float lfoValue = 0.0f;
+                switch (track.fx.tremoloShape)
+                {
+                    case 0: // Sine
+                        lfoValue = static_cast<float>(0.5 + 0.5 * std::sin(track.fx.tremoloPhase * juce::MathConstants<double>::twoPi));
+                        break;
+                    case 1: // Square
+                        lfoValue = (track.fx.tremoloPhase < 0.5) ? 1.0f : 0.0f;
+                        break;
+                    case 2: // Triangle
+                        lfoValue = static_cast<float>(1.0 - std::abs(2.0 * track.fx.tremoloPhase - 1.0));
+                        break;
+                }
+
+                // Apply depth: gain = 1 - depth * (1 - lfoValue)
+                float gain = 1.0f - track.fx.tremoloDepth * (1.0f - lfoValue);
+                left[i] *= gain;
+                right[i] *= gain;
+
+                // Advance phase
+                track.fx.tremoloPhase += phaseIncrement;
+                if (track.fx.tremoloPhase >= 1.0)
+                    track.fx.tremoloPhase -= 1.0;
+            }
+        }
+
         // Delay (only if enabled and mix > 0)
         if (track.fx.delayEnabled && track.fx.delayMix > 0.0f)
         {
@@ -1325,6 +1361,30 @@ void LooperAudio::setTrackChorusMix(int trackId, float mix)
 {
     if (auto it = tracks.find(trackId); it != tracks.end())
         it->second.fx.chorus.setMix(mix);
+}
+
+void LooperAudio::setTrackTremoloEnabled(int trackId, bool enabled)
+{
+    if (auto it = tracks.find(trackId); it != tracks.end())
+        it->second.fx.tremoloEnabled = enabled;
+}
+
+void LooperAudio::setTrackTremoloRate(int trackId, float rate)
+{
+    if (auto it = tracks.find(trackId); it != tracks.end())
+        it->second.fx.tremoloRate = rate;
+}
+
+void LooperAudio::setTrackTremoloDepth(int trackId, float depth)
+{
+    if (auto it = tracks.find(trackId); it != tracks.end())
+        it->second.fx.tremoloDepth = depth;
+}
+
+void LooperAudio::setTrackTremoloShape(int trackId, int shape)
+{
+    if (auto it = tracks.find(trackId); it != tracks.end())
+        it->second.fx.tremoloShape = shape;
 }
 
 void LooperAudio::setTrackDelayEnabled(int trackId, bool enabled)
