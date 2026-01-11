@@ -80,6 +80,14 @@ void LooperAudio::addTrack(int trackId)
         track.fx.flanger.setMix(0.5f);
         track.fx.flanger.setDepth(0.5f);
         track.fx.flanger.setRate(0.5f);
+
+        // Chorus Init (longer delay for thickening effect)
+        track.fx.chorus.prepare(fxSpec);
+        track.fx.chorus.setCentreDelay(10.0f); // 10ms for Chorus
+        track.fx.chorus.setFeedback(0.0f);
+        track.fx.chorus.setMix(0.5f);
+        track.fx.chorus.setDepth(0.5f);
+        track.fx.chorus.setRate(0.3f);
     }
 }
 
@@ -662,6 +670,10 @@ void LooperAudio::mixTracksToOutput(juce::AudioBuffer<float>& output)
         // Flanger
         if (track.fx.flangerEnabled)
             track.fx.flanger.process(context);
+
+        // Chorus
+        if (track.fx.chorusEnabled)
+            track.fx.chorus.process(context);
 
         // Delay (only if enabled and mix > 0)
         if (track.fx.delayEnabled && track.fx.delayMix > 0.0f)
@@ -1289,6 +1301,30 @@ void LooperAudio::setTrackFlangerFeedback(int trackId, float feedback)
 {
     if (auto it = tracks.find(trackId); it != tracks.end())
         it->second.fx.flanger.setFeedback(feedback);
+}
+
+void LooperAudio::setTrackChorusEnabled(int trackId, bool enabled)
+{
+    if (auto it = tracks.find(trackId); it != tracks.end())
+        it->second.fx.chorusEnabled = enabled;
+}
+
+void LooperAudio::setTrackChorusRate(int trackId, float rate)
+{
+    if (auto it = tracks.find(trackId); it != tracks.end())
+        it->second.fx.chorus.setRate(rate);
+}
+
+void LooperAudio::setTrackChorusDepth(int trackId, float depth)
+{
+    if (auto it = tracks.find(trackId); it != tracks.end())
+        it->second.fx.chorus.setDepth(depth);
+}
+
+void LooperAudio::setTrackChorusMix(int trackId, float mix)
+{
+    if (auto it = tracks.find(trackId); it != tracks.end())
+        it->second.fx.chorus.setMix(mix);
 }
 
 void LooperAudio::setTrackDelayEnabled(int trackId, bool enabled)

@@ -354,6 +354,52 @@ FXPanel::FXPanel(LooperAudio& looperRef) : looper(looperRef)
         looper.setTrackFlangerFeedback(currentTrackId, (float)flangerFeedbackSlider.getValue() / 100.0f);
     };
 
+    // --- CHORUS ---
+    setupSlider(chorusRateSlider, chorusRateLabel, "RATE", "IceBlue");
+    chorusRateSlider.setRange(0.1, 2.0, 0.1);
+    chorusRateSlider.setValue(0.3);
+    chorusRateSlider.textFromValueFunction = [](double value) {
+        return juce::String(value, 1) + "Hz";
+    };
+    chorusRateSlider.onValueChange = [this]() {
+        if (midiManager && midiManager->isLearnModeActive()) {
+            if (lastSliderValues.count(&chorusRateSlider))
+                chorusRateSlider.setValue(lastSliderValues[&chorusRateSlider], juce::dontSendNotification);
+            return;
+        }
+        looper.setTrackChorusRate(currentTrackId, (float)chorusRateSlider.getValue());
+    };
+
+    setupSlider(chorusDepthSlider, chorusDepthLabel, "DEPTH", "IceBlue");
+    chorusDepthSlider.setRange(0.0, 100.0, 1.0);
+    chorusDepthSlider.setValue(50.0);
+    chorusDepthSlider.textFromValueFunction = [](double value) {
+        return juce::String(static_cast<int>(value)) + "%";
+    };
+    chorusDepthSlider.onValueChange = [this]() {
+        if (midiManager && midiManager->isLearnModeActive()) {
+            if (lastSliderValues.count(&chorusDepthSlider))
+                chorusDepthSlider.setValue(lastSliderValues[&chorusDepthSlider], juce::dontSendNotification);
+            return;
+        }
+        looper.setTrackChorusDepth(currentTrackId, (float)chorusDepthSlider.getValue() / 100.0f);
+    };
+
+    setupSlider(chorusMixSlider, chorusMixLabel, "MIX", "IceBlue");
+    chorusMixSlider.setRange(0.0, 100.0, 1.0);
+    chorusMixSlider.setValue(50.0);
+    chorusMixSlider.textFromValueFunction = [](double value) {
+        return juce::String(static_cast<int>(value)) + "%";
+    };
+    chorusMixSlider.onValueChange = [this]() {
+        if (midiManager && midiManager->isLearnModeActive()) {
+            if (lastSliderValues.count(&chorusMixSlider))
+                chorusMixSlider.setValue(lastSliderValues[&chorusMixSlider], juce::dontSendNotification);
+            return;
+        }
+        looper.setTrackChorusMix(currentTrackId, (float)chorusMixSlider.getValue() / 100.0f);
+    };
+
     updateSliderVisibility();
 }
 
@@ -381,6 +427,9 @@ FXPanel::~FXPanel()
     flangerRateSlider.setLookAndFeel(nullptr);
     flangerDepthSlider.setLookAndFeel(nullptr);
     flangerFeedbackSlider.setLookAndFeel(nullptr);
+    chorusRateSlider.setLookAndFeel(nullptr);
+    chorusDepthSlider.setLookAndFeel(nullptr);
+    chorusMixSlider.setLookAndFeel(nullptr);
 }
 
 void FXPanel::setupSlider(juce::Slider& slider, juce::Label& label, const juce::String& name, const juce::String& style)
@@ -432,6 +481,7 @@ void FXPanel::setTargetTrackId(int trackId)
             case EffectType::Delay: typeStr = "Delay"; break;
             case EffectType::Reverb: typeStr = "Reverb"; break;
             case EffectType::Flanger: typeStr = "Flanger"; break;
+            case EffectType::Chorus: typeStr = "Chorus"; break;
             case EffectType::BeatRepeat: typeStr = "Repeat"; break;
             default: typeStr = "Empty"; break;
         }
@@ -473,6 +523,9 @@ void FXPanel::updateSliderVisibility()
     hide(flangerRateSlider); hide(flangerRateLabel);
     hide(flangerDepthSlider); hide(flangerDepthLabel);
     hide(flangerFeedbackSlider); hide(flangerFeedbackLabel);
+    hide(chorusRateSlider); hide(chorusRateLabel);
+    hide(chorusDepthSlider); hide(chorusDepthLabel);
+    hide(chorusMixSlider); hide(chorusMixLabel);
     
     visualizer.setVisible(false);
 
@@ -507,6 +560,11 @@ void FXPanel::updateSliderVisibility()
             flangerRateSlider.setVisible(true); flangerRateLabel.setVisible(true);
             flangerDepthSlider.setVisible(true); flangerDepthLabel.setVisible(true);
             flangerFeedbackSlider.setVisible(true); flangerFeedbackLabel.setVisible(true);
+            break;
+        case EffectType::Chorus:
+            chorusRateSlider.setVisible(true); chorusRateLabel.setVisible(true);
+            chorusDepthSlider.setVisible(true); chorusDepthLabel.setVisible(true);
+            chorusMixSlider.setVisible(true); chorusMixLabel.setVisible(true);
             break;
         default: break;
     }
@@ -671,6 +729,11 @@ void FXPanel::resized()
     if(flangerRateSlider.isVisible()) {
         placeControls({ {&flangerRateSlider, &flangerRateLabel}, {&flangerDepthSlider, &flangerDepthLabel}, {&flangerFeedbackSlider, &flangerFeedbackLabel} });
     }
+
+    // CHORUS
+    if(chorusRateSlider.isVisible()) {
+        placeControls({ {&chorusRateSlider, &chorusRateLabel}, {&chorusDepthSlider, &chorusDepthLabel}, {&chorusMixSlider, &chorusMixLabel} });
+    }
 }
 
 void FXPanel::mouseDown(const juce::MouseEvent& e)
@@ -734,7 +797,8 @@ void FXPanel::showEffectMenu(int slotIndex)
     m.addItem(3, "Delay", true, slots[slotIndex].type == EffectType::Delay);
     m.addItem(4, "Reverb", true, slots[slotIndex].type == EffectType::Reverb);
     m.addItem(5, "Flanger", true, slots[slotIndex].type == EffectType::Flanger);
-    m.addItem(6, "Beat Repeat", true, slots[slotIndex].type == EffectType::BeatRepeat);
+    m.addItem(6, "Chorus", true, slots[slotIndex].type == EffectType::Chorus);
+    m.addItem(7, "Beat Repeat", true, slots[slotIndex].type == EffectType::BeatRepeat);
     m.addSeparator();
     m.addItem(99, "Clear", true, false);
 
@@ -751,7 +815,8 @@ void FXPanel::showEffectMenu(int slotIndex)
         else if (result == 3) newType = EffectType::Delay;
         else if (result == 4) newType = EffectType::Reverb;
         else if (result == 5) newType = EffectType::Flanger;
-        else if (result == 6) newType = EffectType::BeatRepeat;
+        else if (result == 6) newType = EffectType::Chorus;
+        else if (result == 7) newType = EffectType::BeatRepeat;
         
         // Disable old effect
         if (oldType != newType && currentTrackId >= 0)
@@ -761,6 +826,7 @@ void FXPanel::showEffectMenu(int slotIndex)
                 case EffectType::Delay: looper.setTrackDelayEnabled(currentTrackId, false); break;
                 case EffectType::Reverb: looper.setTrackReverbEnabled(currentTrackId, false); break;
                 case EffectType::Flanger: looper.setTrackFlangerEnabled(currentTrackId, false); break;
+                case EffectType::Chorus: looper.setTrackChorusEnabled(currentTrackId, false); break;
                 case EffectType::BeatRepeat: looper.setTrackBeatRepeatActive(currentTrackId, false); break;
                 default: break;
             }
@@ -776,6 +842,7 @@ void FXPanel::showEffectMenu(int slotIndex)
             case EffectType::Delay: typeStr = "Delay"; break;
             case EffectType::Reverb: typeStr = "Reverb"; break;
             case EffectType::Flanger: typeStr = "Flanger"; break;
+            case EffectType::Chorus: typeStr = "Chorus"; break;
             case EffectType::BeatRepeat: typeStr = "Repeat"; break;
             default: typeStr = "Empty"; break;
         }
@@ -789,6 +856,7 @@ void FXPanel::showEffectMenu(int slotIndex)
                 case EffectType::Delay: looper.setTrackDelayEnabled(currentTrackId, true); break;
                 case EffectType::Reverb: looper.setTrackReverbEnabled(currentTrackId, true); break;
                 case EffectType::Flanger: looper.setTrackFlangerEnabled(currentTrackId, true); break;
+                case EffectType::Chorus: looper.setTrackChorusEnabled(currentTrackId, true); break;
                 default: break;
             }
         }
@@ -834,6 +902,10 @@ juce::String FXPanel::getControlIdForSlider(juce::Slider* slider)
     if (slider == &flangerRateSlider)     return "fx_flanger_rate";
     if (slider == &flangerDepthSlider)    return "fx_flanger_depth";
     if (slider == &flangerFeedbackSlider) return "fx_flanger_feedback";
+    
+    if (slider == &chorusRateSlider)     return "fx_chorus_rate";
+    if (slider == &chorusDepthSlider)    return "fx_chorus_depth";
+    if (slider == &chorusMixSlider)      return "fx_chorus_mix";
     return "";
 }
 
@@ -854,6 +926,10 @@ juce::Slider* FXPanel::getSliderForControlId(const juce::String& controlId)
     if (controlId == "fx_flanger_rate")       return &flangerRateSlider;
     if (controlId == "fx_flanger_depth")      return &flangerDepthSlider;
     if (controlId == "fx_flanger_feedback")   return &flangerFeedbackSlider;
+    
+    if (controlId == "fx_chorus_rate")       return &chorusRateSlider;
+    if (controlId == "fx_chorus_depth")      return &chorusDepthSlider;
+    if (controlId == "fx_chorus_mix")        return &chorusMixSlider;
     return nullptr;
 }
 

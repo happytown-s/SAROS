@@ -109,6 +109,13 @@ private:
         float flangerDepth = 0.5f;
         float flangerFeedback = 0.0f;
 
+        // Chorus (using Chorus with longer delay for thickening)
+        juce::dsp::Chorus<float> chorus;
+        bool chorusEnabled = false;
+        float chorusRate = 0.3f;
+        float chorusDepth = 0.5f;
+        float chorusMix = 0.5f;
+
         // Beat Repeat (Stutter)
         struct BeatRepeatState
         {
@@ -170,6 +177,12 @@ public:
     void setTrackFlangerRate(int trackId, float rate);
     void setTrackFlangerDepth(int trackId, float depth);
     void setTrackFlangerFeedback(int trackId, float feedback);
+
+    // Chorus
+    void setTrackChorusEnabled(int trackId, bool enabled);
+    void setTrackChorusRate(int trackId, float rate);
+    void setTrackChorusDepth(int trackId, float depth);
+    void setTrackChorusMix(int trackId, float mix);
 
     void setTrackReverbMix(int trackId, float mix); // 0.0 - 1.0
     void setTrackReverbDamping(int trackId, float damping);

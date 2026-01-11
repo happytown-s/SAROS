@@ -33,6 +33,7 @@ public:
         Delay,
         Reverb,
         Flanger,
+        Chorus,
         BeatRepeat
     };
 
@@ -141,6 +142,14 @@ private:
     juce::Label flangerDepthLabel;
     juce::Slider flangerFeedbackSlider;
     juce::Label flangerFeedbackLabel;
+
+    // Chorus
+    juce::Slider chorusRateSlider;
+    juce::Label chorusRateLabel;
+    juce::Slider chorusDepthSlider;
+    juce::Label chorusDepthLabel;
+    juce::Slider chorusMixSlider;
+    juce::Label chorusMixLabel;
 
     void setupSlider(juce::Slider& slider, juce::Label& label, const juce::String& name, const juce::String& style);
     void showEffectMenu(int slotIndex);
