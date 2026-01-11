@@ -412,6 +412,9 @@ void LooperAudio::startAllPlayback()
     // 全トラックを一斉に0位置からスタートさせる（ループで個別に呼ぶとコールバック割り込みでズレるため）
     const juce::ScopedLock sl(audioLock); // 必要ならロック
     
+    // 📍 プレイヘッド位置をリセット（getEffectiveNormalizedPositionが0から始まるように）
+    masterStartSample = currentSamplePosition;
+    
     // まずマスタートラックがあるか確認（あればそれもリセット）
     for (auto& [id, track] : tracks)
     {
@@ -421,7 +424,7 @@ void LooperAudio::startAllPlayback()
             track.readPosition = 0;
         }
     }
-    DBG("▶️ Start ALL tracks from position 0 (Perfect Sync)");
+    DBG("▶️ Start ALL tracks from position 0 (masterStartSample reset to " << masterStartSample << ")");
 }
 
 void LooperAudio::stopPlaying(int trackId)
