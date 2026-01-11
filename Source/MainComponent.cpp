@@ -93,6 +93,7 @@ MainComponent::MainComponent()
 
 	// ボタン類設定
 	addAndMakeVisible(visualizer);
+    
 	addAndMakeVisible(transportPanel);
 	addChildComponent(fxPanel); // Initially hidden
 	

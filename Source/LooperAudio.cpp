@@ -710,22 +710,17 @@ void LooperAudio::mixTracksToOutput(juce::AudioBuffer<float>& output)
             monitorFifo.finishedWrite(size1 + size2);
         }
 
-        // 🧮 RMS計算
-        const int rmsWindow = 256;
-        int rmsStart = (readPos - rmsWindow + loopLength) % loopLength; 
-        
+        // 🧮 RMS計算 (Visualizer用)
+        // FX適用後の trackBuffer から計算する（ブロック全体のRMS）
         float rmsValue = 0.0f;
-        if (rmsStart + rmsWindow <= loopLength)
+        if (numSamples > 0)
         {
-             rmsValue = track.buffer.getRMSLevel(0, rmsStart, rmsWindow);
-        }
-        else
-        {
-            int part1 = loopLength - rmsStart;
-            int part2 = rmsWindow - part1;
-            float r1 = track.buffer.getRMSLevel(0, rmsStart, part1);
-            float r2 = track.buffer.getRMSLevel(0, 0, part2);
-            rmsValue = (r1 + r2) * 0.5f; 
+            rmsValue = trackBuffer.getRMSLevel(0, 0, numSamples);
+            // 2chの場合は平均
+            if (trackBuffer.getNumChannels() > 1)
+            {
+                rmsValue = (rmsValue + trackBuffer.getRMSLevel(1, 0, numSamples)) * 0.5f;
+            }
         }
         
         rmsValue *= track.gain;
@@ -841,12 +836,7 @@ bool LooperAudio::hasRecordedTracks() const
     return false;
 }
 
-float LooperAudio::getTrackRMS(int trackId) const
-{
-    if (auto it = tracks.find(trackId); it != tracks.end())
-        return it->second.currentLevel;
-    return 0.0f;
-}
+
 
 void LooperAudio::setTrackGain(int trackId, float gain)
 {

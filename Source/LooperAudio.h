@@ -132,6 +132,7 @@ private:
 		float currentLevel = 0.0f;
 		float gain = 1.0f;
 		float loopMultiplier = 1.0f; // 1.0, 2.0 (x2), 0.5 (/2)
+        std::atomic<float> currentEffectRMS {0.0f}; // FX適用後のRMS（Visualizer用）
 		
 		// Per-Track FX Chain
 		FXChain fx;
@@ -148,8 +149,7 @@ public:
 	bool isAnyPlaying() const;
 	bool hasRecordedTracks() const;
 	int getCurrentTrackId() const;
-
-	float getTrackRMS(int trackId) const;
+    
 	void setTrackGain(int trackId, float gain);
 	void setTrackLoopMultiplier(int trackId, float multiplier);
 
@@ -252,6 +252,13 @@ public:
         return maxMult; 
     }
 
+    // トラックの現在のRMSを取得 (Visualizer用)
+    float getTrackRMS(int trackId) const
+    {
+        if (auto it = tracks.find(trackId); it != tracks.end())
+            return it->second.currentLevel;
+        return 0.0f;
+    }
 
 private:
 

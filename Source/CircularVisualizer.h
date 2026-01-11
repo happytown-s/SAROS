@@ -62,32 +62,8 @@ public:
         // マスターとほぼ同じ長さなら、誤差を許容して 1.0 に丸める
         if (loopRatio > 0.95 && loopRatio < 1.05) loopRatio = 1.0;
 
+        // 全トラック12時スタート（readPosition 0 が12時に来る）
         double startAngleRatio = 0.0;
-        if (masterLengthSamples > 0 && trackLengthSamples > 0)
-        {
-            // シンプルかつ最強の計算式 (修正版):
-            // 円周全体の長さ(Master * MaxMult)に対する、録音開始位置(MasterStartからの相対)の割合。
-            // MasterStart を引かないと、アプリ起動からの絶対時間になってしまい、再生バー(MasterStart基準)とズレる。
-            
-            double totalCircumference = (double)masterLengthSamples * maxMultiplier;
-            long long relativeStart = (long long)recordStartGlobal - (long long)masterStartGlobal;
-            
-            // 負の値（PreRoll等でMasterStartより前になった場合）のModulo対策
-            while (relativeStart < 0) relativeStart += (long long)totalCircumference;
-            
-            startAngleRatio = (double)(relativeStart % (long long)totalCircumference) / totalCircumference;
-            
-            // 正規化（念のため）
-            while (startAngleRatio < 0.0) startAngleRatio += 1.0;
-            while (startAngleRatio >= 1.0) startAngleRatio -= 1.0;
-        }
-
-        // 🔍 DEBUG LOGGING
-        DBG("🌊 AddWaveform T" << trackId 
-            << " | TrackLen: " << trackLengthSamples 
-            << " | MasterLen: " << masterLengthSamples 
-            << " | maxMult: " << maxMultiplier
-            << " | startAngleRatio: " << startAngleRatio);
 
         juce::Path newPath;
         const float maxAmpWidth = 0.3f;
@@ -784,22 +760,9 @@ private:
         double loopRatio = (double)usedTrackLength / (double)masterLengthSamples;
         if (loopRatio > 0.95 && loopRatio < 1.05) loopRatio = 1.0;
         
+        // 全トラック12時スタート（readPosition 0 が12時に来る）
         double startAngleRatio = 0.0;
-        if (masterLengthSamples > 0 && usedTrackLength > 0)
-        {
-            // recordPhase: マスターループ内での録音開始位置
-        double recordPhase = (double)(wp.originalRecordStart % masterLengthSamples) / (double)masterLengthSamples;
-        
-        double anglePerSample = loopRatio / (double)usedTrackLength / (double)maxMultiplier;
-        double bufferAngleSpan = (double)wp.originalRecordStart * anglePerSample;
-        
-        startAngleRatio = recordPhase - bufferAngleSpan;
-        
-            // 正規化（0-1の範囲に収める）
-            while (startAngleRatio < 0.0) startAngleRatio += 1.0;
-            while (startAngleRatio >= 1.0) startAngleRatio -= 1.0;
-        }
-        
+
         // ★ オフセット設定: 12時基準（-halfPi）
         double manualOffset = -juce::MathConstants<double>::halfPi;
         
