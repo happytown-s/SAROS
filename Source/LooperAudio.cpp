@@ -72,6 +72,14 @@ void LooperAudio::addTrack(int trackId)
         juce::dsp::Reverb::Parameters params;
         params.dryLevel = 1.0f; params.wetLevel = 0.0f; params.roomSize = 0.5f;
         track.fx.reverb.setParameters(params);
+
+        // Flanger Init
+        track.fx.flanger.prepare(fxSpec);
+        track.fx.flanger.setCentreDelay(1.5f); // 1.5ms for Flanger
+        track.fx.flanger.setFeedback(0.0f);
+        track.fx.flanger.setMix(0.5f);
+        track.fx.flanger.setDepth(0.5f);
+        track.fx.flanger.setRate(0.5f);
     }
 }
 
@@ -651,6 +659,10 @@ void LooperAudio::mixTracksToOutput(juce::AudioBuffer<float>& output)
         if (track.fx.filterEnabled)
             track.fx.filter.process(context);
         
+        // Flanger
+        if (track.fx.flangerEnabled)
+            track.fx.flanger.process(context);
+
         // Delay (only if enabled and mix > 0)
         if (track.fx.delayEnabled && track.fx.delayMix > 0.0f)
         {
@@ -1251,6 +1263,32 @@ void LooperAudio::setTrackFilterEnabled(int trackId, bool enabled)
 {
     if (auto it = tracks.find(trackId); it != tracks.end())
         it->second.fx.filterEnabled = enabled;
+}
+
+
+
+void LooperAudio::setTrackFlangerEnabled(int trackId, bool enabled)
+{
+    if (auto it = tracks.find(trackId); it != tracks.end())
+        it->second.fx.flangerEnabled = enabled;
+}
+
+void LooperAudio::setTrackFlangerRate(int trackId, float rate)
+{
+    if (auto it = tracks.find(trackId); it != tracks.end())
+        it->second.fx.flanger.setRate(rate);
+}
+
+void LooperAudio::setTrackFlangerDepth(int trackId, float depth)
+{
+    if (auto it = tracks.find(trackId); it != tracks.end())
+        it->second.fx.flanger.setDepth(depth);
+}
+
+void LooperAudio::setTrackFlangerFeedback(int trackId, float feedback)
+{
+    if (auto it = tracks.find(trackId); it != tracks.end())
+        it->second.fx.flanger.setFeedback(feedback);
 }
 
 void LooperAudio::setTrackDelayEnabled(int trackId, bool enabled)

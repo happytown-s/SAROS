@@ -102,6 +102,13 @@ private:
         float delayTime = 0.5f; // sec
         bool  delayEnabled = false;
 
+        // Flanger (using Chorus with short delay)
+        juce::dsp::Chorus<float> flanger;
+        bool flangerEnabled = false;
+        float flangerRate = 0.5f;
+        float flangerDepth = 0.5f;
+        float flangerFeedback = 0.0f;
+
         // Beat Repeat (Stutter)
         struct BeatRepeatState
         {
@@ -157,6 +164,12 @@ public:
     void setTrackFilterCutoff(int trackId, float freq);
     void setTrackFilterResonance(int trackId, float q);
     void setTrackFilterType(int trackId, int type); // 0=LPF, 1=HPF
+
+    // Flanger
+    void setTrackFlangerEnabled(int trackId, bool enabled);
+    void setTrackFlangerRate(int trackId, float rate);
+    void setTrackFlangerDepth(int trackId, float depth);
+    void setTrackFlangerFeedback(int trackId, float feedback);
 
     void setTrackReverbMix(int trackId, float mix); // 0.0 - 1.0
     void setTrackReverbDamping(int trackId, float damping);

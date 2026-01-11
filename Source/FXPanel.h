@@ -32,6 +32,7 @@ public:
         Compressor,
         Delay,
         Reverb,
+        Flanger,
         BeatRepeat
     };
 
@@ -126,12 +127,20 @@ private:
     juce::Slider reverbDecaySlider; // RoomSize
     juce::Label reverbDecayLabel;
     
-    // Beat Repeat
+    // Repeat
     juce::Slider repeatDivSlider;
     juce::Label repeatDivLabel;
     juce::Slider repeatThreshSlider;
     juce::Label repeatThreshLabel;
     juce::TextButton repeatActiveButton { "REPEAT OFF" };
+
+    // Flanger
+    juce::Slider flangerRateSlider;
+    juce::Label flangerRateLabel;
+    juce::Slider flangerDepthSlider;
+    juce::Label flangerDepthLabel;
+    juce::Slider flangerFeedbackSlider;
+    juce::Label flangerFeedbackLabel;
 
     void setupSlider(juce::Slider& slider, juce::Label& label, const juce::String& name, const juce::String& style);
     void showEffectMenu(int slotIndex);
