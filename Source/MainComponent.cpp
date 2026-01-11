@@ -1087,9 +1087,11 @@ void MainComponent::timerCallback()
 	bool hasRecorded = looper.hasRecordedTracks(); // 🆕 録音済みトラックがあるか確認
 
     // 🌀 ビジュアライザ：プレイヘッド位置更新
+    // getEffectiveNormalizedPosition でx2等を考慮した累積位置を取得
     if (anyPlaying)
     {
-        visualizer.setPlayHeadPosition(looper.getMasterNormalizedPosition());
+        float maxMult = looper.getMaxLoopMultiplier();
+        visualizer.setPlayHeadPosition(looper.getEffectiveNormalizedPosition(maxMult));
     }
     else
     {

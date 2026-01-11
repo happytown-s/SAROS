@@ -196,6 +196,23 @@ public:
 		return 0.0f;
 	}
 
+    // x2等の倍率を考慮した累積位置を返す (0-1でmaxMultiplier周分)
+    float getEffectiveNormalizedPosition(float maxMultiplier) const
+    {
+        if (masterLoopLength <= 0 || maxMultiplier <= 0.0f)
+            return 0.0f;
+
+        // グローバル位置からの累積サンプル数
+        int64_t relativePos = currentSamplePosition - masterStartSample;
+        if (relativePos < 0) relativePos = 0;
+
+        // maxMultiplier周分のループ長
+        int64_t effectiveLoopLength = (int64_t)(masterLoopLength * maxMultiplier);
+
+        // 正規化位置 (0-1)
+        return (float)(relativePos % effectiveLoopLength) / (float)effectiveLoopLength;
+    }
+
     int getMasterLoopLength() const { return masterLoopLength; }
     
     // トラックのサンプル長取得 (アライメント後の長さ)
@@ -226,27 +243,31 @@ public:
     int getMasterStartSample() const { return masterStartSample; }
     
     // 現在の最大ループ倍率を取得
-    // 現在の最大ループ倍率を取得
-    float getMaxLoopMultiplier() const 
-    { 
+    float getMaxLoopMultiplier() const
+    {
         // マスター未確定時は1.0
         if (masterLoopLength == 0) return 1.0f;
-        
+
         float maxMult = 1.0f;
         for(const auto& t : tracks)
         {
             float mult = 1.0f;
+            // 録音中のトラックは設定されている倍率を使用（recordLengthが増加中なので）
+            if (t.second.isRecording)
+            {
+                mult = t.second.loopMultiplier;
+            }
             // 録音済みの場合は実際の長さから倍率を計算
-            if (t.second.recordLength > 0)
+            else if (t.second.recordLength > 0)
             {
                 mult = (float)t.second.recordLength / (float)masterLoopLength;
             }
-            // 未録世の場合は設定されている倍率を使用
+            // 未録音の場合は設定されている倍率を使用
             else
             {
                 mult = t.second.loopMultiplier;
             }
-            
+
             if (mult > maxMult) maxMult = mult;
         }
         return maxMult; 

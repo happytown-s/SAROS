@@ -241,25 +241,10 @@ public:
         }
         repaint();
     }
-    void setPlayHeadPosition(float normalizedPos)
+    // 累積位置を直接受け取る（LooperAudio::getEffectiveNormalizedPositionから）
+    void setPlayHeadPosition(float effectiveNormalizedPos)
     {
-        // ループのラップアラウンドを検出してループカウントを更新
-        if (normalizedPos < lastPlayHeadPos - 0.5f)  // 0.9から0.1へ等の大きなジャンプ
-        {
-            loopCount++;
-        }
-        lastPlayHeadPos = normalizedPos;
-        
-        // x2モード時：2マスターループで1周完結するよう累積位置を計算
-        if (activeMultiplier > 1.0f)
-        {
-            float loopOffset = (float)(loopCount % (int)activeMultiplier) / activeMultiplier;
-            currentPlayHeadPos = loopOffset + (normalizedPos / activeMultiplier);
-        }
-        else
-        {
-            currentPlayHeadPos = normalizedPos;
-        }
+        currentPlayHeadPos = effectiveNormalizedPos;
     }
     
     void resetPlayHead()
