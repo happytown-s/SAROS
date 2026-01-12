@@ -211,7 +211,6 @@ public:
     }
     
 
-    // 指定トラックのloopMultiplierを変更（再生成はしない）
     void setTrackMultiplier(int trackId, float multiplier)
     {
         DBG("🔍 setTrackMultiplier: trackId=" << trackId << " multiplier=" << multiplier);
@@ -219,6 +218,19 @@ public:
         {
             if (wp.trackId == trackId)
                 wp.loopMultiplier = multiplier;
+        }
+    }
+
+    // トラックごとのRMSを更新（物理演算のターゲット）
+    void updateTrackRMS(int trackId, float rms)
+    {
+        for (auto& wp : waveformPaths)
+        {
+            if (wp.trackId == trackId)
+            {
+                wp.targetRms = rms;
+                break;
+            }
         }
     }
     
@@ -474,11 +486,10 @@ public:
                     // ハイライト強度（距離が近いほど強い）
                     float highlightIntensity = juce::jmax(0.0f, 1.0f - angleDiff / highlightRange);
                     
-                    // リアルタイム音量連動の振動
-                    // 基本振動（常時）+ 音量連動で振幅増加
-                    // 以前ほど派手ではないが、視認できるレベルに戻す
+                    // リアルタイム音量連動の振動 (Per-Track Physics)
+                    // トラックごとの物理演算RMSを使用
                     float baseVibration = 0.008f; 
-                    float audioVibration = masterLevel * 0.15f; 
+                    float audioVibration = wp.currentRms * 0.35f; // 感度調整
                     float totalVibration = (baseVibration + audioVibration) * (rng.nextFloat() - 0.5f);
                     
                     // 全セグメントに振動を適用
@@ -689,12 +700,23 @@ public:
         zoomScale += (targetZoomScale - zoomScale) * 0.12f;
         
         // 波形の出現アニメーション (0.15 -> 0.05 ゆっくり)
+        // Physics constants (Rubber effect)
+        const float stiffness = 0.25f;
+        const float damping = 0.85f;
+
         for (auto& wp : waveformPaths)
         {
+            // 波形の出現アニメーション (0.15 -> 0.05 ゆっくり)
             if (wp.spawnProgress < 1.0f) {
                 wp.spawnProgress += (1.0f - wp.spawnProgress) * 0.05f;
                 if (std::abs(1.0f - wp.spawnProgress) < 0.001f) wp.spawnProgress = 1.0f;
             }
+            
+            // RMS Spring Physics
+            float force = (wp.targetRms - wp.currentRms) * stiffness;
+            wp.vibrationVelocity += force;
+            wp.vibrationVelocity *= damping;
+            wp.currentRms += wp.vibrationVelocity;
         }
         
         repaint(); // Always repaint for animations
@@ -726,6 +748,11 @@ private:
         std::vector<float> segmentRms;      // 各ポイントのRMS値（0-1）
         std::vector<float> segmentInnerR;   // 各ポイントの内側半径（0-1正規化）
         std::vector<float> segmentOuterR;   // 各ポイントの外側半径（0-1正規化）
+        
+        // Physics State for Vibration
+        float targetRms = 0.0f;
+        float currentRms = 0.0f;
+        float vibrationVelocity = 0.0f;
     };
     std::vector<WaveformPath> waveformPaths;
     

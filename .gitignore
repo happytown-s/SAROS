@@ -3,9 +3,11 @@ build/
 JUCE/
 Tests/
 Plan/
+Utils/
 *.jucer
 !*.jucer
 *.py
+claude.md
 # OS specific
 .DS_Store
 Thumbs.db

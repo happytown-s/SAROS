@@ -662,6 +662,155 @@ void LooperAudio::mixTracksToOutput(juce::AudioBuffer<float>& output)
             br.isRepeating = false;
         }
 
+        // ============ Granular Cloud Logic ============
+        auto& gr = track.fx.granular;
+        if (gr.enabled)
+        {
+            // --- 1. Grain Spawning ---
+            // Density determines the gap between grains
+            // Density 0.0 -> Gap 500ms
+            // Density 1.0 -> Gap 2ms (super dense)
+            float densityMap = 1.0f - gr.density; // 1.0(sparse) -> 0.0(dense)
+            int minGap = 100; // ~2ms at 44.1k
+            int maxGap = 22050; // 500ms
+            int targetGap = minGap + (int)(densityMap * (maxGap - minGap));
+            
+            for (int i = 0; i < numSamples; ++i)
+            {
+                gr.spawnTimer++;
+                
+                if (gr.spawnTimer >= targetGap)
+                {
+                    // Reset timer with some randomness if desired for organic feel
+                    // For now, strict density control with jittery position
+                    gr.spawnTimer = 0; 
+                    
+                    // Spawn logic
+                   // Try to find inactive grain
+                   for (auto& grain : gr.activeGrains)
+                   {
+                       if (!grain.isActive)
+                       {
+                           grain.isActive = true;
+                           
+                           // Calculate source position
+                           int loopLen = loopLength; 
+                           int jitterSamples = (int)(gr.jitter * loopLen * 0.5f);
+                           int offset = (juce::Random::getSystemRandom().nextInt(2 * jitterSamples + 1)) - jitterSamples;
+                           
+                           // Target playback position (roughly where we are now, minus some history)
+                           int targetPos = (track.readPosition + i - 2000 + loopLen) % loopLen; 
+                           grain.position = (targetPos + offset + loopLen) % loopLen;
+                           
+                           // Life & Speed
+                           float baseLife = gr.sizeMs * 0.001f * sampleRate;
+                           grain.totalLife = (int)baseLife;
+                           grain.life = grain.totalLife;
+                           
+                           float pitchMod = (juce::Random::getSystemRandom().nextFloat() * 2.0f - 1.0f) * gr.pitchRandom;
+                           grain.speed = gr.pitch + pitchMod;
+                           
+                           grain.pan = juce::Random::getSystemRandom().nextFloat();
+                           grain.gain = 1.0f;
+                           break; // Spawned one, stop searching
+                       }
+                   }
+                }
+            }
+            
+            // --- 2. Grain Processing ---
+            // Process grains into a separate cloud buffer to mix later
+            juce::AudioBuffer<float> cloudBuffer(2, numSamples);
+            cloudBuffer.clear();
+            
+            int activeGrainCount = 0;
+            
+            for (auto& grain : gr.activeGrains)
+            {
+                if (!grain.isActive) continue;
+                
+                activeGrainCount++;
+                
+                for (int i = 0; i < numSamples; ++i)
+                {
+                    if (grain.life <= 0) break;
+                    
+                    // Read sample (no interpolation for now to save CPU, add Linear later if needed)
+                    int readIdx = (int)grain.position % track.buffer.getNumSamples();
+                    
+                    float l = track.buffer.getSample(0, readIdx);
+                    float r = (track.buffer.getNumChannels() > 1) ? track.buffer.getSample(1, readIdx) : l;
+                    
+                    // Windowing (Hanning-ish triangle)
+                    float progress = 1.0f - (float)grain.life / grain.totalLife;
+                    float win = 0.0f;
+                    if (progress < 0.5f) win = progress * 2.0f;
+                    else win = (1.0f - progress) * 2.0f;
+                    
+                    // Panning
+                    float panL = std::cos(grain.pan * 1.57f);
+                    float panR = std::sin(grain.pan * 1.57f);
+                    
+                    float sampleL = l * win * grain.gain * panL;
+                    float sampleR = r * win * grain.gain * panR;
+                    
+                    cloudBuffer.addSample(0, i, sampleL);
+                    cloudBuffer.addSample(1, i, sampleR);
+                    
+                    // Advance
+                    grain.position += (int)(grain.speed); // Handle float speed better with interpolation later
+                    grain.life--;
+                }
+                
+                if (grain.life <= 0) grain.isActive = false;
+            }
+            
+            // --- 3. Mixing ---
+            // Mix cloudBuffer into trackBuffer based on gr.mix
+            // dry = 1.0 - mix, wet = 1.0 (additive) or equal power?
+            // Let's do simple linear fade
+            float dry = 1.0f - gr.mix;
+            float wet = gr.mix;
+            
+            trackBuffer.applyGain(dry);
+            
+            for (int ch = 0; ch < trackBuffer.getNumChannels(); ++ch)
+            {
+                trackBuffer.addFrom(ch, 0, cloudBuffer, ch, 0, numSamples, wet);
+            }
+        }
+
+        // Calculate synced rate based on track count and loop length
+        // Rate = recordedTrackCount / (loopLength / sampleRate)
+        double syncedModRate = 1.0;
+        if (masterLoopLength > 0)
+        {
+            int recordedCount = 0;
+            for (auto& t : tracks) { if (t.second.recordLength > 0) recordedCount++; }
+            if (recordedCount == 0) recordedCount = 1;
+            
+            syncedModRate = (double)recordedCount / ((double)masterLoopLength / sampleRate);
+        }
+
+        // --- FX Reset at Loop Start ---
+        if (track.readPosition == 0)
+        {
+            if (track.fx.flangerSync) {
+                track.fx.flanger.reset(); // Reset Internal LFO if possible
+                track.fx.flangerPhase = 0.0;
+            }
+            if (track.fx.chorusSync) {
+                track.fx.chorus.reset();
+                track.fx.chorusPhase = 0.0;
+            }
+            if (track.fx.tremoloSync) {
+                track.fx.tremoloPhase = 0.0;
+            }
+            if (track.fx.slicerSync) {
+                track.fx.slicerPhase = 0.0;
+            }
+        }
+
         // ============ Per-Track FX Processing ============
         juce::dsp::AudioBlock<float> block(trackBuffer);
         juce::dsp::ProcessContextReplacing<float> context(block);
@@ -672,18 +821,34 @@ void LooperAudio::mixTracksToOutput(juce::AudioBuffer<float>& output)
         
         // Flanger
         if (track.fx.flangerEnabled)
+        {
+            if (track.fx.flangerSync)
+                track.fx.flanger.setRate((float)syncedModRate);
+            else
+                track.fx.flanger.setRate(track.fx.flangerRate);
+                
             track.fx.flanger.process(context);
+        }
 
         // Chorus
         if (track.fx.chorusEnabled)
+        {
+            if (track.fx.chorusSync)
+                track.fx.chorus.setRate((float)syncedModRate);
+            else
+                track.fx.chorus.setRate(track.fx.chorusRate);
+
             track.fx.chorus.process(context);
+        }
 
         // Tremolo (LFO-based amplitude modulation)
         if (track.fx.tremoloEnabled)
         {
             auto* left = trackBuffer.getWritePointer(0);
             auto* right = trackBuffer.getWritePointer(1);
-            double phaseIncrement = track.fx.tremoloRate / sampleRate;
+            
+            double effectiveRate = track.fx.tremoloSync ? syncedModRate : (double)track.fx.tremoloRate;
+            double phaseIncrement = effectiveRate / sampleRate;
 
             for (int i = 0; i < numSamples; ++i)
             {
@@ -711,6 +876,67 @@ void LooperAudio::mixTracksToOutput(juce::AudioBuffer<float>& output)
                 track.fx.tremoloPhase += phaseIncrement;
                 if (track.fx.tremoloPhase >= 1.0)
                     track.fx.tremoloPhase -= 1.0;
+            }
+        }
+
+        // Slicer / Trance Gate (rhythmic volume gate)
+        if (track.fx.slicerEnabled)
+        {
+            auto* left = trackBuffer.getWritePointer(0);
+            auto* right = trackBuffer.getWritePointer(1);
+
+            double effectiveRate = track.fx.slicerSync ? syncedModRate : (double)track.fx.slicerRate;
+            double phaseIncrement = effectiveRate / sampleRate;
+
+            for (int i = 0; i < numSamples; ++i)
+            {
+                // Gate calculation based on duty cycle
+                float gateValue = 0.0f;
+
+                if (track.fx.slicerShape == 0)  // Square (hard gate)
+                {
+                    // Gate is open when phase < duty, closed otherwise
+                    gateValue = (track.fx.slicerPhase < track.fx.slicerDuty) ? 1.0f : 0.0f;
+                }
+                else  // Smooth (soft gate with fade)
+                {
+                    // Smooth transition using raised cosine for both edges
+                    float fadeZone = 0.1f;  // 10% of cycle for fade
+                    float duty = track.fx.slicerDuty;
+                    float phase = static_cast<float>(track.fx.slicerPhase);
+
+                    if (phase < fadeZone * duty)
+                    {
+                        // Fade in at start
+                        gateValue = 0.5f - 0.5f * std::cos(juce::MathConstants<float>::pi * phase / (fadeZone * duty));
+                    }
+                    else if (phase < duty - fadeZone * duty)
+                    {
+                        // Full open
+                        gateValue = 1.0f;
+                    }
+                    else if (phase < duty)
+                    {
+                        // Fade out before closing
+                        float fadeProgress = (phase - (duty - fadeZone * duty)) / (fadeZone * duty);
+                        gateValue = 0.5f + 0.5f * std::cos(juce::MathConstants<float>::pi * fadeProgress);
+                    }
+                    else
+                    {
+                        // Closed
+                        gateValue = 0.0f;
+                    }
+                }
+
+                // Apply depth: gain = 1 - depth * (1 - gateValue)
+                float gain = 1.0f - track.fx.slicerDepth * (1.0f - gateValue);
+                left[i] *= gain;
+                right[i] *= gain;
+
+                // Advance phase
+                track.fx.slicerPhase += phaseIncrement;
+                if (track.fx.slicerPhase >= 1.0)
+                    track.fx.slicerPhase -= 1.0;
             }
         }
 
@@ -792,6 +1018,7 @@ void LooperAudio::mixTracksToOutput(juce::AudioBuffer<float>& output)
             track.currentLevel = rmsValue;
         else
             track.currentLevel = track.currentLevel * decayRate + rmsValue * (1.0f - decayRate);
+        track.currentEffectRMS = track.currentLevel;
     } // End track loop
 
     // 再生中または録音中のトラックが1つでもあるかチェック
@@ -1327,7 +1554,17 @@ void LooperAudio::setTrackFlangerEnabled(int trackId, bool enabled)
 void LooperAudio::setTrackFlangerRate(int trackId, float rate)
 {
     if (auto it = tracks.find(trackId); it != tracks.end())
-        it->second.fx.flanger.setRate(rate);
+    {
+        it->second.fx.flangerRate = rate;
+        if (!it->second.fx.flangerSync)
+            it->second.fx.flanger.setRate(rate);
+    }
+}
+
+void LooperAudio::setTrackFlangerSync(int trackId, bool sync)
+{
+    if (auto it = tracks.find(trackId); it != tracks.end())
+        it->second.fx.flangerSync = sync;
 }
 
 void LooperAudio::setTrackFlangerDepth(int trackId, float depth)
@@ -1351,7 +1588,17 @@ void LooperAudio::setTrackChorusEnabled(int trackId, bool enabled)
 void LooperAudio::setTrackChorusRate(int trackId, float rate)
 {
     if (auto it = tracks.find(trackId); it != tracks.end())
-        it->second.fx.chorus.setRate(rate);
+    {
+        it->second.fx.chorusRate = rate;
+        if (!it->second.fx.chorusSync)
+            it->second.fx.chorus.setRate(rate);
+    }
+}
+
+void LooperAudio::setTrackChorusSync(int trackId, bool sync)
+{
+    if (auto it = tracks.find(trackId); it != tracks.end())
+        it->second.fx.chorusSync = sync;
 }
 
 void LooperAudio::setTrackChorusDepth(int trackId, float depth)
@@ -1388,6 +1635,104 @@ void LooperAudio::setTrackTremoloShape(int trackId, int shape)
 {
     if (auto it = tracks.find(trackId); it != tracks.end())
         it->second.fx.tremoloShape = shape;
+}
+
+void LooperAudio::setTrackTremoloSync(int trackId, bool sync)
+{
+    if (auto it = tracks.find(trackId); it != tracks.end())
+        it->second.fx.tremoloSync = sync;
+}
+
+// Slicer / Trance Gate
+void LooperAudio::setTrackSlicerEnabled(int trackId, bool enabled)
+{
+    if (auto it = tracks.find(trackId); it != tracks.end())
+        it->second.fx.slicerEnabled = enabled;
+}
+
+void LooperAudio::setTrackSlicerRate(int trackId, float rate)
+{
+    if (auto it = tracks.find(trackId); it != tracks.end())
+        it->second.fx.slicerRate = rate;
+}
+
+void LooperAudio::setTrackSlicerDepth(int trackId, float depth)
+{
+    if (auto it = tracks.find(trackId); it != tracks.end())
+        it->second.fx.slicerDepth = depth;
+}
+
+void LooperAudio::setTrackSlicerDuty(int trackId, float duty)
+{
+    if (auto it = tracks.find(trackId); it != tracks.end())
+        it->second.fx.slicerDuty = duty;
+}
+
+void LooperAudio::setTrackSlicerShape(int trackId, int shape)
+{
+    if (auto it = tracks.find(trackId); it != tracks.end())
+        it->second.fx.slicerShape = shape;
+}
+
+void LooperAudio::setTrackSlicerSync(int trackId, bool sync)
+{
+    if (auto it = tracks.find(trackId); it != tracks.end())
+        it->second.fx.slicerSync = sync;
+}
+
+void LooperAudio::setTrackBitcrusherEnabled(int trackId, bool enabled)
+{
+    if (auto it = tracks.find(trackId); it != tracks.end())
+        it->second.fx.bitcrusherEnabled = enabled;
+}
+
+void LooperAudio::setTrackBitcrusherDepth(int trackId, float depth)
+{
+    if (auto it = tracks.find(trackId); it != tracks.end())
+        it->second.fx.bitcrusherDepth = depth;
+}
+
+void LooperAudio::setTrackBitcrusherRate(int trackId, float rate)
+{
+    if (auto it = tracks.find(trackId); it != tracks.end())
+        it->second.fx.bitcrusherRate = rate;
+}
+
+// Granular Cloud
+void LooperAudio::setTrackGranularEnabled(int trackId, bool enabled)
+{
+    if (auto it = tracks.find(trackId); it != tracks.end())
+        it->second.fx.granular.enabled = enabled;
+}
+
+void LooperAudio::setTrackGranularSize(int trackId, float sizeMs)
+{
+    if (auto it = tracks.find(trackId); it != tracks.end())
+        it->second.fx.granular.sizeMs = sizeMs;
+}
+
+void LooperAudio::setTrackGranularDensity(int trackId, float density)
+{
+    if (auto it = tracks.find(trackId); it != tracks.end())
+        it->second.fx.granular.density = density;
+}
+
+void LooperAudio::setTrackGranularPitch(int trackId, float pitchVal)
+{
+    if (auto it = tracks.find(trackId); it != tracks.end())
+        it->second.fx.granular.pitch = pitchVal;
+}
+
+void LooperAudio::setTrackGranularJitter(int trackId, float jitterVal)
+{
+    if (auto it = tracks.find(trackId); it != tracks.end())
+        it->second.fx.granular.jitter = jitterVal;
+}
+
+void LooperAudio::setTrackGranularMix(int trackId, float mix)
+{
+    if (auto it = tracks.find(trackId); it != tracks.end())
+        it->second.fx.granular.mix = mix;
 }
 
 void LooperAudio::setTrackDelayEnabled(int trackId, bool enabled)

@@ -85,6 +85,9 @@ FXPanel::FXPanel(LooperAudio& looperRef) : looper(looperRef)
                     case EffectType::BeatRepeat: 
                         looper.setTrackBeatRepeatActive(currentTrackId, isActive); 
                         break;
+                    case EffectType::GranularCloud:
+                        looper.setTrackGranularEnabled(currentTrackId, isActive);
+                        break;
                     default: break;
                 }
             }
@@ -354,6 +357,17 @@ FXPanel::FXPanel(LooperAudio& looperRef) : looper(looperRef)
         looper.setTrackFlangerFeedback(currentTrackId, (float)flangerFeedbackSlider.getValue() / 100.0f);
     };
 
+    addChildComponent(flangerSyncButton);
+    flangerSyncButton.setClickingTogglesState(true);
+    flangerSyncButton.setColour(juce::TextButton::buttonColourId, juce::Colours::darkgrey);
+    flangerSyncButton.setColour(juce::TextButton::buttonOnColourId, ThemeColours::ElectricBlue);
+    flangerSyncButton.onClick = [this]() {
+        bool sync = flangerSyncButton.getToggleState();
+        slots[selectedSlotIndex].flangerSync = sync;
+        looper.setTrackFlangerSync(currentTrackId, sync);
+        updateSliderVisibility();
+    };
+
     // --- CHORUS ---
     setupSlider(chorusRateSlider, chorusRateLabel, "RATE", "IceBlue");
     chorusRateSlider.setRange(0.1, 2.0, 0.1);
@@ -400,6 +414,17 @@ FXPanel::FXPanel(LooperAudio& looperRef) : looper(looperRef)
         looper.setTrackChorusMix(currentTrackId, (float)chorusMixSlider.getValue() / 100.0f);
     };
 
+    addChildComponent(chorusSyncButton);
+    chorusSyncButton.setClickingTogglesState(true);
+    chorusSyncButton.setColour(juce::TextButton::buttonColourId, juce::Colours::darkgrey);
+    chorusSyncButton.setColour(juce::TextButton::buttonOnColourId, ThemeColours::ElectricBlue);
+    chorusSyncButton.onClick = [this]() {
+        bool sync = chorusSyncButton.getToggleState();
+        slots[selectedSlotIndex].chorusSync = sync;
+        looper.setTrackChorusSync(currentTrackId, sync);
+        updateSliderVisibility();
+    };
+
     // --- TREMOLO ---
     setupSlider(tremoloRateSlider, tremoloRateLabel, "RATE", "IceBlue");
     tremoloRateSlider.setRange(0.5, 20.0, 0.5);
@@ -443,6 +468,188 @@ FXPanel::FXPanel(LooperAudio& looperRef) : looper(looperRef)
         looper.setTrackTremoloShape(currentTrackId, currentShape);
     };
 
+    addChildComponent(tremoloSyncButton);
+    tremoloSyncButton.setClickingTogglesState(true);
+    tremoloSyncButton.setColour(juce::TextButton::buttonColourId, juce::Colours::darkgrey);
+    tremoloSyncButton.setColour(juce::TextButton::buttonOnColourId, ThemeColours::ElectricBlue);
+    tremoloSyncButton.onClick = [this]() {
+        bool sync = tremoloSyncButton.getToggleState();
+        slots[selectedSlotIndex].tremoloSync = sync;
+        looper.setTrackTremoloSync(currentTrackId, sync);
+        updateSliderVisibility();
+    };
+
+    // --- SLICER / TRANCE GATE ---
+    setupSlider(slicerRateSlider, slicerRateLabel, "RATE", "Amber");
+    slicerRateSlider.setRange(0.5, 20.0, 0.5);
+    slicerRateSlider.setValue(4.0);
+    slicerRateSlider.textFromValueFunction = [](double value) {
+        return juce::String(value, 1) + "Hz";
+    };
+    slicerRateSlider.onValueChange = [this]() {
+        if (midiManager && midiManager->isLearnModeActive()) {
+            if (lastSliderValues.count(&slicerRateSlider))
+                slicerRateSlider.setValue(lastSliderValues[&slicerRateSlider], juce::dontSendNotification);
+            return;
+        }
+        looper.setTrackSlicerRate(currentTrackId, (float)slicerRateSlider.getValue());
+    };
+
+    setupSlider(slicerDepthSlider, slicerDepthLabel, "DEPTH", "Amber");
+    slicerDepthSlider.setRange(0.0, 100.0, 1.0);
+    slicerDepthSlider.setValue(100.0);
+    slicerDepthSlider.textFromValueFunction = [](double value) {
+        return juce::String(static_cast<int>(value)) + "%";
+    };
+    slicerDepthSlider.onValueChange = [this]() {
+        if (midiManager && midiManager->isLearnModeActive()) {
+            if (lastSliderValues.count(&slicerDepthSlider))
+                slicerDepthSlider.setValue(lastSliderValues[&slicerDepthSlider], juce::dontSendNotification);
+            return;
+        }
+        looper.setTrackSlicerDepth(currentTrackId, (float)slicerDepthSlider.getValue() / 100.0f);
+    };
+
+    setupSlider(slicerDutySlider, slicerDutyLabel, "DUTY", "Amber");
+    slicerDutySlider.setRange(10.0, 90.0, 5.0);
+    slicerDutySlider.setValue(50.0);
+    slicerDutySlider.textFromValueFunction = [](double value) {
+        return juce::String(static_cast<int>(value)) + "%";
+    };
+    slicerDutySlider.onValueChange = [this]() {
+        if (midiManager && midiManager->isLearnModeActive()) {
+            if (lastSliderValues.count(&slicerDutySlider))
+                slicerDutySlider.setValue(lastSliderValues[&slicerDutySlider], juce::dontSendNotification);
+            return;
+        }
+        looper.setTrackSlicerDuty(currentTrackId, (float)slicerDutySlider.getValue() / 100.0f);
+    };
+
+    // Shape Button (Square -> Smooth cycle)
+    addChildComponent(slicerShapeButton);
+    slicerShapeButton.setClickingTogglesState(false);
+    slicerShapeButton.setColour(juce::TextButton::buttonColourId, juce::Colours::darkgrey);
+    slicerShapeButton.onClick = [this]() {
+        static int currentShape = 0;
+        currentShape = (currentShape + 1) % 2;
+        juce::String shapes[] = { "SQUARE", "SMOOTH" };
+        slicerShapeButton.setButtonText(shapes[currentShape]);
+        looper.setTrackSlicerShape(currentTrackId, currentShape);
+    };
+
+    addChildComponent(slicerSyncButton);
+    slicerSyncButton.setClickingTogglesState(true);
+    slicerSyncButton.setColour(juce::TextButton::buttonColourId, juce::Colours::darkgrey);
+    slicerSyncButton.setColour(juce::TextButton::buttonOnColourId, ThemeColours::ElectricBlue);
+    slicerSyncButton.onClick = [this]() {
+        bool sync = slicerSyncButton.getToggleState();
+        slots[selectedSlotIndex].slicerSync = sync;
+        looper.setTrackSlicerSync(currentTrackId, sync);
+        updateSliderVisibility();
+    };
+
+    // --- BITCRUISHER ---
+    setupSlider(bitcrusherBitsSlider, bitcrusherBitsLabel, "BITS", "Amber");
+    bitcrusherBitsSlider.setRange(0.0, 1.0, 0.01);
+    bitcrusherBitsSlider.setValue(0.0);
+    bitcrusherBitsSlider.textFromValueFunction = [](double value) {
+        // 0.0=24bit, 1.0=4bit
+        int bits = (int)(24.0 - (value * 20.0));
+        return juce::String(bits) + "bit";
+    };
+    bitcrusherBitsSlider.onValueChange = [this]() {
+        if (midiManager && midiManager->isLearnModeActive()) {
+            if (lastSliderValues.count(&bitcrusherBitsSlider))
+                bitcrusherBitsSlider.setValue(lastSliderValues[&bitcrusherBitsSlider], juce::dontSendNotification);
+            return;
+        }
+        looper.setTrackBitcrusherDepth(currentTrackId, (float)bitcrusherBitsSlider.getValue());
+    };
+
+    setupSlider(bitcrusherRateSlider, bitcrusherRateLabel, "DS RATE", "Amber");
+    bitcrusherRateSlider.setRange(0.0, 1.0, 0.01);
+    bitcrusherRateSlider.setValue(0.0);
+    bitcrusherRateSlider.textFromValueFunction = [](double value) {
+        // 0.0=1x, 1.0=40x
+        int rate = 1 + (int)(value * 40.0);
+        return "1/" + juce::String(rate);
+    };
+    bitcrusherRateSlider.onValueChange = [this]() {
+        if (midiManager && midiManager->isLearnModeActive()) {
+            if (lastSliderValues.count(&bitcrusherRateSlider))
+                bitcrusherRateSlider.setValue(lastSliderValues[&bitcrusherRateSlider], juce::dontSendNotification);
+            return;
+        }
+        looper.setTrackBitcrusherRate(currentTrackId, (float)bitcrusherRateSlider.getValue());
+    };
+
+    // --- GRANULAR CLOUD ---
+    setupSlider(granSizeSlider, granSizeLabel, "SIZE", "GalaxyPurple");
+    granSizeSlider.setRange(20.0, 500.0, 1.0);
+    granSizeSlider.setValue(100.0);
+    granSizeSlider.textFromValueFunction = [](double value) { return juce::String((int)value) + "ms"; };
+    granSizeSlider.onValueChange = [this]() {
+        if (midiManager && midiManager->isLearnModeActive()) {
+            if (lastSliderValues.count(&granSizeSlider))
+                granSizeSlider.setValue(lastSliderValues[&granSizeSlider], juce::dontSendNotification);
+            return;
+        }
+        looper.setTrackGranularSize(currentTrackId, (float)granSizeSlider.getValue());
+    };
+
+    setupSlider(granDenseSlider, granDenseLabel, "DENSE", "GalaxyPurple");
+    granDenseSlider.setRange(0.0, 1.0, 0.01);
+    granDenseSlider.setValue(0.5);
+    granDenseSlider.textFromValueFunction = [](double value) { return juce::String((int)(value * 100)) + "%"; };
+    granDenseSlider.onValueChange = [this]() {
+        if (midiManager && midiManager->isLearnModeActive()) {
+            if (lastSliderValues.count(&granDenseSlider))
+                granDenseSlider.setValue(lastSliderValues[&granDenseSlider], juce::dontSendNotification);
+            return;
+        }
+        looper.setTrackGranularDensity(currentTrackId, (float)granDenseSlider.getValue());
+    };
+
+    setupSlider(granPitchSlider, granPitchLabel, "PITCH", "GalaxyPurple");
+    granPitchSlider.setRange(0.5, 2.0, 0.01);
+    granPitchSlider.setValue(1.0);
+    granPitchSlider.textFromValueFunction = [](double value) { return juce::String(value, 2) + "x"; };
+    granPitchSlider.onValueChange = [this]() {
+        if (midiManager && midiManager->isLearnModeActive()) {
+            if (lastSliderValues.count(&granPitchSlider))
+                granPitchSlider.setValue(lastSliderValues[&granPitchSlider], juce::dontSendNotification);
+            return;
+        }
+    looper.setTrackGranularPitch(currentTrackId, (float)granPitchSlider.getValue());
+    };
+    
+    setupSlider(granJitterSlider, granJitterLabel, "JITTER", "GalaxyPurple");
+    granJitterSlider.setRange(0.0, 1.0, 0.01);
+    granJitterSlider.setValue(0.5);
+    granJitterSlider.textFromValueFunction = [](double value) { return juce::String((int)(value * 100)) + "%"; };
+    granJitterSlider.onValueChange = [this]() {
+        if (midiManager && midiManager->isLearnModeActive()) {
+            if (lastSliderValues.count(&granJitterSlider))
+                granJitterSlider.setValue(lastSliderValues[&granJitterSlider], juce::dontSendNotification);
+            return;
+        }
+        looper.setTrackGranularJitter(currentTrackId, (float)granJitterSlider.getValue());
+    };
+
+    setupSlider(granMixSlider, granMixLabel, "MIX", "GalaxyPurple");
+    granMixSlider.setRange(0.0, 1.0, 0.01);
+    granMixSlider.setValue(0.5);
+    granMixSlider.textFromValueFunction = [](double value) { return juce::String((int)(value * 100)) + "%"; };
+    granMixSlider.onValueChange = [this]() {
+        if (midiManager && midiManager->isLearnModeActive()) {
+            if (lastSliderValues.count(&granMixSlider))
+                granMixSlider.setValue(lastSliderValues[&granMixSlider], juce::dontSendNotification);
+            return;
+        }
+        looper.setTrackGranularMix(currentTrackId, (float)granMixSlider.getValue());
+    };
+
+    // 初期状態のUI更新
     updateSliderVisibility();
 }
 
@@ -475,6 +682,16 @@ FXPanel::~FXPanel()
     chorusMixSlider.setLookAndFeel(nullptr);
     tremoloRateSlider.setLookAndFeel(nullptr);
     tremoloDepthSlider.setLookAndFeel(nullptr);
+    slicerRateSlider.setLookAndFeel(nullptr);
+    slicerDepthSlider.setLookAndFeel(nullptr);
+    slicerDutySlider.setLookAndFeel(nullptr);
+    bitcrusherBitsSlider.setLookAndFeel(nullptr);
+    bitcrusherRateSlider.setLookAndFeel(nullptr);
+    granSizeSlider.setLookAndFeel(nullptr);
+    granDenseSlider.setLookAndFeel(nullptr);
+    granPitchSlider.setLookAndFeel(nullptr);
+    granJitterSlider.setLookAndFeel(nullptr);
+    granMixSlider.setLookAndFeel(nullptr);
 }
 
 void FXPanel::setupSlider(juce::Slider& slider, juce::Label& label, const juce::String& name, const juce::String& style)
@@ -528,7 +745,10 @@ void FXPanel::setTargetTrackId(int trackId)
             case EffectType::Flanger: typeStr = "Flanger"; break;
             case EffectType::Chorus: typeStr = "Chorus"; break;
             case EffectType::Tremolo: typeStr = "Tremolo"; break;
+            case EffectType::Slicer: typeStr = "Slicer"; break;
             case EffectType::BeatRepeat: typeStr = "Repeat"; break;
+            case EffectType::Bitcrusher: typeStr = "Bitcrush"; break;
+            case EffectType::GranularCloud: typeStr = "Cloud"; break;
             default: typeStr = "Empty"; break;
         }
         slotButtons[i].setButtonText(typeStr);
@@ -569,12 +789,34 @@ void FXPanel::updateSliderVisibility()
     hide(flangerRateSlider); hide(flangerRateLabel);
     hide(flangerDepthSlider); hide(flangerDepthLabel);
     hide(flangerFeedbackSlider); hide(flangerFeedbackLabel);
+    hide(flangerSyncButton);
     hide(chorusRateSlider); hide(chorusRateLabel);
     hide(chorusDepthSlider); hide(chorusDepthLabel);
     hide(chorusMixSlider); hide(chorusMixLabel);
+    hide(chorusSyncButton);
     hide(tremoloRateSlider); hide(tremoloRateLabel);
     hide(tremoloDepthSlider); hide(tremoloDepthLabel);
     hide(tremoloShapeButton);
+    hide(tremoloSyncButton);
+    hide(slicerRateSlider); hide(slicerRateLabel);
+    hide(slicerDepthSlider); hide(slicerDepthLabel);
+    hide(slicerDutySlider); hide(slicerDutyLabel);
+    hide(slicerShapeButton);
+    hide(slicerSyncButton);
+    hide(bitcrusherBitsSlider); hide(bitcrusherBitsLabel);
+    hide(bitcrusherRateSlider); hide(bitcrusherRateLabel);
+    hide(granSizeSlider); hide(granSizeLabel);
+    hide(granDenseSlider); hide(granDenseLabel);
+    hide(granPitchSlider); hide(granPitchLabel);
+    hide(granJitterSlider); hide(granJitterLabel);
+    hide(granMixSlider); hide(granMixLabel);
+
+    if (type == EffectType::Filter) {
+        filterSlider.setVisible(true); filterLabel.setVisible(true);
+        filterResSlider.setVisible(true); filterResLabel.setVisible(true);
+        filterTypeButton.setVisible(true);
+    }
+    // ... (rest of the visibility logic) ...
     
     visualizer.setVisible(false);
 
@@ -604,21 +846,51 @@ void FXPanel::updateSliderVisibility()
         case EffectType::BeatRepeat:
             repeatDivSlider.setVisible(true); repeatDivLabel.setVisible(true);
             repeatThreshSlider.setVisible(true); repeatThreshLabel.setVisible(true);
+            repeatActiveButton.setVisible(true);
             break;
         case EffectType::Flanger:
             flangerRateSlider.setVisible(true); flangerRateLabel.setVisible(true);
             flangerDepthSlider.setVisible(true); flangerDepthLabel.setVisible(true);
             flangerFeedbackSlider.setVisible(true); flangerFeedbackLabel.setVisible(true);
+            flangerSyncButton.setVisible(true);
+            flangerSyncButton.setToggleState(slots[selectedSlotIndex].flangerSync, juce::dontSendNotification);
+            flangerRateSlider.setEnabled(!flangerSyncButton.getToggleState());
             break;
         case EffectType::Chorus:
             chorusRateSlider.setVisible(true); chorusRateLabel.setVisible(true);
             chorusDepthSlider.setVisible(true); chorusDepthLabel.setVisible(true);
             chorusMixSlider.setVisible(true); chorusMixLabel.setVisible(true);
+            chorusSyncButton.setVisible(true);
+            chorusSyncButton.setToggleState(slots[selectedSlotIndex].chorusSync, juce::dontSendNotification);
+            chorusRateSlider.setEnabled(!chorusSyncButton.getToggleState());
             break;
         case EffectType::Tremolo:
             tremoloRateSlider.setVisible(true); tremoloRateLabel.setVisible(true);
             tremoloDepthSlider.setVisible(true); tremoloDepthLabel.setVisible(true);
             tremoloShapeButton.setVisible(true);
+            tremoloSyncButton.setVisible(true);
+            tremoloSyncButton.setToggleState(slots[selectedSlotIndex].tremoloSync, juce::dontSendNotification);
+            tremoloRateSlider.setEnabled(!tremoloSyncButton.getToggleState());
+            break;
+        case EffectType::Slicer:
+            slicerRateSlider.setVisible(true); slicerRateLabel.setVisible(true);
+            slicerDepthSlider.setVisible(true); slicerDepthLabel.setVisible(true);
+            slicerDutySlider.setVisible(true); slicerDutyLabel.setVisible(true);
+            slicerShapeButton.setVisible(true);
+            slicerSyncButton.setVisible(true);
+            slicerSyncButton.setToggleState(slots[selectedSlotIndex].slicerSync, juce::dontSendNotification);
+            slicerRateSlider.setEnabled(!slicerSyncButton.getToggleState());
+            break;
+        case EffectType::Bitcrusher:
+            bitcrusherBitsSlider.setVisible(true); bitcrusherBitsLabel.setVisible(true);
+            bitcrusherRateSlider.setVisible(true); bitcrusherRateLabel.setVisible(true);
+            break;
+        case EffectType::GranularCloud:
+            granSizeSlider.setVisible(true); granSizeLabel.setVisible(true);
+            granDenseSlider.setVisible(true); granDenseLabel.setVisible(true);
+            granPitchSlider.setVisible(true); granPitchLabel.setVisible(true);
+            granJitterSlider.setVisible(true); granJitterLabel.setVisible(true);
+            granMixSlider.setVisible(true); granMixLabel.setVisible(true);
             break;
         default: break;
     }
@@ -781,22 +1053,62 @@ void FXPanel::resized()
 
     // FLANGER
     if(flangerRateSlider.isVisible()) {
-        placeControls({ {&flangerRateSlider, &flangerRateLabel}, {&flangerDepthSlider, &flangerDepthLabel}, {&flangerFeedbackSlider, &flangerFeedbackLabel} });
+        placeControls({ {&flangerRateSlider, &flangerRateLabel}, {&flangerDepthSlider, &flangerDepthLabel}, {&flangerFeedbackSlider, &flangerFeedbackLabel} }, &flangerSyncButton);
     }
 
     // CHORUS
     if(chorusRateSlider.isVisible()) {
-        placeControls({ {&chorusRateSlider, &chorusRateLabel}, {&chorusDepthSlider, &chorusDepthLabel}, {&chorusMixSlider, &chorusMixLabel} });
+        placeControls({ {&chorusRateSlider, &chorusRateLabel}, {&chorusDepthSlider, &chorusDepthLabel}, {&chorusMixSlider, &chorusMixLabel} }, &chorusSyncButton);
     }
 
     // TREMOLO
     if(tremoloRateSlider.isVisible()) {
         placeControls({ {&tremoloRateSlider, &tremoloRateLabel}, {&tremoloDepthSlider, &tremoloDepthLabel} }, &tremoloShapeButton);
+        // Position sync button below shape button or right of it
+        auto b = tremoloShapeButton.getBounds();
+        tremoloSyncButton.setBounds(b.getX(), b.getBottom() + 5, b.getWidth(), 30);
+    }
+
+    // SLICER
+    if(slicerRateSlider.isVisible()) {
+        placeControls({ {&slicerRateSlider, &slicerRateLabel}, {&slicerDepthSlider, &slicerDepthLabel}, {&slicerDutySlider, &slicerDutyLabel} }, &slicerShapeButton);
+        // Position sync button below shape button
+        auto b = slicerShapeButton.getBounds();
+        slicerSyncButton.setBounds(b.getX(), b.getBottom() + 5, b.getWidth(), 30);
+    }
+
+    // BITCRUSHER
+    if(bitcrusherBitsSlider.isVisible()) {
+        placeControls({ {&bitcrusherBitsSlider, &bitcrusherBitsLabel}, {&bitcrusherRateSlider, &bitcrusherRateLabel} });
+    }
+
+    // GRANULAR CLOUD
+    if(granSizeSlider.isVisible()) {
+        placeControls({ 
+            {&granSizeSlider, &granSizeLabel}, 
+            {&granDenseSlider, &granDenseLabel}, 
+            {&granPitchSlider, &granPitchLabel}, 
+            {&granJitterSlider, &granJitterLabel}, 
+            {&granMixSlider, &granMixLabel} 
+        });
     }
 }
 
 void FXPanel::mouseDown(const juce::MouseEvent& e)
 {
+    // MIDI Learnモード時はコンポーネント選択を優先
+    if (midiManager != nullptr && midiManager->isLearnModeActive())
+    {
+        juce::String controlId = getControlIdForComponent(e.eventComponent);
+        if (!controlId.isEmpty())
+        {
+            midiManager->setLearnTarget(controlId);
+            DBG("MIDI Learn: Waiting for input - " << controlId);
+            repaint();
+            return; // 以降の通常クリック処理（スロット選択等）をスキップ
+        }
+    }
+
     // スロットボタンからの右クリックを検出
     for (int i = 0; i < 4; ++i)
     {
@@ -858,7 +1170,10 @@ void FXPanel::showEffectMenu(int slotIndex)
     m.addItem(5, "Flanger", true, slots[slotIndex].type == EffectType::Flanger);
     m.addItem(6, "Chorus", true, slots[slotIndex].type == EffectType::Chorus);
     m.addItem(7, "Tremolo", true, slots[slotIndex].type == EffectType::Tremolo);
-    m.addItem(8, "Beat Repeat", true, slots[slotIndex].type == EffectType::BeatRepeat);
+    m.addItem(8, "Slicer", true, slots[slotIndex].type == EffectType::Slicer);
+    m.addItem(9, "Bitcrusher", true, slots[slotIndex].type == EffectType::Bitcrusher);
+    m.addItem(10, "Beat Repeat", true, slots[slotIndex].type == EffectType::BeatRepeat);
+    m.addItem(11, "Granular Cloud", true, slots[slotIndex].type == EffectType::GranularCloud);
     m.addSeparator();
     m.addItem(99, "Clear", true, false);
 
@@ -877,7 +1192,10 @@ void FXPanel::showEffectMenu(int slotIndex)
         else if (result == 5) newType = EffectType::Flanger;
         else if (result == 6) newType = EffectType::Chorus;
         else if (result == 7) newType = EffectType::Tremolo;
-        else if (result == 8) newType = EffectType::BeatRepeat;
+        else if (result == 8) newType = EffectType::Slicer;
+        else if (result == 9) newType = EffectType::Bitcrusher;
+        else if (result == 10) newType = EffectType::BeatRepeat;
+        else if (result == 11) newType = EffectType::GranularCloud;
         
         // Disable old effect
         if (oldType != newType && currentTrackId >= 0)
@@ -889,7 +1207,10 @@ void FXPanel::showEffectMenu(int slotIndex)
                 case EffectType::Flanger: looper.setTrackFlangerEnabled(currentTrackId, false); break;
                 case EffectType::Chorus: looper.setTrackChorusEnabled(currentTrackId, false); break;
                 case EffectType::Tremolo: looper.setTrackTremoloEnabled(currentTrackId, false); break;
+                case EffectType::Slicer: looper.setTrackSlicerEnabled(currentTrackId, false); break;
+                case EffectType::Bitcrusher: looper.setTrackBitcrusherEnabled(currentTrackId, false); break;
                 case EffectType::BeatRepeat: looper.setTrackBeatRepeatActive(currentTrackId, false); break;
+                case EffectType::GranularCloud: looper.setTrackGranularEnabled(currentTrackId, false); break;
                 default: break;
             }
         }
@@ -906,11 +1227,14 @@ void FXPanel::showEffectMenu(int slotIndex)
             case EffectType::Flanger: typeStr = "Flanger"; break;
             case EffectType::Chorus: typeStr = "Chorus"; break;
             case EffectType::Tremolo: typeStr = "Tremolo"; break;
+            case EffectType::Slicer: typeStr = "Slicer"; break;
+            case EffectType::Bitcrusher: typeStr = "Bitcrush"; break;
             case EffectType::BeatRepeat: typeStr = "Repeat"; break;
+            case EffectType::GranularCloud: typeStr = "Cloud"; break;
             default: typeStr = "Empty"; break;
         }
         slotButtons[slotIndex].setButtonText(typeStr);
-        
+
         // Enable new effect
         if (newType != EffectType::None && currentTrackId >= 0)
         {
@@ -921,6 +1245,10 @@ void FXPanel::showEffectMenu(int slotIndex)
                 case EffectType::Flanger: looper.setTrackFlangerEnabled(currentTrackId, true); break;
                 case EffectType::Chorus: looper.setTrackChorusEnabled(currentTrackId, true); break;
                 case EffectType::Tremolo: looper.setTrackTremoloEnabled(currentTrackId, true); break;
+                case EffectType::Slicer: looper.setTrackSlicerEnabled(currentTrackId, true); break;
+                case EffectType::Bitcrusher: looper.setTrackBitcrusherEnabled(currentTrackId, true); break;
+                case EffectType::BeatRepeat: looper.setTrackBeatRepeatActive(currentTrackId, true); break;
+                case EffectType::GranularCloud: looper.setTrackGranularEnabled(currentTrackId, true); break;
                 default: break;
             }
         }
@@ -973,6 +1301,38 @@ juce::String FXPanel::getControlIdForSlider(juce::Slider* slider)
     
     if (slider == &tremoloRateSlider)     return "fx_tremolo_rate";
     if (slider == &tremoloDepthSlider)    return "fx_tremolo_depth";
+
+    if (slider == &slicerRateSlider)      return "fx_slicer_rate";
+    if (slider == &slicerDepthSlider)     return "fx_slicer_depth";
+    if (slider == &slicerDutySlider)      return "fx_slicer_duty";
+
+    if (slider == &bitcrusherBitsSlider)  return "fx_bit_depth";
+    if (slider == &bitcrusherRateSlider)  return "fx_bit_rate";
+    
+    if (slider == &granSizeSlider)        return "fx_gran_size";
+    if (slider == &granDenseSlider)       return "fx_gran_dense";
+    if (slider == &granPitchSlider)       return "fx_gran_pitch";
+    if (slider == &granJitterSlider)      return "fx_gran_jitter";
+    if (slider == &granMixSlider)         return "fx_gran_mix";
+    return "";
+}
+
+juce::String FXPanel::getControlIdForComponent(juce::Component* comp)
+{
+    if (auto* s = dynamic_cast<juce::Slider*>(comp)) return getControlIdForSlider(s);
+    
+    if (comp == &flangerSyncButton) return "fx_flanger_sync";
+    if (comp == &chorusSyncButton)  return "fx_chorus_sync";
+    if (comp == &tremoloSyncButton) return "fx_tremolo_sync";
+    if (comp == &tremoloShapeButton) return "fx_tremolo_shape";
+    if (comp == &slicerSyncButton) return "fx_slicer_sync";
+    if (comp == &slicerShapeButton) return "fx_slicer_shape";
+    if (comp == &filterTypeButton)   return "fx_filter_type";
+    if (comp == &repeatActiveButton) return "fx_repeat_active";
+    
+    for (int i = 0; i < 4; ++i)
+        if (comp == &bypassButtons[i]) return "fx_slot" + juce::String(i + 1) + "_bypass";
+
     return "";
 }
 
@@ -1000,47 +1360,24 @@ juce::Slider* FXPanel::getSliderForControlId(const juce::String& controlId)
     
     if (controlId == "fx_tremolo_rate")       return &tremoloRateSlider;
     if (controlId == "fx_tremolo_depth")      return &tremoloDepthSlider;
+
+    if (controlId == "fx_slicer_rate")        return &slicerRateSlider;
+    if (controlId == "fx_slicer_depth")       return &slicerDepthSlider;
+    if (controlId == "fx_slicer_duty")        return &slicerDutySlider;
+
+    if (controlId == "fx_bit_depth")          return &bitcrusherBitsSlider;
+    if (controlId == "fx_bit_rate")           return &bitcrusherRateSlider;
+    
+    if (controlId == "fx_gran_size")          return &granSizeSlider;
+    if (controlId == "fx_gran_dense")         return &granDenseSlider;
+    if (controlId == "fx_gran_pitch")         return &granPitchSlider;
+    if (controlId == "fx_gran_jitter")        return &granJitterSlider;
+    if (controlId == "fx_gran_mix")           return &granMixSlider;
+    
     return nullptr;
 }
 
-void FXPanel::handleMidiControl(const juce::String& controlId, float value)
-{
-    // UIスレッドで実行する
-    juce::MessageManager::callAsync([this, controlId, value]()
-    {
-        auto* slider = getSliderForControlId(controlId);
-        if (slider != nullptr)
-        {
-            // 正規化された値 (0.0-1.0) をスライダーの範囲に変換
-            auto range = slider->getRange();
-            // Skew factorを考慮
-            double proportionalValue = slider->proportionOfLengthToValue(value);
-            slider->setValue(proportionalValue, juce::sendNotificationSync);
-        }
-        // トグルボタン対応
-        else if (controlId == "fx_filter_type")
-        {
-            filterTypeButton.setToggleState(value > 0.5f, juce::sendNotificationSync);
-        }
-        else if (controlId == "fx_repeat_active")
-        {
-            repeatActiveButton.setToggleState(value > 0.5f, juce::sendNotificationSync);
-        }
-        // FXスロットバイパスボタン対応
-        else if (controlId.startsWith("fx_slot") && controlId.endsWith("_bypass"))
-        {
-            // fx_slot1_bypass -> slot index 0
-            int slotIndex = controlId.substring(7, 8).getIntValue() - 1;
-            if (slotIndex >= 0 && slotIndex < 4)
-            {
-                // トグル動作（MIDIトリガーで切り替え）
-                bool newState = !bypassButtons[slotIndex].getToggleState();
-                bypassButtons[slotIndex].setToggleState(newState, juce::sendNotificationSync);
-                bypassButtons[slotIndex].onClick(); // コールバックを呼び出してエフェクト状態も更新
-            }
-        }
-    });
-}
+
 
 void FXPanel::paintOverChildren(juce::Graphics& g)
 {
@@ -1091,13 +1428,20 @@ void FXPanel::paintOverChildren(juce::Graphics& g)
     // MIDI Learnモード時のオーバーレイ
     if (midiManager == nullptr || !midiManager->isLearnModeActive())
         return;
+
     // 可視状態のスライダーに対してのみオーバーレイを描画
     std::vector<juce::Slider*> sliders = {
         &filterSlider, &filterResSlider,
         &compThreshSlider, &compRatioSlider,
         &delaySlider, &delayFeedbackSlider, &delayMixSlider,
         &reverbSlider, &reverbDecaySlider,
-        &repeatDivSlider, &repeatThreshSlider
+        &repeatDivSlider, &repeatThreshSlider,
+        &flangerRateSlider, &flangerDepthSlider, &flangerFeedbackSlider,
+        &chorusRateSlider, &chorusDepthSlider, &chorusMixSlider,
+        &tremoloRateSlider, &tremoloDepthSlider,
+        &slicerRateSlider, &slicerDepthSlider, &slicerDutySlider,
+        &bitcrusherBitsSlider, &bitcrusherRateSlider,
+        &granSizeSlider, &granDenseSlider, &granPitchSlider, &granJitterSlider, &granMixSlider
     };
     
     float alpha = juce::jlimit(0.0f, 1.0f, 0.5f + 0.2f * std::sin(juce::Time::getMillisecondCounter() * 0.01f));
@@ -1135,7 +1479,7 @@ void FXPanel::paintOverChildren(juce::Graphics& g)
     }
     
     // トグルボタンも同様に処理
-    auto drawButtonOverlay = [&](juce::TextButton& btn, const juce::String& ctrlId) {
+    auto drawButtonOverlay = [&](juce::Component& btn, const juce::String& ctrlId) {
         if (!btn.isVisible()) return;
         auto bounds = btn.getBounds().toFloat().expanded(2.0f);
         
@@ -1150,8 +1494,15 @@ void FXPanel::paintOverChildren(juce::Graphics& g)
             g.drawRoundedRectangle(bounds, 4.0f, 2.0f);
         }
     };
+
     drawButtonOverlay(filterTypeButton, "fx_filter_type");
     drawButtonOverlay(repeatActiveButton, "fx_repeat_active");
+    drawButtonOverlay(tremoloShapeButton, "fx_tremolo_shape");
+    drawButtonOverlay(slicerShapeButton, "fx_slicer_shape");
+    drawButtonOverlay(flangerSyncButton, "fx_flanger_sync");
+    drawButtonOverlay(chorusSyncButton, "fx_chorus_sync");
+    drawButtonOverlay(tremoloSyncButton, "fx_tremolo_sync");
+    drawButtonOverlay(slicerSyncButton, "fx_slicer_sync");
     
     // FXスロットバイパスボタン
     for (int i = 0; i < 4; ++i)
@@ -1160,6 +1511,72 @@ void FXPanel::paintOverChildren(juce::Graphics& g)
         drawButtonOverlay(bypassButtons[i], ctrlId);
     }
 }
+
+void FXPanel::handleMidiControl(const juce::String& controlId, float value)
+{
+    // UIスレッドで実行する
+    juce::MessageManager::callAsync([this, controlId, value]()
+    {
+        auto* slider = getSliderForControlId(controlId);
+        if (slider != nullptr)
+        {
+            // 正規化された値 (0.0-1.0) をスライダーの範囲に変換
+            auto range = slider->getRange();
+            // Skew factorを考慮
+            double proportionalValue = slider->proportionOfLengthToValue(value);
+            slider->setValue(proportionalValue, juce::sendNotificationSync);
+        }
+        // トグルボタン対応
+        else if (controlId == "fx_filter_type")
+        {
+            filterTypeButton.setToggleState(value > 0.5f, juce::sendNotificationSync);
+        }
+        else if (controlId == "fx_repeat_active")
+        {
+            repeatActiveButton.setToggleState(value > 0.5f, juce::sendNotificationSync);
+            repeatActiveButton.onClick();
+        }
+        else if (controlId == "fx_flanger_sync")
+        {
+            flangerSyncButton.setToggleState(value > 0.5f, juce::sendNotificationSync);
+            flangerSyncButton.onClick();
+        }
+        else if (controlId == "fx_chorus_sync")
+        {
+            chorusSyncButton.setToggleState(value > 0.5f, juce::sendNotificationSync);
+            chorusSyncButton.onClick();
+        }
+        else if (controlId == "fx_tremolo_sync")
+        {
+            tremoloSyncButton.setToggleState(value > 0.5f, juce::sendNotificationSync);
+            tremoloSyncButton.onClick();
+        }
+        else if (controlId == "fx_slicer_sync")
+        {
+            slicerSyncButton.setToggleState(value > 0.5f, juce::sendNotificationSync);
+            slicerSyncButton.onClick();
+        }
+        else if (controlId == "fx_slicer_shape")
+        {
+            // シェイプサイクル (0=Square, 1=Smooth)
+            slicerShapeButton.onClick();
+        }
+        // FXスロットバイパスボタン対応
+        else if (controlId.startsWith("fx_slot") && controlId.endsWith("_bypass"))
+        {
+            // fx_slot1_bypass -> slot index 0
+            int slotIndex = controlId.substring(7, 8).getIntValue() - 1;
+            if (slotIndex >= 0 && slotIndex < 4)
+            {
+                // トグル動作（MIDIトリガーで切り替え）
+                bool newState = !bypassButtons[slotIndex].getToggleState();
+                bypassButtons[slotIndex].setToggleState(newState, juce::sendNotificationSync);
+                bypassButtons[slotIndex].onClick(); // コールバックを呼び出してエフェクト状態も更新
+            }
+        }
+    });
+}
+
 
 void FXPanel::sliderValueChanged(juce::Slider* slider)
 {
@@ -1208,6 +1625,21 @@ void FXPanel::toggleSlotBypass(int trackId, int slotIndex)
             break;
         case EffectType::Reverb: 
             looper.setTrackReverbEnabled(trackId, isActive); 
+            break;
+        case EffectType::Flanger:
+            looper.setTrackFlangerEnabled(trackId, isActive);
+            break;
+        case EffectType::Chorus:
+            looper.setTrackChorusEnabled(trackId, isActive);
+            break;
+        case EffectType::Tremolo:
+            looper.setTrackTremoloEnabled(trackId, isActive);
+            break;
+        case EffectType::Slicer:
+            looper.setTrackSlicerEnabled(trackId, isActive);
+            break;
+        case EffectType::Bitcrusher:
+            looper.setTrackBitcrusherEnabled(trackId, isActive);
             break;
         case EffectType::BeatRepeat: 
             looper.setTrackBeatRepeatActive(trackId, isActive); 

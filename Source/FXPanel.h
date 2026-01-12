@@ -35,12 +35,19 @@ public:
         Flanger,
         Chorus,
         Tremolo,
-        BeatRepeat
+        Slicer,
+        BeatRepeat,
+        Bitcrusher,
+        GranularCloud
     };
 
     struct EffectSlot {
         EffectType type = EffectType::None;
         bool isBypassed = false;
+        bool flangerSync = false;
+        bool chorusSync = false;
+        bool tremoloSync = false;
+        bool slicerSync = false;
     };
 
     FXPanel(LooperAudio& looperRef);
@@ -63,6 +70,7 @@ public:
     void setMidiLearnManager(MidiLearnManager* manager);
     void handleMidiControl(const juce::String& controlId, float value);
     juce::String getControlIdForSlider(juce::Slider* slider);
+    juce::String getControlIdForComponent(juce::Component* comp);
     juce::Slider* getSliderForControlId(const juce::String& controlId);
     
     // Slider::Listener
@@ -143,6 +151,7 @@ private:
     juce::Label flangerDepthLabel;
     juce::Slider flangerFeedbackSlider;
     juce::Label flangerFeedbackLabel;
+    juce::TextButton flangerSyncButton { "SYNC" };
 
     // Chorus
     juce::Slider chorusRateSlider;
@@ -151,6 +160,7 @@ private:
     juce::Label chorusDepthLabel;
     juce::Slider chorusMixSlider;
     juce::Label chorusMixLabel;
+    juce::TextButton chorusSyncButton { "SYNC" };
 
     // Tremolo
     juce::Slider tremoloRateSlider;
@@ -158,6 +168,35 @@ private:
     juce::Slider tremoloDepthSlider;
     juce::Label tremoloDepthLabel;
     juce::TextButton tremoloShapeButton { "SINE" };
+    juce::TextButton tremoloSyncButton { "SYNC" };
+
+    // Slicer / Trance Gate
+    juce::Slider slicerRateSlider;
+    juce::Label slicerRateLabel;
+    juce::Slider slicerDepthSlider;
+    juce::Label slicerDepthLabel;
+    juce::Slider slicerDutySlider;
+    juce::Label slicerDutyLabel;
+    juce::TextButton slicerShapeButton { "SQUARE" };
+    juce::TextButton slicerSyncButton { "SYNC" };
+
+    // Bitcrusher
+    juce::Slider bitcrusherBitsSlider;
+    juce::Label bitcrusherBitsLabel;
+    juce::Slider bitcrusherRateSlider;
+    juce::Label bitcrusherRateLabel;
+
+    // Granular Cloud
+    juce::Slider granSizeSlider;  // Grain Size
+    juce::Label granSizeLabel;
+    juce::Slider granDenseSlider; // Density
+    juce::Label granDenseLabel;
+    juce::Slider granPitchSlider; // Pitch
+    juce::Label granPitchLabel;
+    juce::Slider granMixSlider;   // Mix
+    juce::Label granMixLabel;
+    juce::Slider granJitterSlider;// Jitter
+    juce::Label granJitterLabel;
 
     void setupSlider(juce::Slider& slider, juce::Label& label, const juce::String& name, const juce::String& style);
     void showEffectMenu(int slotIndex);

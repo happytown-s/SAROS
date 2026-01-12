@@ -105,23 +105,45 @@ private:
         // Flanger (using Chorus with short delay)
         juce::dsp::Chorus<float> flanger;
         bool flangerEnabled = false;
+        bool flangerSync = false;
         float flangerRate = 0.5f;
         float flangerDepth = 0.5f;
         float flangerFeedback = 0.0f;
+        double flangerPhase = 0.0;   // Manual phase if synced
 
         // Chorus (using Chorus with longer delay for thickening)
         juce::dsp::Chorus<float> chorus;
         bool chorusEnabled = false;
+        bool chorusSync = false;
         float chorusRate = 0.3f;
         float chorusDepth = 0.5f;
         float chorusMix = 0.5f;
+        double chorusPhase = 0.0;    // Manual phase if synced
 
         // Tremolo (LFO-based volume modulation)
         bool tremoloEnabled = false;
+        bool tremoloSync = false;
         float tremoloRate = 4.0f;    // Hz
         float tremoloDepth = 0.5f;   // 0.0-1.0
         int tremoloShape = 0;        // 0=Sine, 1=Square, 2=Triangle
         double tremoloPhase = 0.0;   // LFO phase state
+
+        // Slicer / Trance Gate (rhythmic volume gate)
+        bool slicerEnabled = false;
+        bool slicerSync = false;
+        float slicerRate = 4.0f;     // Hz (gate frequency)
+        float slicerDepth = 1.0f;    // 0.0-1.0 (gate depth, 1.0 = full cut)
+        float slicerDuty = 0.5f;     // 0.0-1.0 (gate open ratio)
+        int slicerShape = 0;         // 0=Square, 1=Smooth
+        double slicerPhase = 0.0;    // LFO phase state
+
+        // Bitcrusher
+        bool bitcrusherEnabled = false;
+        float bitcrusherDepth = 0.0f; // Bits Reduction: 0.0(24bit) -> 1.0(4bit)
+        float bitcrusherRate = 0.0f;  // Downsampling: 0.0(1x) -> 1.0(40x)
+        float bitcrusherLastSampleL = 0.0f; // For sample & hold (L)
+        float bitcrusherLastSampleR = 0.0f; // For sample & hold (R)
+        int bitcrusherSampleCount = 0;      // Counter for downsampling
 
         // Beat Repeat (Stutter)
         struct BeatRepeatState
@@ -137,6 +159,42 @@ private:
             
             float lastPeak = 0.0f;      // For simple attack detection
         } beatRepeat;
+
+        // Granular Cloud
+        struct Grain
+        {
+            bool isActive = false;
+            int position = 0;       // Current read position in buffer
+            int life = 0;           // Remaining samples
+            int totalLife = 0;      // Total duration
+            float speed = 1.0f;     // Playback speed
+            float pan = 0.5f;       // 0.0 (L) - 1.0 (R)
+            float gain = 1.0f;
+            float window = 0.0f;    // Current window gain
+        };
+
+        struct GranularParams
+        {
+            bool enabled = false;
+            
+            // Parameters
+            float sizeMs = 100.0f;      // Grain duration (50-500ms)
+            float density = 0.5f;       // Spawn probability/rate (0.0-1.0)
+            float jitter = 0.5f;        // Position randomness (0.0-1.0)
+            float pitch = 1.0f;         // Base pitch shift (0.5-2.0)
+            float pitchRandom = 0.2f;   // Pitch randomness
+            float mix = 0.5f;           // Dry/Wet
+            float feedback = 0.0f;      // Feedback (optional)
+            
+            // Runtime
+            static const int MAX_GRAINS = 32;
+            std::vector<Grain> activeGrains;
+            int spawnTimer = 0; // Timer for next grain spawn
+            
+            GranularParams() {
+                activeGrains.resize(MAX_GRAINS);
+            }
+        } granular;
     };
 
 	struct TrackData
@@ -184,18 +242,42 @@ public:
     void setTrackFlangerRate(int trackId, float rate);
     void setTrackFlangerDepth(int trackId, float depth);
     void setTrackFlangerFeedback(int trackId, float feedback);
+    void setTrackFlangerSync(int trackId, bool sync);
 
     // Chorus
     void setTrackChorusEnabled(int trackId, bool enabled);
     void setTrackChorusRate(int trackId, float rate);
     void setTrackChorusDepth(int trackId, float depth);
     void setTrackChorusMix(int trackId, float mix);
+    void setTrackChorusSync(int trackId, bool sync);
 
     // Tremolo
     void setTrackTremoloEnabled(int trackId, bool enabled);
     void setTrackTremoloRate(int trackId, float rate);
     void setTrackTremoloDepth(int trackId, float depth);
     void setTrackTremoloShape(int trackId, int shape);
+    void setTrackTremoloSync(int trackId, bool sync);
+
+    // Slicer / Trance Gate
+    void setTrackSlicerEnabled(int trackId, bool enabled);
+    void setTrackSlicerRate(int trackId, float rate);
+    void setTrackSlicerDepth(int trackId, float depth);
+    void setTrackSlicerDuty(int trackId, float duty);
+    void setTrackSlicerShape(int trackId, int shape);
+    void setTrackSlicerSync(int trackId, bool sync);
+
+    // Bitcrusher
+    void setTrackBitcrusherEnabled(int trackId, bool enabled);
+    void setTrackBitcrusherDepth(int trackId, float depth);
+    void setTrackBitcrusherRate(int trackId, float rate);
+
+    // Granular Cloud
+    void setTrackGranularEnabled(int trackId, bool enabled);
+    void setTrackGranularSize(int trackId, float sizeMs);
+    void setTrackGranularDensity(int trackId, float density);
+    void setTrackGranularPitch(int trackId, float pitch);
+    void setTrackGranularJitter(int trackId, float jitter);
+    void setTrackGranularMix(int trackId, float mix);
 
     void setTrackReverbMix(int trackId, float mix); // 0.0 - 1.0
     void setTrackReverbDamping(int trackId, float damping);

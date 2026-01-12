@@ -1033,6 +1033,9 @@ void MainComponent::timerCallback()
 	//TrackUIの状態更新
 	for (const auto& [id, data] : tracks)
 	{
+        // Physics for Visualizer
+        visualizer.updateTrackRMS(id, data.currentEffectRMS.load());
+
 		if (id -1 >= trackUIs.size())
 			continue;
 

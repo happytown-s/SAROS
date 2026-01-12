@@ -1,7 +1,12 @@
 {
   "permissions": {
     "allow": [
-      "Bash(cmake --build:*)"
+      "Bash(cmake --build:*)",
+      "mcp__notionApi__API-patch-block-children",
+      "Bash(python3:*)",
+      "mcp__notionApi__API-post-page",
+      "mcp__notionApi__API-get-block-children",
+      "mcp__notionApi__API-update-a-block"
     ]
   }
 }
