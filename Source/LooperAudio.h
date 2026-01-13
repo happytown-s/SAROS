@@ -5,6 +5,8 @@
 #include <map>
 #include <optional>
 #include "TrackUtils.h"
+#include "PitchDetector.h"
+#include "PitchShifter.h"
 
 
 //UNDO用の履歴
@@ -195,6 +197,24 @@ private:
                 activeGrains.resize(MAX_GRAINS);
             }
         } granular;
+
+        // Autotune (Pitch Correction)
+        struct AutotuneParams
+        {
+            bool enabled = false;
+            int key = 0;            // 0=C, 1=C#, 2=D, ... 11=B
+            int scale = 0;          // 0=Chromatic, 1=Major, 2=Minor
+            float amount = 1.0f;    // 0.0=No correction, 1.0=Hard tune
+            float speed = 0.1f;     // Correction speed (0=instant, 1=slow glide)
+
+            PitchDetector detector;
+            PitchShifter shifterL;
+            PitchShifter shifterR;
+
+            float currentPitch = 0.0f;
+            float targetPitch = 0.0f;
+            float smoothedRatio = 1.0f;
+        } autotune;
     };
 
 	struct TrackData
@@ -278,6 +298,13 @@ public:
     void setTrackGranularPitch(int trackId, float pitch);
     void setTrackGranularJitter(int trackId, float jitter);
     void setTrackGranularMix(int trackId, float mix);
+
+    // Autotune
+    void setTrackAutotuneEnabled(int trackId, bool enabled);
+    void setTrackAutotuneKey(int trackId, int key);
+    void setTrackAutotuneScale(int trackId, int scale);
+    void setTrackAutotuneAmount(int trackId, float amount);
+    void setTrackAutotuneSpeed(int trackId, float speed);
 
     void setTrackReverbMix(int trackId, float mix); // 0.0 - 1.0
     void setTrackReverbDamping(int trackId, float damping);
@@ -401,6 +428,9 @@ public:
             return it->second.currentLevel;
         return 0.0f;
     }
+
+    // 現在の絶対サンプル位置を取得（Video Mode用）
+    long getCurrentSamplePosition() const { return currentSamplePosition; }
 
 private:
 

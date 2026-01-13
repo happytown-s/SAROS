@@ -1,0 +1,14 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug SAROS",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/SAROSApp/SAROS.app/Contents/MacOS/SAROS",
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "Build SAROS"
+        }
+    ]
+}

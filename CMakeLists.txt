@@ -111,3 +111,21 @@ elseif(APPLE)
     message(STATUS "⚠️ CODESIGN_SHA1 not set. Skipping code signing.")
 endif()
 
+# 🚀 CMake から直接アプリを起動するためのカスタムターゲット
+# 使用方法: cmake --build . --target run
+if(APPLE)
+    add_custom_target(run
+        COMMAND open "$<TARGET_BUNDLE_DIR:SAROS>"
+        DEPENDS SAROS
+        COMMENT "🚀 Launching SAROS.app..."
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    )
+else()
+    add_custom_target(run
+        COMMAND $<TARGET_FILE:SAROS>
+        DEPENDS SAROS
+        COMMENT "🚀 Launching SAROS..."
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    )
+endif()
+

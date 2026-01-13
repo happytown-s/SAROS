@@ -21,7 +21,17 @@ MainComponent::MainComponent()
 	loadAudioDeviceSettings();
 	deviceManager.addAudioCallback(&inputTap); // 入力だけTapする
 
-	startTimerHz(30);
+	startTimerHz(60); // Animation smoother for video
+
+    // 🎥 Video Mode ボタン（絵文字アイコン）
+    videoModeButton.setButtonText(juce::String::fromUTF8("\xF0\x9F\x8E\xA5")); // 🎥
+    videoModeButton.setColour(juce::TextButton::buttonColourId, juce::Colours::black.withAlpha(0.4f));
+    videoModeButton.setColour(juce::TextButton::buttonOnColourId, ThemeColours::NeonMagenta.withAlpha(0.3f));
+    videoModeButton.onClick = [this] {
+        if (isVideoMode) stopVideoMode();
+        else startVideoMode();
+    };
+    addAndMakeVisible(videoModeButton);
 
 	// トラック初期化
 	for (int i = 0; i < 8; ++i)
@@ -788,6 +798,10 @@ void MainComponent::resized()
 	// MIDI Learn ボタン（Auto-Armの左）
 	midiLearnButton.setBounds(getWidth() - buttonWidth - midiLearnButtonWidth - margin - spacing, 5, 
 	                          midiLearnButtonWidth, buttonHeight);
+                              
+    // Video Mode Button（左上に配置、コンパクトなアイコンボタン）
+    int videoButtonSize = 30;
+    videoModeButton.setBounds(margin, 5, videoButtonSize, videoButtonSize);
 	
 // ⬇️ Top margin for layout (skip past the 40px header bar)
 	area.removeFromTop(30);
@@ -1024,6 +1038,32 @@ void MainComponent::timerCallback()
         if (s.brightness > 1.0f || s.brightness < 0.0f)
         {
             s.speed = -s.speed;
+        }
+    }
+    
+    // Video Mode Automation
+    if (isVideoMode)
+    {
+        // Calculate progress
+        int masterLen = looper.getMasterLoopLength();
+        if (masterLen > 0)
+        {
+             juce::int64 currentSample = looper.getCurrentSamplePosition(); // Absolute
+             juce::int64 elapsed = currentSample - videoModeStartSample;
+             
+             // 2 Loop Duration
+             juce::int64 totalDuration = (juce::int64)masterLen * 2;
+             
+             if (elapsed >= totalDuration)
+             {
+                 // End of 2 loops
+                 stopVideoMode();
+             }
+             else
+             {
+                 float progress = (float)elapsed / (float)totalDuration;
+                 visualizer.setVideoAnimationProgress(progress);
+             }
         }
     }
 
@@ -1567,6 +1607,86 @@ bool MainComponent::keyPressed(const juce::KeyPress& key)
 	}
 	
 	return false;
+}
+
+
+// ===========================================
+// Video Mode (Seamless Loop Capture)
+// ===========================================
+void MainComponent::startVideoMode()
+{
+    if (looper.getMasterLoopLength() <= 0) 
+    {
+        DBG("🎥 Video Mode: Master Loop Length is 0. Cannot start.");
+        return; // No master loop to sync to
+    }
+
+    isVideoMode = true;
+    
+    // 1. Hide UI
+    transportPanel.setVisible(false);
+    fxPanel.setVisible(false);
+    videoModeButton.setVisible(false); // Hide self
+    midiLearnButton.setVisible(false);
+    autoArmButton.setVisible(false);
+    
+    for (auto& t : trackUIs)
+        t->setVisible(false);
+        
+    areTracksVisible = false;
+    
+    // 2. Setup Visualizer
+    visualizer.setVideoMode(true);
+    
+    // 3. Reset and Start Playback
+    // Stop first to sync
+    looper.stopAllTracks();
+    
+    // Slight delay to ensure audio thread catch up? No, assume direct call is fine.
+    
+    // Align current time to a virtual 'start'?
+    // LooperAudio uses absolute time.
+    // We just mark 'now' as the start of our standardized 2-loop video.
+    // However, for the loop to be seamless musically, we should probably start from the beginning of the loop?
+    // Not strictly necessary if we just want 2 cycles of 'time'.
+    // But for visualizer wave alignment, starting from 'recordStart' phase is safer.
+    
+    // Let's just start playback.
+    looper.startAllPlayback();
+    
+    // Latch the start sample
+    videoModeStartSample = looper.getCurrentSamplePosition();
+    
+    // 4. Re-layout to expand visualizer to full area
+    resized();
+    
+    DBG("🎥 Video Mode Started at sample: " << videoModeStartSample);
+}
+
+void MainComponent::stopVideoMode()
+{
+    isVideoMode = false;
+    
+    // 1. Stop Playback
+    looper.stopAllTracks();
+    
+    // 2. Restore UI
+    transportPanel.setVisible(true);
+    if (isFXMode) fxPanel.setVisible(true);
+    videoModeButton.setVisible(true);
+    midiLearnButton.setVisible(true);
+    autoArmButton.setVisible(true);
+    
+    areTracksVisible = true;
+    for (auto& t : trackUIs)
+        t->setVisible(true);
+        
+    // 3. Reset Visualizer
+    visualizer.setVideoMode(false);
+    
+    resized(); // Re-layout
+    
+    DBG("🎥 Video Mode Stopped");
 }
 
 

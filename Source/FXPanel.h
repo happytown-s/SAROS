@@ -38,7 +38,8 @@ public:
         Slicer,
         BeatRepeat,
         Bitcrusher,
-        GranularCloud
+        GranularCloud,
+        Autotune
     };
 
     struct EffectSlot {
@@ -197,6 +198,16 @@ private:
     juce::Label granMixLabel;
     juce::Slider granJitterSlider;// Jitter
     juce::Label granJitterLabel;
+
+    // Autotune
+    juce::ComboBox autotuneKeyCombo;
+    juce::Label autotuneKeyLabel;
+    juce::ComboBox autotuneScaleCombo;
+    juce::Label autotuneScaleLabel;
+    juce::Slider autotuneAmountSlider;
+    juce::Label autotuneAmountLabel;
+    juce::Slider autotuneSpeedSlider;
+    juce::Label autotuneSpeedLabel;
 
     void setupSlider(juce::Slider& slider, juce::Label& label, const juce::String& name, const juce::String& style);
     void showEffectMenu(int slotIndex);

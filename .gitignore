@@ -1,9 +1,9 @@
 # JUCE specific
 build/
+.claude/
 JUCE/
 Tests/
 Plan/
-Utils/
 *.jucer
 !*.jucer
 *.py
@@ -11,3 +11,4 @@ claude.md
 # OS specific
 .DS_Store
 Thumbs.db
+gemini.config.json

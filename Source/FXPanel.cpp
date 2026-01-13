@@ -85,8 +85,26 @@ FXPanel::FXPanel(LooperAudio& looperRef) : looper(looperRef)
                     case EffectType::BeatRepeat: 
                         looper.setTrackBeatRepeatActive(currentTrackId, isActive); 
                         break;
+                    case EffectType::Flanger:
+                        looper.setTrackFlangerEnabled(currentTrackId, isActive);
+                        break;
+                    case EffectType::Chorus:
+                        looper.setTrackChorusEnabled(currentTrackId, isActive);
+                        break;
+                    case EffectType::Tremolo:
+                        looper.setTrackTremoloEnabled(currentTrackId, isActive);
+                        break;
+                    case EffectType::Slicer:
+                        looper.setTrackSlicerEnabled(currentTrackId, isActive);
+                        break;
+                    case EffectType::Bitcrusher:
+                        looper.setTrackBitcrusherEnabled(currentTrackId, isActive);
+                        break;
                     case EffectType::GranularCloud:
                         looper.setTrackGranularEnabled(currentTrackId, isActive);
+                        break;
+                    case EffectType::Autotune:
+                        looper.setTrackAutotuneEnabled(currentTrackId, isActive);
                         break;
                     default: break;
                 }
@@ -649,6 +667,72 @@ FXPanel::FXPanel(LooperAudio& looperRef) : looper(looperRef)
         looper.setTrackGranularMix(currentTrackId, (float)granMixSlider.getValue());
     };
 
+    // --- AUTOTUNE ---
+    addChildComponent(autotuneKeyCombo);
+    autotuneKeyCombo.addItem("C", 1);
+    autotuneKeyCombo.addItem("C#", 2);
+    autotuneKeyCombo.addItem("D", 3);
+    autotuneKeyCombo.addItem("D#", 4);
+    autotuneKeyCombo.addItem("E", 5);
+    autotuneKeyCombo.addItem("F", 6);
+    autotuneKeyCombo.addItem("F#", 7);
+    autotuneKeyCombo.addItem("G", 8);
+    autotuneKeyCombo.addItem("G#", 9);
+    autotuneKeyCombo.addItem("A", 10);
+    autotuneKeyCombo.addItem("A#", 11);
+    autotuneKeyCombo.addItem("B", 12);
+    autotuneKeyCombo.setSelectedId(1);
+    autotuneKeyCombo.onChange = [this]() {
+        looper.setTrackAutotuneKey(currentTrackId, autotuneKeyCombo.getSelectedId() - 1);
+    };
+    addChildComponent(autotuneKeyLabel);
+    autotuneKeyLabel.setText("KEY", juce::dontSendNotification);
+    autotuneKeyLabel.setJustificationType(juce::Justification::centred);
+    autotuneKeyLabel.setColour(juce::Label::textColourId, ThemeColours::NeonCyan);
+
+    addChildComponent(autotuneScaleCombo);
+    autotuneScaleCombo.addItem("Chromatic", 1);
+    autotuneScaleCombo.addItem("Major", 2);
+    autotuneScaleCombo.addItem("Minor", 3);
+    autotuneScaleCombo.setSelectedId(1);
+    autotuneScaleCombo.onChange = [this]() {
+        looper.setTrackAutotuneScale(currentTrackId, autotuneScaleCombo.getSelectedId() - 1);
+    };
+    addChildComponent(autotuneScaleLabel);
+    autotuneScaleLabel.setText("SCALE", juce::dontSendNotification);
+    autotuneScaleLabel.setJustificationType(juce::Justification::centred);
+    autotuneScaleLabel.setColour(juce::Label::textColourId, ThemeColours::NeonCyan);
+
+    setupSlider(autotuneAmountSlider, autotuneAmountLabel, "AMOUNT", "NeonCyan");
+    autotuneAmountSlider.setRange(0.0, 100.0, 1.0);
+    autotuneAmountSlider.setValue(100.0);
+    autotuneAmountSlider.textFromValueFunction = [](double value) {
+        return juce::String(static_cast<int>(value)) + "%";
+    };
+    autotuneAmountSlider.onValueChange = [this]() {
+        if (midiManager && midiManager->isLearnModeActive()) {
+            if (lastSliderValues.count(&autotuneAmountSlider))
+                autotuneAmountSlider.setValue(lastSliderValues[&autotuneAmountSlider], juce::dontSendNotification);
+            return;
+        }
+        looper.setTrackAutotuneAmount(currentTrackId, (float)autotuneAmountSlider.getValue() / 100.0f);
+    };
+
+    setupSlider(autotuneSpeedSlider, autotuneSpeedLabel, "SPEED", "NeonCyan");
+    autotuneSpeedSlider.setRange(0.0, 100.0, 1.0);
+    autotuneSpeedSlider.setValue(10.0);
+    autotuneSpeedSlider.textFromValueFunction = [](double value) {
+        return juce::String(static_cast<int>(value)) + "%";
+    };
+    autotuneSpeedSlider.onValueChange = [this]() {
+        if (midiManager && midiManager->isLearnModeActive()) {
+            if (lastSliderValues.count(&autotuneSpeedSlider))
+                autotuneSpeedSlider.setValue(lastSliderValues[&autotuneSpeedSlider], juce::dontSendNotification);
+            return;
+        }
+        looper.setTrackAutotuneSpeed(currentTrackId, (float)autotuneSpeedSlider.getValue() / 100.0f);
+    };
+
     // 初期状態のUI更新
     updateSliderVisibility();
 }
@@ -749,10 +833,11 @@ void FXPanel::setTargetTrackId(int trackId)
             case EffectType::BeatRepeat: typeStr = "Repeat"; break;
             case EffectType::Bitcrusher: typeStr = "Bitcrush"; break;
             case EffectType::GranularCloud: typeStr = "Cloud"; break;
+            case EffectType::Autotune: typeStr = "Autotune"; break;
             default: typeStr = "Empty"; break;
         }
         slotButtons[i].setButtonText(typeStr);
-        
+
         // バイパスボタンの状態更新
         bypassButtons[i].setToggleState(!slots[i].isBypassed, juce::dontSendNotification);
     }
@@ -810,6 +895,10 @@ void FXPanel::updateSliderVisibility()
     hide(granPitchSlider); hide(granPitchLabel);
     hide(granJitterSlider); hide(granJitterLabel);
     hide(granMixSlider); hide(granMixLabel);
+    hide(autotuneKeyCombo); hide(autotuneKeyLabel);
+    hide(autotuneScaleCombo); hide(autotuneScaleLabel);
+    hide(autotuneAmountSlider); hide(autotuneAmountLabel);
+    hide(autotuneSpeedSlider); hide(autotuneSpeedLabel);
 
     if (type == EffectType::Filter) {
         filterSlider.setVisible(true); filterLabel.setVisible(true);
@@ -891,6 +980,12 @@ void FXPanel::updateSliderVisibility()
             granPitchSlider.setVisible(true); granPitchLabel.setVisible(true);
             granJitterSlider.setVisible(true); granJitterLabel.setVisible(true);
             granMixSlider.setVisible(true); granMixLabel.setVisible(true);
+            break;
+        case EffectType::Autotune:
+            autotuneKeyCombo.setVisible(true); autotuneKeyLabel.setVisible(true);
+            autotuneScaleCombo.setVisible(true); autotuneScaleLabel.setVisible(true);
+            autotuneAmountSlider.setVisible(true); autotuneAmountLabel.setVisible(true);
+            autotuneSpeedSlider.setVisible(true); autotuneSpeedLabel.setVisible(true);
             break;
         default: break;
     }
@@ -1084,13 +1179,44 @@ void FXPanel::resized()
 
     // GRANULAR CLOUD
     if(granSizeSlider.isVisible()) {
-        placeControls({ 
-            {&granSizeSlider, &granSizeLabel}, 
-            {&granDenseSlider, &granDenseLabel}, 
-            {&granPitchSlider, &granPitchLabel}, 
-            {&granJitterSlider, &granJitterLabel}, 
-            {&granMixSlider, &granMixLabel} 
+        placeControls({
+            {&granSizeSlider, &granSizeLabel},
+            {&granDenseSlider, &granDenseLabel},
+            {&granPitchSlider, &granPitchLabel},
+            {&granJitterSlider, &granJitterLabel},
+            {&granMixSlider, &granMixLabel}
         });
+    }
+
+    // AUTOTUNE
+    if(autotuneKeyCombo.isVisible()) {
+        // Layout: [KEY ComboBox] [SCALE ComboBox] [AMOUNT Knob] [SPEED Knob]
+        int comboWidth = 80;
+        int comboHeight = 28;
+        int totalWidth = (comboWidth * 2) + (knobSize * 2) + (spacing * 3);
+        int currentX = rightArea.getCentreX() - (totalWidth / 2);
+
+        // Key ComboBox
+        autotuneKeyLabel.setBounds(currentX, startY, comboWidth, labelHeight);
+        autotuneKeyCombo.setBounds(currentX, startY + labelHeight + 2, comboWidth, comboHeight);
+
+        currentX += comboWidth + spacing;
+
+        // Scale ComboBox
+        autotuneScaleLabel.setBounds(currentX, startY, comboWidth, labelHeight);
+        autotuneScaleCombo.setBounds(currentX, startY + labelHeight + 2, comboWidth, comboHeight);
+
+        currentX += comboWidth + spacing;
+
+        // Amount Slider
+        autotuneAmountSlider.setBounds(currentX, startY, knobSize, knobSize + textBoxHeight);
+        autotuneAmountLabel.setBounds(currentX, startY + knobSize + textBoxHeight + 2, knobSize, labelHeight);
+
+        currentX += knobSize + spacing;
+
+        // Speed Slider
+        autotuneSpeedSlider.setBounds(currentX, startY, knobSize, knobSize + textBoxHeight);
+        autotuneSpeedLabel.setBounds(currentX, startY + knobSize + textBoxHeight + 2, knobSize, labelHeight);
     }
 }
 
@@ -1174,6 +1300,7 @@ void FXPanel::showEffectMenu(int slotIndex)
     m.addItem(9, "Bitcrusher", true, slots[slotIndex].type == EffectType::Bitcrusher);
     m.addItem(10, "Beat Repeat", true, slots[slotIndex].type == EffectType::BeatRepeat);
     m.addItem(11, "Granular Cloud", true, slots[slotIndex].type == EffectType::GranularCloud);
+    m.addItem(12, "Autotune", true, slots[slotIndex].type == EffectType::Autotune);
     m.addSeparator();
     m.addItem(99, "Clear", true, false);
 
@@ -1196,7 +1323,8 @@ void FXPanel::showEffectMenu(int slotIndex)
         else if (result == 9) newType = EffectType::Bitcrusher;
         else if (result == 10) newType = EffectType::BeatRepeat;
         else if (result == 11) newType = EffectType::GranularCloud;
-        
+        else if (result == 12) newType = EffectType::Autotune;
+
         // Disable old effect
         if (oldType != newType && currentTrackId >= 0)
         {
@@ -1211,10 +1339,11 @@ void FXPanel::showEffectMenu(int slotIndex)
                 case EffectType::Bitcrusher: looper.setTrackBitcrusherEnabled(currentTrackId, false); break;
                 case EffectType::BeatRepeat: looper.setTrackBeatRepeatActive(currentTrackId, false); break;
                 case EffectType::GranularCloud: looper.setTrackGranularEnabled(currentTrackId, false); break;
+                case EffectType::Autotune: looper.setTrackAutotuneEnabled(currentTrackId, false); break;
                 default: break;
             }
         }
-        
+
         slots[slotIndex].type = newType;
         
         // スロットボタンのテキストを更新
@@ -1231,6 +1360,7 @@ void FXPanel::showEffectMenu(int slotIndex)
             case EffectType::Bitcrusher: typeStr = "Bitcrush"; break;
             case EffectType::BeatRepeat: typeStr = "Repeat"; break;
             case EffectType::GranularCloud: typeStr = "Cloud"; break;
+            case EffectType::Autotune: typeStr = "Autotune"; break;
             default: typeStr = "Empty"; break;
         }
         slotButtons[slotIndex].setButtonText(typeStr);
@@ -1249,10 +1379,11 @@ void FXPanel::showEffectMenu(int slotIndex)
                 case EffectType::Bitcrusher: looper.setTrackBitcrusherEnabled(currentTrackId, true); break;
                 case EffectType::BeatRepeat: looper.setTrackBeatRepeatActive(currentTrackId, true); break;
                 case EffectType::GranularCloud: looper.setTrackGranularEnabled(currentTrackId, true); break;
+                case EffectType::Autotune: looper.setTrackAutotuneEnabled(currentTrackId, true); break;
                 default: break;
             }
         }
-        
+
         updateSliderVisibility();
         repaint();
     });
@@ -1641,12 +1772,18 @@ void FXPanel::toggleSlotBypass(int trackId, int slotIndex)
         case EffectType::Bitcrusher:
             looper.setTrackBitcrusherEnabled(trackId, isActive);
             break;
-        case EffectType::BeatRepeat: 
-            looper.setTrackBeatRepeatActive(trackId, isActive); 
+        case EffectType::GranularCloud:
+            looper.setTrackGranularEnabled(trackId, isActive);
+            break;
+        case EffectType::BeatRepeat:
+            looper.setTrackBeatRepeatActive(trackId, isActive);
+            break;
+        case EffectType::Autotune:
+            looper.setTrackAutotuneEnabled(trackId, isActive);
             break;
         default: break;
     }
-    
+
     // 現在表示中のトラックならUIを更新
     if (trackId == currentTrackId)
     {

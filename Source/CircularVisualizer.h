@@ -266,6 +266,52 @@ public:
         currentPlayHeadPos = -1.0f;
     }
 
+    // ==========================================
+    // Video Mode Animation (Breathing)
+    // ==========================================
+    void setVideoMode(bool isEnabled)
+    {
+        isVideoMode = isEnabled;
+        if (!isEnabled)
+        {
+            // Reset to default
+            videoZoomFactor = 1.0f;
+        }
+    }
+
+    // progress: 0.0 (Start) -> 0.5 (Max Scale) -> 1.0 (End)
+    void setVideoAnimationProgress(float progress)
+    {
+        if (!isVideoMode) return;
+
+        // Breath Animation: Sine wave-like curve
+        // 0.0 -> 1.0 -> 0.0
+        // sin(0) -> sin(PI) -> sin(2PI) is not typical breath
+        // Linear Triangle: 0->1->0
+        
+        float normalized;
+        if (progress < 0.5f)
+        {
+            // 0.0 -> 0.5 => 0.0 -> 1.0
+            // Ease In/Out
+             normalized = (1.0f - std::cos(progress * 2.0f * juce::MathConstants<float>::pi)) * 0.5f; // 0 to 1??? No.
+             // Simple sine: sin(progress * PI) -> 0 to 1 to 0
+             normalized = std::sin(progress * juce::MathConstants<float>::pi);
+        }
+        else
+        {
+             normalized = std::sin(progress * juce::MathConstants<float>::pi);
+        }
+        
+        // Map 0.0~1.0 to 1.0x ~ 2.0x (Max Scale)
+        const float maxVideoZoom = 1.8f; 
+        videoZoomFactor = 1.0f + normalized * (maxVideoZoom - 1.0f);
+        
+        // Override targetZoomScale to apply immediately in timer? 
+        // Or just use videoZoomFactor in paint?
+        // Let's use videoZoomFactor as a multiplier on top of base scale.
+    }
+
     void paint(juce::Graphics& g) override
     {
         auto bounds = getLocalBounds().toFloat();
@@ -378,10 +424,31 @@ public:
         g.setColour(juce::Colours::black);
         g.fillEllipse(centre.x - coreRadius*0.7f, centre.y - coreRadius*0.7f, coreRadius * 1.4f, coreRadius * 1.4f);
 
-        // 極細の光輪
-        float coronaAlpha = juce::jlimit(0.05f, 0.3f, 0.1f + masterLevel * 0.15f);
-        g.setColour(juce::Colours::white.withAlpha(coronaAlpha));
-        g.drawEllipse(centre.x - coreRadius*1.01f, centre.y - coreRadius*1.01f, coreRadius * 2.02f, coreRadius * 2.02f, 0.8f);
+        // さりげない光輪（ブラックホールにピッタリ）
+        {
+            float innerRadius = coreRadius * 0.7f;  // ブラックホールの内側円と同じ
+
+            // 縁取り（シャープなエッジ）- ブラックホールのエッジにピッタリ
+            float edgeAlpha = juce::jlimit(0.3f, 0.7f, 0.4f + masterLevel * 0.2f);
+            g.setColour(juce::Colours::white.withAlpha(edgeAlpha));
+            g.drawEllipse(centre.x - innerRadius, centre.y - innerRadius,
+                         innerRadius * 2.0f, innerRadius * 2.0f, 1.5f);
+
+            // ソフトなグロー（外側ほど透明）
+            const int glowLayers = 8;
+            for (int gl = 1; gl <= glowLayers; ++gl)
+            {
+                float t = (float)gl / (float)glowLayers;
+                float glowRadius = innerRadius * (1.0f + t * 0.4f);  // innerRadius ~ innerRadius*1.4
+
+                // 外側ほど透明（0.2 -> 0 へフェード）
+                float alpha = 0.2f * (1.0f - t);
+
+                g.setColour(juce::Colours::white.withAlpha(alpha));
+                g.drawEllipse(centre.x - glowRadius, centre.y - glowRadius,
+                             glowRadius * 2.0f, glowRadius * 2.0f, 2.0f);
+            }
+        }
 
         // --- Draw Concentric Waveforms with Glow ---
         // --- Draw Concentric Waveforms with Glow ---
@@ -397,7 +464,11 @@ public:
             float scaleLayer = 1.0f + layerOffset;
             
             // ズーム適用: zoomScaleで全体が拡大（内側に潜る動き）
-            float zoomedScale = scaleLayer * zoomScale;
+            // Video Mode: Multiply by videoZoomFactor
+            float currentZoom = zoomScale;
+            if (isVideoMode) currentZoom *= videoZoomFactor;
+            
+            float zoomedScale = scaleLayer * currentZoom;
             
             // 画面外に大きくなりすぎたら描画スキップ（適当な上限）
             if (zoomedScale > 5.0f) continue;
@@ -410,157 +481,214 @@ public:
             float baseAlpha = (0.9f - layerOffset * 0.5f) * wp.spawnProgress;
             if (baseAlpha < 0.0f) baseAlpha = 0.0f;
             
-            // 🔊 低音連動のジッター（波形全体が揺れる）
+            // 🔊 低音連動のジッター（位置揺れ）
             juce::Random& rng = juce::Random::getSystemRandom();
             
-            // 🔊 低音連動のジッター（位置揺れ）
-            float jitterAmount = bassLevel * 0.5f; // さらに控えめに調整: 0〜0.5ピクセル
-            float jitterX = jitterAmount * (rng.nextFloat() - 0.5f);
-            float jitterY = jitterAmount * (rng.nextFloat() - 0.5f);
+            // 全体的なゆらぎ（位置）
+            float globalJitterAmount = bassLevel * 0.5f; 
+            float globalJitterX = globalJitterAmount * (rng.nextFloat() - 0.5f);
+            float globalJitterY = globalJitterAmount * (rng.nextFloat() - 0.5f);
             
-            // 🎵 高音連動の微小回転（スピン揺れ）
-            float spinAmount = midHighLevel * 0.002f; // さらに控えめに調整
+            // スピン
+            float spinAmount = midHighLevel * 0.002f;
             float spin = spinAmount * (rng.nextFloat() - 0.5f);
-            
+
+            // ポンプ（RMS連動サイズ変化）
+            float pumpScale = 1.0f + (wp.currentRms * 0.02f); 
+            float currentTotalScale = finalScale * pumpScale;
+
+            // Transform for global movements
             auto transform = juce::AffineTransform::rotation(spin)
-                                                   .scaled(finalScale, finalScale)
-                                                   .translated(centre.x + jitterX, centre.y + jitterY);
+                                                   .scaled(currentTotalScale, currentTotalScale)
+                                                   .translated(centre.x + globalJitterX, centre.y + globalJitterY);
             
-            juce::Path p = wp.path;
-            p.applyTransform(transform);
+            // ★ "Ribbon Jitter" (Edges shivering)
+            juce::Path ribbonPath;
             
-            // Outer glow layers (luminous effect)
-            for (int glow = 4; glow >= 1; --glow)
+            if (!wp.segmentAngles.empty())
             {
-                float glowAlpha = baseAlpha * 0.2f / (float)glow;
-                g.setColour(wp.colour.withAlpha(juce::jlimit(0.05f, 0.45f, glowAlpha)));
-                g.strokePath(p, juce::PathStrokeType(glow * 4.0f));
+                // ビリビリ感の調整: ユーザー要望により抑えめに
+                // bassLevelが高いときだけ震えるが、係数を下げる
+                float vibrationIntensity = 0.0f;
+                if (bassLevel > 0.15f) {
+                     // 以前: (bassLevel - 0.1) * 0.08 -> 修正: 閾値を上げ、係数を半分以下に
+                     vibrationIntensity = (bassLevel - 0.15f) * 0.035f; 
+                }
+                
+                // トラックごとの音量連動も控えめに
+                // 以前: 0.015f -> 修正: 0.008f
+                vibrationIntensity += wp.currentRms * 0.008f; 
+                
+                // 全体の弾み（Pump）は維持（または微調整）
+                // 以前: 0.15f -> そのまま維持（弾みは欲しいとのことだったので）
+                float pumpAmount = wp.currentRms * 0.15f;
+                pumpAmount += bassLevel * 0.08f; // 少しだけ下げる (0.1 -> 0.08)
+                
+                // 適用
+                currentTotalScale = finalScale * (1.0f + pumpAmount);
+                
+                // Transformを再生成（スケール変更のため）
+                transform = juce::AffineTransform::rotation(spin)
+                                       .scaled(currentTotalScale, currentTotalScale)
+                                       .translated(centre.x + globalJitterX, centre.y + globalJitterY);
+
+                const size_t numPoints = wp.segmentAngles.size();
+                
+                // 1. Inner Edge
+                for (size_t i = 0; i < numPoints; ++i)
+                {
+                    float angle = wp.segmentAngles[i];
+                    float rInner = wp.segmentInnerR[i];
+                    
+                    // Jitter applied to inner edge
+                    float rJitter = (rng.nextFloat() - 0.5f) * vibrationIntensity;
+                    float x = (rInner + rJitter) * std::cos(angle);
+                    float y = (rInner + rJitter) * std::sin(angle);
+                    
+                    if (i == 0) ribbonPath.startNewSubPath(x, y);
+                    else        ribbonPath.lineTo(x, y);
+                }
+                
+                // 2. Outer Edge (Reverse order to close shape)
+                for (int i = (int)numPoints - 1; i >= 0; --i)
+                {
+                    float angle = wp.segmentAngles[i];
+                    float rOuter = wp.segmentOuterR[i];
+                    
+                    // Jitter applied to outer edge
+                    float rJitter = (rng.nextFloat() - 0.5f) * vibrationIntensity;
+                    float x = (rOuter + rJitter) * std::cos(angle);
+                    float y = (rOuter + rJitter) * std::sin(angle);
+                    
+                    ribbonPath.lineTo(x, y);
+                }
+                
+                ribbonPath.closeSubPath();
+                ribbonPath.applyTransform(transform);
+            }
+            else
+            {
+                // データがない場合は元のパスを使用（フォールバック）
+                ribbonPath = wp.path;
+                ribbonPath.applyTransform(transform);
             }
             
-            // Main fill
-            g.setColour(wp.colour.withAlpha(juce::jlimit(0.2f, 0.75f, baseAlpha)));
-            g.fillPath(p);
+            // --- Drawing (Ribbon Style) ---
             
-            // Inner bright core stroke
-            g.setColour(wp.colour.brighter(0.6f).withAlpha(juce::jlimit(0.5f, 1.0f, baseAlpha + 0.35f)));
-            g.strokePath(p, juce::PathStrokeType(1.0f));
+            // 1. Fill (Body)
+            g.setColour(wp.colour.withAlpha(juce::jlimit(0.2f, 0.6f, baseAlpha)));
+            g.fillPath(ribbonPath);
             
-            // Neon edge (extra bright)
-            g.setColour(juce::Colours::white.withAlpha(juce::jlimit(0.1f, 0.6f, baseAlpha * 0.7f)));
-            g.strokePath(p, juce::PathStrokeType(0.3f));
+            // 2. Edge Glow (Stroke)
+            float strokeWidth = 1.0f + masterLevel * 1.5f;
             
-            // === プレイヘッド位置ハイライト + RMS振動 ===
-            // プレイヘッド付近のセグメントを強調
-            // プレイヘッド付近のセグメントを強調
-            if (currentPlayHeadPos >= 0.0f && wp.segmentAngles.size() > 1) // 全レイヤーに適用
+            // Inner/Outer glow
+            for (int glow = 3; glow >= 1; --glow)
             {
-                // ★修正: 波形が12時基準になったので、ハイライト判定も-halfPiを加算して合わせる
-                float playHeadAngleRaw = currentPlayHeadPos * juce::MathConstants<float>::twoPi - juce::MathConstants<float>::halfPi;
-                float playHeadAngle = std::fmod(playHeadAngleRaw, juce::MathConstants<float>::twoPi);
-                if (playHeadAngle < 0) playHeadAngle += juce::MathConstants<float>::twoPi;
-                
-                float highlightRange = 0.15f; // プレイヘッド前後の強調範囲（ラジアン）
-                
-                juce::Random& rng = juce::Random::getSystemRandom();
-                
-                for (size_t seg = 1; seg < wp.segmentAngles.size(); ++seg)
+                float glowAlpha = baseAlpha * 0.3f / (float)glow;
+                g.setColour(wp.colour.withAlpha(juce::jlimit(0.05f, 0.4f, glowAlpha)));
+                g.strokePath(ribbonPath, juce::PathStrokeType(glow * 3.0f));
+            }
+            
+            // Sharp Edge
+            g.setColour(wp.colour.brighter(0.8f).withAlpha(juce::jlimit(0.5f, 1.0f, baseAlpha + 0.2f)));
+            g.strokePath(ribbonPath, juce::PathStrokeType(1.0f)); 
+
+            
+            // === プレイヘッド位置: 波形セグメント自体を光らせる ===
+            if (currentPlayHeadPos >= 0.0f && !wp.segmentAngles.empty())
+            {
+                // 90度（π/2）補正: 時計回りに早かったので引く
+                float playHeadAngle = currentPlayHeadPos * juce::MathConstants<float>::twoPi
+                                    - juce::MathConstants<float>::halfPi;
+                const size_t numPoints = wp.segmentAngles.size();
+
+                // プレイヘッド角度に最も近いセグメントインデックスを見つける
+                size_t closestIdx = 0;
+                float minDiff = juce::MathConstants<float>::twoPi;
+                for (size_t i = 0; i < numPoints; ++i)
                 {
-                    float angle1 = wp.segmentAngles[seg - 1];
-                    float angle2 = wp.segmentAngles[seg];
-                    float rms1 = wp.segmentRms[seg - 1];
-                    float rms2 = wp.segmentRms[seg];
-                    float inner1 = wp.segmentInnerR[seg - 1];
-                    float inner2 = wp.segmentInnerR[seg];
-                    float outer1 = wp.segmentOuterR[seg - 1];
-                    float outer2 = wp.segmentOuterR[seg];
-                    
-                    // プレイヘッドからの角度距離を計算 (最短距離ロジック)
-                    float midAngle = (angle1 + angle2) * 0.5f;
-                    float angleDiff = midAngle - playHeadAngle;
-                    
-                    // -PI ~ +PI の範囲に正規化して最短距離をとる
-                    while (angleDiff < -juce::MathConstants<float>::pi) angleDiff += juce::MathConstants<float>::twoPi;
-                    while (angleDiff > juce::MathConstants<float>::pi)  angleDiff -= juce::MathConstants<float>::twoPi;
-                    angleDiff = std::abs(angleDiff);
-                    
-                    // ハイライト強度（距離が近いほど強い）
-                    float highlightIntensity = juce::jmax(0.0f, 1.0f - angleDiff / highlightRange);
-                    
-                    // リアルタイム音量連動の振動 (Per-Track Physics)
-                    // トラックごとの物理演算RMSを使用
-                    float baseVibration = 0.008f; 
-                    float audioVibration = wp.currentRms * 0.35f; // 感度調整
-                    float totalVibration = (baseVibration + audioVibration) * (rng.nextFloat() - 0.5f);
-                    
-                    // 全セグメントに振動を適用
+                    float diff = std::abs(wp.segmentAngles[i] - playHeadAngle);
+                    // 円周の折り返しを考慮
+                    if (diff > juce::MathConstants<float>::pi)
+                        diff = juce::MathConstants<float>::twoPi - diff;
+                    if (diff < minDiff)
                     {
-                        float r1 = (inner1 + outer1) * 0.5f + totalVibration;
-                        float r2 = (inner2 + outer2) * 0.5f + totalVibration;
-                        
-                        float x1 = centre.x + r1 * finalScale * std::cos(angle1);
-                        float y1 = centre.y + r1 * finalScale * std::sin(angle1);
-                        float x2 = centre.x + r2 * finalScale * std::cos(angle2);
-                        float y2 = centre.y + r2 * finalScale * std::sin(angle2);
-                        
-                        // 振動ライン（音量に応じて太さと透明度が変化）
-                        // 白くなりすぎないようアルファ値を抑えめに調整
-                        float vibeAlpha = 0.15f + masterLevel * 0.5f; // 少し戻す
-                        float vibeThickness = 1.0f + masterLevel * 3.0f; // 少し戻す
-                        g.setColour(wp.colour.brighter(0.5f).withAlpha(juce::jlimit(0.0f, 0.6f, vibeAlpha)));
-                        g.drawLine(x1, y1, x2, y2, vibeThickness);
-                    }
-                    
-                    // プレイヘッド付近のハイライト（復活させるが、以前より控えめに）
-                    // ユーザーが「白いのはいらない」と言ったのは「太すぎる白線」のことだと推測されるため
-                    // 色味を波形カラーベースにし、太さを控えめにして復活させる
-                    if (highlightIntensity > 0.0f)
-                    {
-                        // 以前: 2.0 + 6.0
-                        float thickness = 2.0f + highlightIntensity * 4.0f; 
-                        
-                        // 以前: white.withAlpha(0.8) -> 白すぎて浮いていた
-                        // 修正: 波形の色を極端に明るくしたものを使用し、馴染ませる
-                        float extraAlpha = highlightIntensity * 0.6f;
-                        
-                        float r1 = (inner1 + outer1) * 0.5f;
-                        float r2 = (inner2 + outer2) * 0.5f;
-                        
-                        float x1 = centre.x + r1 * finalScale * std::cos(angle1);
-                        float y1 = centre.y + r1 * finalScale * std::sin(angle1);
-                        float x2 = centre.x + r2 * finalScale * std::cos(angle2);
-                        float y2 = centre.y + r2 * finalScale * std::sin(angle2);
-                        
-                        // 完全な白ではなく、波形カラーの超高輝度版を使う
-                        g.setColour(wp.colour.brighter(0.9f).withAlpha(juce::jlimit(0.0f, 0.9f, baseAlpha * 0.5f + extraAlpha)));
-                        g.drawLine(x1, y1, x2, y2, thickness);
+                        minDiff = diff;
+                        closestIdx = i;
                     }
                 }
+
+                // ハイライト範囲 (前後数セグメント)
+                const int highlightWidth = 8;  // 前後8セグメント = 計17セグメント
+
+                // ハイライトセグメントのパスを構築
+                juce::Path highlightPath;
+
+                // Inner edge
+                for (int offset = -highlightWidth; offset <= highlightWidth; ++offset)
+                {
+                    int idx = ((int)closestIdx + offset + (int)numPoints) % (int)numPoints;
+                    float angle = wp.segmentAngles[idx];
+                    float rInner = wp.segmentInnerR[idx];
+                    float x = rInner * std::cos(angle);
+                    float y = rInner * std::sin(angle);
+
+                    if (offset == -highlightWidth)
+                        highlightPath.startNewSubPath(x, y);
+                    else
+                        highlightPath.lineTo(x, y);
+                }
+
+                // Outer edge (reverse)
+                for (int offset = highlightWidth; offset >= -highlightWidth; --offset)
+                {
+                    int idx = ((int)closestIdx + offset + (int)numPoints) % (int)numPoints;
+                    float angle = wp.segmentAngles[idx];
+                    float rOuter = wp.segmentOuterR[idx];
+                    float x = rOuter * std::cos(angle);
+                    float y = rOuter * std::sin(angle);
+                    highlightPath.lineTo(x, y);
+                }
+
+                highlightPath.closeSubPath();
+                highlightPath.applyTransform(transform);
+
+                // グロー描画 (複数レイヤー)
+                for (int glow = 5; glow >= 1; --glow)
+                {
+                    float glowAlpha = 0.12f / (float)glow;
+                    g.setColour(wp.colour.brighter(0.8f).withAlpha(glowAlpha));
+                    g.strokePath(highlightPath, juce::PathStrokeType((float)glow * 4.0f));
+                }
+
+                // メインの明るい塗りつぶし
+                g.setColour(wp.colour.brighter(1.5f).withAlpha(0.6f));
+                g.fillPath(highlightPath);
+
+                // 白い縁取り
+                g.setColour(juce::Colours::white.withAlpha(0.9f));
+                g.strokePath(highlightPath, juce::PathStrokeType(1.5f));
             }
         }
         
         // --- Draw Playhead ---
         if (currentPlayHeadPos >= 0.0f)
         {
-            // プレイヘッドは累積位置（setPlayHeadPositionで計算済み）を使用
-            // ★重要★: ユーザーからの強い要望により、プレイヘッド位置は絶対に「3時（0度）」スタートから変更しないこと。
-            // 波形が12時基準であっても、プレイヘッドは必ず3時基準で回るのが仕様である。
-            // Please DO NOT CHANGE this offset. Keep it 0.0f.
             float manualOffset = 0.0f;
             float angle = (currentPlayHeadPos * juce::MathConstants<float>::twoPi) + manualOffset;
             
             // プレイヘッドライン (レーダーのように中心から外へ)
-            // 中心部はブラックホールがあるので、その外側から開始する
-            // coreRadiusが 0.20f + bass 程度なので、0.25f〜0.3f あたりから開始すれば綺麗
+            // ユーザー要望により先端の白丸は削除し、さらに長く伸ばす
+            
             auto innerPos = centre.getPointOnCircumference(radius * 0.28f, angle);
-            auto outerPos = centre.getPointOnCircumference(radius * 1.1f, angle);
+            auto outerPos = centre.getPointOnCircumference(radius * 1.35f, angle); // 1.1f -> 1.35f
             
             g.setGradientFill(juce::ColourGradient(juce::Colours::white.withAlpha(0.0f), innerPos.x, innerPos.y,
                                                    juce::Colours::white.withAlpha(0.8f), outerPos.x, outerPos.y, false));
             g.drawLine(innerPos.x, innerPos.y, outerPos.x, outerPos.y, 2.0f);
 
-            auto headPos = centre.getPointOnCircumference(radius, angle);
-            g.setColour(juce::Colours::white);
-            g.fillEllipse(headPos.x - 3.0f, headPos.y - 3.0f, 6.0f, 6.0f);
+            // Removed white circle at tip as requested
         }
 
         // Draw spinning accent rings
@@ -1211,6 +1339,10 @@ private:
     int fifoIndex = 0;
     bool nextFFTBlockReady = false;
     float scopeData[scopeSize];
+
+    // Video Mode State
+    bool isVideoMode = false;
+    float videoZoomFactor = 1.0f;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(CircularVisualizer)
 };

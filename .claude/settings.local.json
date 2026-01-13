@@ -6,7 +6,8 @@
       "Bash(python3:*)",
       "mcp__notionApi__API-post-page",
       "mcp__notionApi__API-get-block-children",
-      "mcp__notionApi__API-update-a-block"
+      "mcp__notionApi__API-update-a-block",
+      "Bash(open:*)"
     ]
   }
 }

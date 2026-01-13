@@ -69,7 +69,9 @@ public MidiLearnManager::Listener
 
 
 	// ===== デバイス管理 =====
-	juce::AudioDeviceManager deviceManager;
+	// ===== デバイス管理 =====
+	// juce::AudioDeviceManager deviceManager; // Removed shadowed member to use AudioAppComponent::deviceManager
+
 	
 	// ===== 設定管理 =====
 	std::unique_ptr<juce::PropertiesFile> appProperties;
@@ -97,6 +99,14 @@ public MidiLearnManager::Listener
     juce::ToggleButton autoArmButton;
     bool isAutoArmEnabled = false;
     int nextTargetTrackId = -1;
+    
+    // Video Mode (Seamless Loop Capture)
+    juce::TextButton videoModeButton { "VIDEO" };
+    bool isVideoMode = false;
+    juce::int64 videoModeStartSample = 0;
+    
+    void startVideoMode();
+    void stopVideoMode();
     
     // MIDI Learn 機能
     juce::ToggleButton midiLearnButton;

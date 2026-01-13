@@ -780,6 +780,91 @@ void LooperAudio::mixTracksToOutput(juce::AudioBuffer<float>& output)
             }
         }
 
+        // ============ Autotune Processing ============
+        auto& at = track.fx.autotune;
+        if (at.enabled)
+        {
+            // Scale definitions (semitones from root)
+            static const int chromaticScale[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
+            static const int majorScale[] = {0, 2, 4, 5, 7, 9, 11};
+            static const int minorScale[] = {0, 2, 3, 5, 7, 8, 10};
+            const int* scale = chromaticScale;
+            int scaleSize = 12;
+            if (at.scale == 1) { scale = majorScale; scaleSize = 7; }
+            else if (at.scale == 2) { scale = minorScale; scaleSize = 7; }
+
+            // Push mono signal to pitch detector
+            for (int i = 0; i < numSamples; ++i)
+            {
+                float mono = trackBuffer.getSample(0, i);
+                if (trackBuffer.getNumChannels() > 1)
+                    mono = (mono + trackBuffer.getSample(1, i)) * 0.5f;
+                at.detector.pushSamples(&mono, 1);
+            }
+
+            // Detect pitch
+            float detectedFreq = at.detector.detectPitch();
+            at.currentPitch = detectedFreq;
+
+            if (detectedFreq > 50.0f && detectedFreq < 2000.0f)
+            {
+                // Convert frequency to MIDI note
+                float midiNote = 12.0f * std::log2(detectedFreq / 440.0f) + 69.0f;
+                int noteNum = static_cast<int>(std::round(midiNote)) % 12;
+                int octave = static_cast<int>(std::round(midiNote)) / 12;
+
+                // Find nearest note in scale relative to key
+                int relNote = (noteNum - at.key + 12) % 12;
+                int nearestScaleNote = 0;
+                int minDist = 12;
+                for (int s = 0; s < scaleSize; ++s)
+                {
+                    int dist = std::abs(relNote - scale[s]);
+                    if (dist > 6) dist = 12 - dist;
+                    if (dist < minDist)
+                    {
+                        minDist = dist;
+                        nearestScaleNote = scale[s];
+                    }
+                }
+
+                // Target MIDI note
+                int targetNote = (nearestScaleNote + at.key) % 12 + octave * 12;
+                float targetFreq = 440.0f * std::pow(2.0f, (targetNote - 69.0f) / 12.0f);
+                at.targetPitch = targetFreq;
+
+                // Calculate pitch ratio
+                float targetRatio = targetFreq / detectedFreq;
+
+                // Apply amount and speed smoothing
+                float correctedRatio = 1.0f + (targetRatio - 1.0f) * at.amount;
+                float smoothFactor = 0.99f - at.speed * 0.98f; // speed 0=instant, 1=slow
+                at.smoothedRatio = at.smoothedRatio * smoothFactor + correctedRatio * (1.0f - smoothFactor);
+            }
+            else
+            {
+                // No pitch detected, gradually return to unity
+                at.smoothedRatio = at.smoothedRatio * 0.99f + 1.0f * 0.01f;
+            }
+
+            // Apply pitch shift
+            at.shifterL.setPitchRatio(at.smoothedRatio);
+            at.shifterR.setPitchRatio(at.smoothedRatio);
+
+            for (int i = 0; i < numSamples; ++i)
+            {
+                float l = trackBuffer.getSample(0, i);
+                float r = (trackBuffer.getNumChannels() > 1) ? trackBuffer.getSample(1, i) : l;
+
+                float shiftedL = at.shifterL.process(l);
+                float shiftedR = at.shifterR.process(r);
+
+                trackBuffer.setSample(0, i, shiftedL);
+                if (trackBuffer.getNumChannels() > 1)
+                    trackBuffer.setSample(1, i, shiftedR);
+            }
+        }
+
         // Calculate synced rate based on track count and loop length
         // Rate = recordedTrackCount / (loopLength / sampleRate)
         double syncedModRate = 1.0;
@@ -1079,12 +1164,51 @@ void LooperAudio::allClear()
         track.readPosition = 0;
         track.recordLength = 0;
         track.loopMultiplier = 1.0f; // Multiplierもリセット
+        
+        // === FXリセット ===
+        // DelayLineのバッファをクリア（ゴミデータがノイズの原因）
+        track.fx.delay.reset();
+        
+        // Reverbの内部状態をリセット
+        track.fx.reverb.reset();
+        
+        // Filterの内部状態をリセット
+        track.fx.filter.reset();
+        
+        // Compressorの内部状態をリセット
+        track.fx.compressor.reset();
+        
+        // Flanger/Chorusの内部状態をリセット
+        track.fx.flanger.reset();
+        track.fx.chorus.reset();
+        
+        // Autotune関連リセット
+        track.fx.autotune.smoothedRatio = 1.0f;
+        track.fx.autotune.currentPitch = 0.0f;
+        track.fx.autotune.targetPitch = 0.0f;
+        
+        // LFO phaseリセット
+        track.fx.flangerPhase = 0.0;
+        track.fx.chorusPhase = 0.0;
+        track.fx.tremoloPhase = 0.0;
+        track.fx.slicerPhase = 0.0;
+        
+        // Enable状態をリセット
+        track.fx.filterEnabled = false;
+        track.fx.delayEnabled = false;
+        track.fx.reverbEnabled = false;
+        track.fx.flangerEnabled = false;
+        track.fx.chorusEnabled = false;
+        track.fx.tremoloEnabled = false;
+        track.fx.slicerEnabled = false;
+        track.fx.beatRepeat.isActive = false;
+        track.fx.autotune.enabled = false;
     }
     masterTrackId = -1;
     masterLoopLength = 0;
     masterReadPosition = 0;
 
-    DBG("🧹 LooperAudio::clearAll() → All buffers cleared");
+    DBG("🧹 LooperAudio::clearAll() → All buffers and FX cleared");
 }
 
 void LooperAudio::stopAllTracks()
@@ -1733,6 +1857,46 @@ void LooperAudio::setTrackGranularMix(int trackId, float mix)
 {
     if (auto it = tracks.find(trackId); it != tracks.end())
         it->second.fx.granular.mix = mix;
+}
+
+// ================== Autotune ==================
+void LooperAudio::setTrackAutotuneEnabled(int trackId, bool enabled)
+{
+    if (auto it = tracks.find(trackId); it != tracks.end())
+    {
+        auto& at = it->second.fx.autotune;
+        at.enabled = enabled;
+        if (enabled)
+        {
+            at.detector.prepare(sampleRate, 512);
+            at.shifterL.prepare(sampleRate, 512);
+            at.shifterR.prepare(sampleRate, 512);
+        }
+    }
+}
+
+void LooperAudio::setTrackAutotuneKey(int trackId, int key)
+{
+    if (auto it = tracks.find(trackId); it != tracks.end())
+        it->second.fx.autotune.key = juce::jlimit(0, 11, key);
+}
+
+void LooperAudio::setTrackAutotuneScale(int trackId, int scale)
+{
+    if (auto it = tracks.find(trackId); it != tracks.end())
+        it->second.fx.autotune.scale = juce::jlimit(0, 2, scale);
+}
+
+void LooperAudio::setTrackAutotuneAmount(int trackId, float amount)
+{
+    if (auto it = tracks.find(trackId); it != tracks.end())
+        it->second.fx.autotune.amount = juce::jlimit(0.0f, 1.0f, amount);
+}
+
+void LooperAudio::setTrackAutotuneSpeed(int trackId, float speed)
+{
+    if (auto it = tracks.find(trackId); it != tracks.end())
+        it->second.fx.autotune.speed = juce::jlimit(0.0f, 1.0f, speed);
 }
 
 void LooperAudio::setTrackDelayEnabled(int trackId, bool enabled)
