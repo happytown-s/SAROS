@@ -3,6 +3,7 @@
 #include <juce_audio_basics/juce_audio_basics.h>
 #include <juce_dsp/juce_dsp.h>
 #include <juce_gui_basics/juce_gui_basics.h>
+#include <juce_opengl/juce_opengl.h>
 #include "ThemeColours.h"
 
 class CircularVisualizer : public juce::Component, public juce::Timer
@@ -12,13 +13,22 @@ public:
         : forwardFFT(fftOrder),
           window(fftSize, juce::dsp::WindowingFunction<float>::hann)
     {
-        setOpaque(false); 
+        // OpenGL使用時は不透明(opaque)にしてフレームバッファを正しくクリア
+        setOpaque(true);
         startTimerHz(60);
         setInterceptsMouseClicks(true, true); // マウス操作を確実に受け取る
         
         // Initialize particles
         for (int i = 0; i < numParticles; ++i)
             resetParticle(i);
+        
+        // OpenGL コンテキストをアタッチ（GPUアクセラレーション）
+        openGLContext.attachTo(*this);
+    }
+    
+    ~CircularVisualizer() override
+    {
+        openGLContext.detach();
     }
     
 
@@ -316,6 +326,10 @@ public:
     {
         auto bounds = getLocalBounds().toFloat();
         
+        // ★ OpenGL使用時はフレームバッファをクリアする必要がある
+        // 不透明な黒で全体をクリア（パーティクルの残像防止）
+        g.fillAll(juce::Colours::black);
+        
         // ★ 正方形領域を強制して楕円歪みを防止
         float side = juce::jmin(bounds.getWidth(), bounds.getHeight());
         auto squareArea = bounds.withSizeKeepingCentre(side, side);
@@ -515,14 +529,15 @@ public:
                      vibrationIntensity = (bassLevel - 0.15f) * 0.035f; 
                 }
                 
-                // トラックごとの音量連動も控えめに
-                // 以前: 0.015f -> 修正: 0.008f
-                vibrationIntensity += wp.currentRms * 0.008f; 
+                // トラックごとの音量連動を強化（個別反応のため）
+                // 以前: 0.008f → 修正: 0.02f (2.5倍)
+                vibrationIntensity += wp.currentRms * 0.02f; 
                 
-                // 全体の弾み（Pump）は維持（または微調整）
-                // 以前: 0.15f -> そのまま維持（弾みは欲しいとのことだったので）
-                float pumpAmount = wp.currentRms * 0.15f;
-                pumpAmount += bassLevel * 0.08f; // 少しだけ下げる (0.1 -> 0.08)
+                // トラック固有のPump（サイズ変化）を強化
+                // 以前: 0.15f → 修正: 0.35f (2倍以上)
+                float pumpAmount = wp.currentRms * 0.35f;
+                // bassLevelは背景程度に抑える (0.08 → 0.03)
+                pumpAmount += bassLevel * 0.03f;
                 
                 // 適用
                 currentTotalScale = finalScale * (1.0f + pumpAmount);
@@ -857,6 +872,8 @@ public:
     }
 
 private:
+    // OpenGL コンテキスト（GPUアクセラレーション用）
+    juce::OpenGLContext openGLContext;
    
     struct WaveformPath
     {

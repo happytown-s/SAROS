@@ -11,6 +11,7 @@
 #include "CircularVisualizer.h"
 #include "FXPanel.h"
 #include "MidiLearnManager.h"
+#include "OscDataSender.h"
 #include "KeyboardMappingManager.h"
 
 //==============================================================================
@@ -63,6 +64,7 @@ public MidiLearnManager::Listener
 	InputTap inputTap;
 	juce::TriggerEvent& sharedTrigger;
 	LooperAudio looper ; // 30秒バッファ
+    OscDataSender oscDataSender { looper };
 
 	void timerCallback()override;
 

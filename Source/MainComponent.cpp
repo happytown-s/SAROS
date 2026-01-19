@@ -5,6 +5,7 @@
 MainComponent::MainComponent()
 	: sharedTrigger(inputTap.getTriggerEvent()),
 		looper(44100, 44100 * 30),  // 30秒バッファ
+        oscDataSender(looper),
 		transportPanel(looper),
         fxPanel(looper)
 {

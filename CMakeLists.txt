@@ -52,7 +52,9 @@ set(SOURCE_FILES
     Source/FXPanel.cpp
     Source/PlanetKnobLookAndFeel.cpp
     Source/MidiLearnManager.cpp
+    Source/MidiLearnManager.cpp
     Source/MidiTabContent.cpp
+    Source/OscDataSender.cpp
 )
 
 set(HEADER_FILES
@@ -74,7 +76,9 @@ set(HEADER_FILES
     Source/FilterSpectrumVisualizer.h
     Source/MidiMapping.h
     Source/MidiLearnManager.h
+    Source/MidiLearnManager.h
     Source/MidiTabContent.h
+    Source/OscDataSender.h
 )
 
 
@@ -97,6 +101,8 @@ target_link_libraries(SAROS PRIVATE
     juce::juce_dsp
     juce::juce_core
     juce::juce_events
+    juce::juce_osc
+    juce::juce_opengl
 )
 
 # 🔏 ビルド後に自動コード署名 (macOSのみ)
