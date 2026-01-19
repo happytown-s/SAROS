@@ -72,7 +72,7 @@ public:
             glowShader.reset();
             return;
         }
-        DBG("✅ Shader compiled");
+        DBG("✅ Glow shader compiled");
         
         float quadVertices[] = { -1.0f, -1.0f, 1.0f, -1.0f, 1.0f, 1.0f, -1.0f, 1.0f };
         glGenVertexArrays(1, &vao);
@@ -86,6 +86,38 @@ public:
             glVertexAttribPointer((GLuint)posAttr, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
         }
         glBindVertexArray(0);
+        
+        // 波形シェーダー
+        waveformShader = std::make_unique<juce::OpenGLShaderProgram>(openGLContext);
+        
+        juce::String waveVertexCode =
+            "attribute vec2 position;\n"
+            "attribute vec4 color;\n"
+            "varying vec4 vColor;\n"
+            "void main() {\n"
+            "    vColor = color;\n"
+            "    gl_Position = vec4(position, 0.0, 1.0);\n"
+            "}\n";
+        
+        juce::String waveFragmentCode =
+            "varying vec4 vColor;\n"
+            "void main() {\n"
+            "    gl_FragColor = vColor;\n"
+            "}\n";
+        
+        if (!waveformShader->addVertexShader(waveVertexCode) ||
+            !waveformShader->addFragmentShader(waveFragmentCode) ||
+            !waveformShader->link())
+        {
+            DBG("Waveform shader error: " + waveformShader->getLastError());
+            waveformShader.reset();
+            return;
+        }
+        DBG("✅ Waveform shader compiled");
+        
+        // 波形VBO/VAO (動的データ用)
+        glGenVertexArrays(1, &waveformVao);
+        glGenBuffers(1, &waveformVbo);
     }
     
     void openGLContextClosing() override
@@ -94,7 +126,10 @@ public:
         using namespace juce::gl;
         if (vbo != 0) { glDeleteBuffers(1, &vbo); vbo = 0; }
         if (vao != 0) { glDeleteVertexArrays(1, &vao); vao = 0; }
+        if (waveformVbo != 0) { glDeleteBuffers(1, &waveformVbo); waveformVbo = 0; }
+        if (waveformVao != 0) { glDeleteVertexArrays(1, &waveformVao); waveformVao = 0; }
         glowShader.reset();
+        waveformShader.reset();
     }
     
     void renderOpenGL() override
@@ -103,20 +138,56 @@ public:
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         
-        if (!glowShader) return;
-        
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         
-        glowShader->use();
-        float t = (float)juce::Time::getMillisecondCounterHiRes() / 1000.0f;
-        glowShader->setUniform("time", t);
-        glowShader->setUniform("masterRMS", currentMasterRMS);
-        glowShader->setUniform("glowColor", 0.0f, 0.8f, 0.8f);
+        // グロー効果描画
+        if (glowShader) {
+            glowShader->use();
+            float t = (float)juce::Time::getMillisecondCounterHiRes() / 1000.0f;
+            glowShader->setUniform("time", t);
+            glowShader->setUniform("masterRMS", currentMasterRMS);
+            glowShader->setUniform("glowColor", 0.0f, 0.8f, 0.8f);
+            
+            glBindVertexArray(vao);
+            glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+            glBindVertexArray(0);
+        }
         
-        glBindVertexArray(vao);
-        glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-        glBindVertexArray(0);
+        // 波形描画
+        if (waveformShader && !glWaveformData.empty()) {
+            waveformShader->use();
+            glLineWidth(2.0f);  // 線の太さ
+            
+            for (const auto& vertices : glWaveformData) {
+                if (vertices.empty()) continue;
+                
+                glBindBuffer(GL_ARRAY_BUFFER, waveformVbo);
+                glBufferData(GL_ARRAY_BUFFER, 
+                             vertices.size() * sizeof(WaveformGLVertex),
+                             vertices.data(), GL_DYNAMIC_DRAW);
+                
+                glBindVertexArray(waveformVao);
+                
+                GLint posAttr = glGetAttribLocation(waveformShader->getProgramID(), "position");
+                GLint colAttr = glGetAttribLocation(waveformShader->getProgramID(), "color");
+                
+                if (posAttr >= 0) {
+                    glEnableVertexAttribArray((GLuint)posAttr);
+                    glVertexAttribPointer((GLuint)posAttr, 2, GL_FLOAT, GL_FALSE, 
+                                          sizeof(WaveformGLVertex), (void*)0);
+                }
+                if (colAttr >= 0) {
+                    glEnableVertexAttribArray((GLuint)colAttr);
+                    glVertexAttribPointer((GLuint)colAttr, 4, GL_FLOAT, GL_FALSE,
+                                          sizeof(WaveformGLVertex), 
+                                          (void*)(2 * sizeof(float)));
+                }
+                
+                glDrawArrays(GL_LINE_STRIP, 0, (GLsizei)vertices.size());
+                glBindVertexArray(0);
+            }
+        }
     }
 
     
@@ -291,6 +362,7 @@ public:
         linearWaveforms.insert(linearWaveforms.begin(), lwd);
         if (linearWaveforms.size() > 8) linearWaveforms.resize(8);
         
+        updateGLWaveformData();  // GL頂点データを更新
         repaint();
     }
     
@@ -304,9 +376,72 @@ public:
             [trackId](const LinearWaveformData& w) { return w.trackId == trackId; }), linearWaveforms.end());
         
         DBG("🗑 Removed waveform for track " << trackId);
+        updateGLWaveformData();  // GL頂点データを更新
         repaint();
     }
     
+    // GL頂点データを更新（WaveformPathから変換）
+    void updateGLWaveformData()
+    {
+        glWaveformData.clear();
+        
+        float width = (float)getWidth();
+        float height = (float)getHeight();
+        if (width < 1.0f || height < 1.0f) return;
+        
+        float minDim = juce::jmin(width, height);
+        float centerX = width * 0.5f;
+        float centerY = height * 0.5f;
+        float baseRadius = minDim * 0.35f;  // 基準半径
+        
+        for (const auto& wp : waveformPaths)
+        {
+            std::vector<WaveformGLVertex> vertices;
+            
+            // 色を正規化
+            float r = wp.colour.getFloatRed();
+            float g = wp.colour.getFloatGreen();
+            float b = wp.colour.getFloatBlue();
+            float a = wp.colour.getFloatAlpha() * wp.spawnProgress;
+            
+            // originalBufferから波形を再計算してGL頂点を生成
+            if (wp.originalBuffer.getNumSamples() > 0)
+            {
+                const int points = 512;
+                const auto* data = wp.originalBuffer.getReadPointer(0);
+                const int numSamples = wp.originalBuffer.getNumSamples();
+                double sampleStep = (double)numSamples / (double)points;
+                
+                double loopRatio = wp.loopMultiplier;
+                double manualOffset = -juce::MathConstants<double>::halfPi;
+                
+                for (int i = 0; i <= points; ++i)
+                {
+                    float rms = 0.0f;
+                    int startSample = (int)(i * sampleStep);
+                    int samplesToAvg = juce::jmax(1, (int)sampleStep);
+                    for (int j = 0; j < samplesToAvg && startSample + j < numSamples; ++j)
+                        rms += std::abs(data[startSample + j]);
+                    rms /= (float)samplesToAvg;
+                    rms = std::pow(rms, 0.6f);
+                    
+                    double progressRaw = (double)i / (double)points;
+                    double angle = juce::MathConstants<double>::twoPi * (progressRaw * loopRatio / maxMultiplier) + manualOffset;
+                    
+                    // 内側の線として描画
+                    float radius = baseRadius * (1.0f - rms * 0.3f);
+                    float px = (centerX + radius * (float)std::cos(angle)) / width * 2.0f - 1.0f;
+                    float py = (centerY + radius * (float)std::sin(angle)) / height * 2.0f - 1.0f;
+                    py = -py;  // Y軸反転
+                    
+                    vertices.push_back({px, py, r, g, b, a});
+                }
+            }
+            
+            if (!vertices.empty())
+                glWaveformData.push_back(std::move(vertices));
+        }
+    }
 
     void setTrackMultiplier(int trackId, float multiplier)
     {
@@ -959,12 +1094,24 @@ public:
     }
 
 private:
-    // OpenGL リソース
+    // OpenGL リソース - グロー効果用
     juce::OpenGLContext openGLContext;
     std::unique_ptr<juce::OpenGLShaderProgram> glowShader;
     unsigned int vbo = 0;
     unsigned int vao = 0;
     float currentMasterRMS = 0.0f;
+    
+    // OpenGL リソース - 波形描画用
+    std::unique_ptr<juce::OpenGLShaderProgram> waveformShader;
+    unsigned int waveformVbo = 0;
+    unsigned int waveformVao = 0;
+    
+    // 波形頂点データ (x, y, r, g, b, a)
+    struct WaveformGLVertex {
+        float x, y;
+        float r, g, b, a;
+    };
+    std::vector<std::vector<WaveformGLVertex>> glWaveformData;  // トラックごとの頂点配列
    
     struct WaveformPath
     {
