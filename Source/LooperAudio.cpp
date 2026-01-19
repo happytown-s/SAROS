@@ -50,6 +50,7 @@ void LooperAudio::processBlock(juce::AudioBuffer<float>& output,
 
 void LooperAudio::addTrack(int trackId)
 {
+    const juce::ScopedLock sl(audioLock);
     auto& track = tracks[trackId];
     track.buffer.setSize(2, maxSamples);
     track.buffer.clear();
@@ -95,6 +96,7 @@ void LooperAudio::addTrack(int trackId)
 
 void LooperAudio::startRecording(int trackId)
 {
+    const juce::ScopedLock sl(audioLock);
     // 履歴に追加
     backupTrackBeforeRecord(trackId);
 
@@ -217,6 +219,7 @@ void LooperAudio::startRecording(int trackId)
 
 void LooperAudio::startRecordingWithLookback(int trackId, const juce::AudioBuffer<float>& lookbackData)
 {
+    const juce::ScopedLock sl(audioLock);
     // First, standard start
     startRecording(trackId);
 
@@ -314,6 +317,7 @@ void shiftBufferLeft(juce::AudioBuffer<float>& buffer, int numSamplesToShift)
 
 void LooperAudio::stopRecording(int trackId)
 {
+    const juce::ScopedLock sl(audioLock);
     auto& track = tracks[trackId];
     track.isRecording = false;
 
@@ -375,6 +379,7 @@ void LooperAudio::stopRecording(int trackId)
 
 void LooperAudio::startPlaying(int trackId, bool syncToMaster)
 {
+    const juce::ScopedLock sl(audioLock);
     if (auto it = tracks.find(trackId); it != tracks.end())
     {
         auto& track = it->second;
@@ -429,12 +434,14 @@ void LooperAudio::startAllPlayback()
 
 void LooperAudio::stopPlaying(int trackId)
 {
+    const juce::ScopedLock sl(audioLock);
     if (auto it = tracks.find(trackId); it != tracks.end())
         it->second.isPlaying = false;
 }
 
 void LooperAudio::clearTrack(int trackId)
 {
+    const juce::ScopedLock sl(audioLock);
     if (auto it = tracks.find(trackId); it != tracks.end())
         it->second.buffer.clear();
 }
@@ -1130,6 +1137,7 @@ void LooperAudio::backupTrackBeforeRecord(int trackId)
 
 int LooperAudio::undoLastRecording()
 {
+    const juce::ScopedLock sl(audioLock);
     if (!lastHistory.has_value())
     {
         DBG("⚠️ Nothing to undo");
@@ -1155,6 +1163,7 @@ int LooperAudio::undoLastRecording()
 
 void LooperAudio::allClear()
 {
+    const juce::ScopedLock sl(audioLock);
     for (auto& [id, track] : tracks)
     {
         track.buffer.clear();
@@ -1213,6 +1222,7 @@ void LooperAudio::allClear()
 
 void LooperAudio::stopAllTracks()
 {
+    const juce::ScopedLock sl(audioLock);
     for (auto& [id, track] : tracks)
     {
         track.isRecording = false;
@@ -1254,12 +1264,14 @@ bool LooperAudio::hasRecordedTracks() const
 
 void LooperAudio::setTrackGain(int trackId, float gain)
 {
+    const juce::ScopedLock sl(audioLock);
     if (auto it = tracks.find(trackId); it != tracks.end())
         it->second.gain = gain;
 }
 
 void LooperAudio::generateTestClick(int trackId)
 {
+    const juce::ScopedLock sl(audioLock);
     auto it = tracks.find(trackId);
     if (it == tracks.end()) return;
     
@@ -1311,6 +1323,7 @@ void LooperAudio::generateTestClick(int trackId)
 
 void LooperAudio::generateTestWaveformsForVisualTest()
 {
+    const juce::ScopedLock sl(audioLock);
     // 120BPM = 0.5秒/ビート、4ビート = 2秒がマスターループ
     const int samplesPerBeat = static_cast<int>(sampleRate * 0.5);
     const int masterSamples = samplesPerBeat * 4;  // マスター: 4拍
@@ -1526,18 +1539,21 @@ void LooperAudio::generateTestWaveformsForVisualTest()
 
 void LooperAudio::setTrackFilterCutoff(int trackId, float freq)
 {
+    const juce::ScopedLock sl(audioLock);
     if (auto it = tracks.find(trackId); it != tracks.end())
         it->second.fx.filter.setCutoffFrequency(freq);
 }
 
 void LooperAudio::setTrackFilterResonance(int trackId, float q)
 {
+    const juce::ScopedLock sl(audioLock);
     if (auto it = tracks.find(trackId); it != tracks.end())
         it->second.fx.filter.setResonance(q);
 }
 
 void LooperAudio::setTrackFilterType(int trackId, int type)
 {
+    const juce::ScopedLock sl(audioLock);
     if (auto it = tracks.find(trackId); it != tracks.end())
     {
         if(type == 0) it->second.fx.filter.setType(juce::dsp::StateVariableTPTFilterType::lowpass);
@@ -1547,6 +1563,7 @@ void LooperAudio::setTrackFilterType(int trackId, int type)
 
 void LooperAudio::setTrackCompressor(int trackId, float threshold, float ratio)
 {
+    const juce::ScopedLock sl(audioLock);
     if (auto it = tracks.find(trackId); it != tracks.end())
     {
         it->second.fx.compressor.setThreshold(threshold);
@@ -1556,6 +1573,7 @@ void LooperAudio::setTrackCompressor(int trackId, float threshold, float ratio)
 
 void LooperAudio::setTrackDelayMix(int trackId, float mix, float time)
 {
+    const juce::ScopedLock sl(audioLock);
     if (auto it = tracks.find(trackId); it != tracks.end())
     {
         it->second.fx.delayMix = mix;
@@ -1570,12 +1588,14 @@ void LooperAudio::setTrackDelayMix(int trackId, float mix, float time)
 
 void LooperAudio::setTrackDelayFeedback(int trackId, float feedback)
 {
+    const juce::ScopedLock sl(audioLock);
     if (auto it = tracks.find(trackId); it != tracks.end())
         it->second.fx.delayFeedback = feedback;
 }
 
 void LooperAudio::setTrackReverbMix(int trackId, float mix)
 {
+    const juce::ScopedLock sl(audioLock);
     if (auto it = tracks.find(trackId); it != tracks.end())
     {
         it->second.fx.reverbMix = mix;
@@ -1588,6 +1608,7 @@ void LooperAudio::setTrackReverbMix(int trackId, float mix)
 
 void LooperAudio::setTrackReverbDamping(int trackId, float damping)
 {
+    const juce::ScopedLock sl(audioLock);
     if (auto it = tracks.find(trackId); it != tracks.end())
     {
         juce::dsp::Reverb::Parameters params = it->second.fx.reverb.getParameters();
@@ -1598,6 +1619,7 @@ void LooperAudio::setTrackReverbDamping(int trackId, float damping)
 
 void LooperAudio::setTrackReverbRoomSize(int trackId, float size)
 {
+    const juce::ScopedLock sl(audioLock);
     if (auto it = tracks.find(trackId); it != tracks.end())
     {
         juce::dsp::Reverb::Parameters params = it->second.fx.reverb.getParameters();
@@ -1610,6 +1632,7 @@ void LooperAudio::setTrackReverbRoomSize(int trackId, float size)
 
 void LooperAudio::setTrackBeatRepeatActive(int trackId, bool active)
 {
+    const juce::ScopedLock sl(audioLock);
     if (auto it = tracks.find(trackId); it != tracks.end())
     {
         it->second.fx.beatRepeat.isActive = active;
@@ -1620,12 +1643,14 @@ void LooperAudio::setTrackBeatRepeatActive(int trackId, bool active)
 
 void LooperAudio::setTrackBeatRepeatDiv(int trackId, int div)
 {
+    const juce::ScopedLock sl(audioLock);
     if (auto it = tracks.find(trackId); it != tracks.end())
         it->second.fx.beatRepeat.division = juce::jmax(1, div);
 }
 
 void LooperAudio::setTrackBeatRepeatThresh(int trackId, float thresh)
 {
+    const juce::ScopedLock sl(audioLock);
     if (auto it = tracks.find(trackId); it != tracks.end())
         it->second.fx.beatRepeat.threshold = thresh;
 }
@@ -1663,6 +1688,7 @@ void LooperAudio::popMonitorSamples(juce::AudioBuffer<float>& destBuffer)
 
 void LooperAudio::setTrackFilterEnabled(int trackId, bool enabled)
 {
+    const juce::ScopedLock sl(audioLock);
     if (auto it = tracks.find(trackId); it != tracks.end())
         it->second.fx.filterEnabled = enabled;
 }
@@ -1671,12 +1697,14 @@ void LooperAudio::setTrackFilterEnabled(int trackId, bool enabled)
 
 void LooperAudio::setTrackFlangerEnabled(int trackId, bool enabled)
 {
+    const juce::ScopedLock sl(audioLock);
     if (auto it = tracks.find(trackId); it != tracks.end())
         it->second.fx.flangerEnabled = enabled;
 }
 
 void LooperAudio::setTrackFlangerRate(int trackId, float rate)
 {
+    const juce::ScopedLock sl(audioLock);
     if (auto it = tracks.find(trackId); it != tracks.end())
     {
         it->second.fx.flangerRate = rate;
@@ -1687,30 +1715,35 @@ void LooperAudio::setTrackFlangerRate(int trackId, float rate)
 
 void LooperAudio::setTrackFlangerSync(int trackId, bool sync)
 {
+    const juce::ScopedLock sl(audioLock);
     if (auto it = tracks.find(trackId); it != tracks.end())
         it->second.fx.flangerSync = sync;
 }
 
 void LooperAudio::setTrackFlangerDepth(int trackId, float depth)
 {
+    const juce::ScopedLock sl(audioLock);
     if (auto it = tracks.find(trackId); it != tracks.end())
         it->second.fx.flanger.setDepth(depth);
 }
 
 void LooperAudio::setTrackFlangerFeedback(int trackId, float feedback)
 {
+    const juce::ScopedLock sl(audioLock);
     if (auto it = tracks.find(trackId); it != tracks.end())
         it->second.fx.flanger.setFeedback(feedback);
 }
 
 void LooperAudio::setTrackChorusEnabled(int trackId, bool enabled)
 {
+    const juce::ScopedLock sl(audioLock);
     if (auto it = tracks.find(trackId); it != tracks.end())
         it->second.fx.chorusEnabled = enabled;
 }
 
 void LooperAudio::setTrackChorusRate(int trackId, float rate)
 {
+    const juce::ScopedLock sl(audioLock);
     if (auto it = tracks.find(trackId); it != tracks.end())
     {
         it->second.fx.chorusRate = rate;
@@ -1721,48 +1754,56 @@ void LooperAudio::setTrackChorusRate(int trackId, float rate)
 
 void LooperAudio::setTrackChorusSync(int trackId, bool sync)
 {
+    const juce::ScopedLock sl(audioLock);
     if (auto it = tracks.find(trackId); it != tracks.end())
         it->second.fx.chorusSync = sync;
 }
 
 void LooperAudio::setTrackChorusDepth(int trackId, float depth)
 {
+    const juce::ScopedLock sl(audioLock);
     if (auto it = tracks.find(trackId); it != tracks.end())
         it->second.fx.chorus.setDepth(depth);
 }
 
 void LooperAudio::setTrackChorusMix(int trackId, float mix)
 {
+    const juce::ScopedLock sl(audioLock);
     if (auto it = tracks.find(trackId); it != tracks.end())
         it->second.fx.chorus.setMix(mix);
 }
 
 void LooperAudio::setTrackTremoloEnabled(int trackId, bool enabled)
 {
+    const juce::ScopedLock sl(audioLock);
     if (auto it = tracks.find(trackId); it != tracks.end())
         it->second.fx.tremoloEnabled = enabled;
 }
 
 void LooperAudio::setTrackTremoloRate(int trackId, float rate)
 {
+    const juce::ScopedLock sl(audioLock);
     if (auto it = tracks.find(trackId); it != tracks.end())
         it->second.fx.tremoloRate = rate;
 }
 
 void LooperAudio::setTrackTremoloDepth(int trackId, float depth)
 {
+    const juce::ScopedLock sl(audioLock);
     if (auto it = tracks.find(trackId); it != tracks.end())
         it->second.fx.tremoloDepth = depth;
 }
 
 void LooperAudio::setTrackTremoloShape(int trackId, int shape)
 {
+    const juce::ScopedLock sl(audioLock);
     if (auto it = tracks.find(trackId); it != tracks.end())
         it->second.fx.tremoloShape = shape;
 }
 
 void LooperAudio::setTrackTremoloSync(int trackId, bool sync)
 {
+    const juce::ScopedLock sl(audioLock);
     if (auto it = tracks.find(trackId); it != tracks.end())
         it->second.fx.tremoloSync = sync;
 }
@@ -1770,54 +1811,63 @@ void LooperAudio::setTrackTremoloSync(int trackId, bool sync)
 // Slicer / Trance Gate
 void LooperAudio::setTrackSlicerEnabled(int trackId, bool enabled)
 {
+    const juce::ScopedLock sl(audioLock);
     if (auto it = tracks.find(trackId); it != tracks.end())
         it->second.fx.slicerEnabled = enabled;
 }
 
 void LooperAudio::setTrackSlicerRate(int trackId, float rate)
 {
+    const juce::ScopedLock sl(audioLock);
     if (auto it = tracks.find(trackId); it != tracks.end())
         it->second.fx.slicerRate = rate;
 }
 
 void LooperAudio::setTrackSlicerDepth(int trackId, float depth)
 {
+    const juce::ScopedLock sl(audioLock);
     if (auto it = tracks.find(trackId); it != tracks.end())
         it->second.fx.slicerDepth = depth;
 }
 
 void LooperAudio::setTrackSlicerDuty(int trackId, float duty)
 {
+    const juce::ScopedLock sl(audioLock);
     if (auto it = tracks.find(trackId); it != tracks.end())
         it->second.fx.slicerDuty = duty;
 }
 
 void LooperAudio::setTrackSlicerShape(int trackId, int shape)
 {
+    const juce::ScopedLock sl(audioLock);
     if (auto it = tracks.find(trackId); it != tracks.end())
         it->second.fx.slicerShape = shape;
 }
 
 void LooperAudio::setTrackSlicerSync(int trackId, bool sync)
 {
+    const juce::ScopedLock sl(audioLock);
     if (auto it = tracks.find(trackId); it != tracks.end())
         it->second.fx.slicerSync = sync;
 }
 
 void LooperAudio::setTrackBitcrusherEnabled(int trackId, bool enabled)
 {
+    const juce::ScopedLock sl(audioLock);
     if (auto it = tracks.find(trackId); it != tracks.end())
         it->second.fx.bitcrusherEnabled = enabled;
 }
 
 void LooperAudio::setTrackBitcrusherDepth(int trackId, float depth)
 {
+    const juce::ScopedLock sl(audioLock);
     if (auto it = tracks.find(trackId); it != tracks.end())
         it->second.fx.bitcrusherDepth = depth;
 }
 
 void LooperAudio::setTrackBitcrusherRate(int trackId, float rate)
 {
+    const juce::ScopedLock sl(audioLock);
     if (auto it = tracks.find(trackId); it != tracks.end())
         it->second.fx.bitcrusherRate = rate;
 }
@@ -1825,36 +1875,42 @@ void LooperAudio::setTrackBitcrusherRate(int trackId, float rate)
 // Granular Cloud
 void LooperAudio::setTrackGranularEnabled(int trackId, bool enabled)
 {
+    const juce::ScopedLock sl(audioLock);
     if (auto it = tracks.find(trackId); it != tracks.end())
         it->second.fx.granular.enabled = enabled;
 }
 
 void LooperAudio::setTrackGranularSize(int trackId, float sizeMs)
 {
+    const juce::ScopedLock sl(audioLock);
     if (auto it = tracks.find(trackId); it != tracks.end())
         it->second.fx.granular.sizeMs = sizeMs;
 }
 
 void LooperAudio::setTrackGranularDensity(int trackId, float density)
 {
+    const juce::ScopedLock sl(audioLock);
     if (auto it = tracks.find(trackId); it != tracks.end())
         it->second.fx.granular.density = density;
 }
 
 void LooperAudio::setTrackGranularPitch(int trackId, float pitchVal)
 {
+    const juce::ScopedLock sl(audioLock);
     if (auto it = tracks.find(trackId); it != tracks.end())
         it->second.fx.granular.pitch = pitchVal;
 }
 
 void LooperAudio::setTrackGranularJitter(int trackId, float jitterVal)
 {
+    const juce::ScopedLock sl(audioLock);
     if (auto it = tracks.find(trackId); it != tracks.end())
         it->second.fx.granular.jitter = jitterVal;
 }
 
 void LooperAudio::setTrackGranularMix(int trackId, float mix)
 {
+    const juce::ScopedLock sl(audioLock);
     if (auto it = tracks.find(trackId); it != tracks.end())
         it->second.fx.granular.mix = mix;
 }
@@ -1862,6 +1918,7 @@ void LooperAudio::setTrackGranularMix(int trackId, float mix)
 // ================== Autotune ==================
 void LooperAudio::setTrackAutotuneEnabled(int trackId, bool enabled)
 {
+    const juce::ScopedLock sl(audioLock);
     if (auto it = tracks.find(trackId); it != tracks.end())
     {
         auto& at = it->second.fx.autotune;
@@ -1877,42 +1934,49 @@ void LooperAudio::setTrackAutotuneEnabled(int trackId, bool enabled)
 
 void LooperAudio::setTrackAutotuneKey(int trackId, int key)
 {
+    const juce::ScopedLock sl(audioLock);
     if (auto it = tracks.find(trackId); it != tracks.end())
         it->second.fx.autotune.key = juce::jlimit(0, 11, key);
 }
 
 void LooperAudio::setTrackAutotuneScale(int trackId, int scale)
 {
+    const juce::ScopedLock sl(audioLock);
     if (auto it = tracks.find(trackId); it != tracks.end())
         it->second.fx.autotune.scale = juce::jlimit(0, 2, scale);
 }
 
 void LooperAudio::setTrackAutotuneAmount(int trackId, float amount)
 {
+    const juce::ScopedLock sl(audioLock);
     if (auto it = tracks.find(trackId); it != tracks.end())
         it->second.fx.autotune.amount = juce::jlimit(0.0f, 1.0f, amount);
 }
 
 void LooperAudio::setTrackAutotuneSpeed(int trackId, float speed)
 {
+    const juce::ScopedLock sl(audioLock);
     if (auto it = tracks.find(trackId); it != tracks.end())
         it->second.fx.autotune.speed = juce::jlimit(0.0f, 1.0f, speed);
 }
 
 void LooperAudio::setTrackDelayEnabled(int trackId, bool enabled)
 {
+    const juce::ScopedLock sl(audioLock);
     if (auto it = tracks.find(trackId); it != tracks.end())
         it->second.fx.delayEnabled = enabled;
 }
 
 void LooperAudio::setTrackReverbEnabled(int trackId, bool enabled)
 {
+    const juce::ScopedLock sl(audioLock);
     if (auto it = tracks.find(trackId); it != tracks.end())
         it->second.fx.reverbEnabled = enabled;
 }
 
 void LooperAudio::setTrackLoopMultiplier(int trackId, float multiplier)
 {
+    const juce::ScopedLock sl(audioLock);
     if (auto it = tracks.find(trackId); it != tracks.end())
     {
         it->second.loopMultiplier = multiplier;

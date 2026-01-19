@@ -6,7 +6,9 @@
 #include <juce_opengl/juce_opengl.h>
 #include "ThemeColours.h"
 
-class CircularVisualizer : public juce::Component, public juce::Timer
+class CircularVisualizer : public juce::Component, 
+                           public juce::Timer,
+                           public juce::OpenGLRenderer
 {
 public:
     CircularVisualizer()
@@ -16,13 +18,12 @@ public:
         // OpenGL使用時は不透明(opaque)にしてフレームバッファを正しくクリア
         setOpaque(true);
         startTimerHz(60);
-        setInterceptsMouseClicks(true, true); // マウス操作を確実に受け取る
+        setInterceptsMouseClicks(true, true);
         
-        // Initialize particles
         for (int i = 0; i < numParticles; ++i)
             resetParticle(i);
         
-        // OpenGL コンテキストをアタッチ（GPUアクセラレーション）
+        openGLContext.setRenderer(this);
         openGLContext.attachTo(*this);
     }
     
@@ -31,6 +32,92 @@ public:
         openGLContext.detach();
     }
     
+    // OpenGLRenderer
+    void newOpenGLContextCreated() override
+    {
+        DBG("✨ OpenGL Created");
+        using namespace juce::gl;
+        
+        glowShader = std::make_unique<juce::OpenGLShaderProgram>(openGLContext);
+        
+        juce::String vertexCode =
+            "attribute vec2 position;\n"
+            "varying vec2 vUv;\n"
+            "void main() {\n"
+            "    vUv = position * 0.5 + 0.5;\n"
+            "    gl_Position = vec4(position, 0.0, 1.0);\n"
+            "}\n";
+        
+        juce::String fragmentCode =
+            "varying vec2 vUv;\n"
+            "uniform float time;\n"
+            "uniform float masterRMS;\n"
+            "uniform vec3 glowColor;\n"
+            "void main() {\n"
+            "    vec2 center = vec2(0.5, 0.5);\n"
+            "    float dist = distance(vUv, center);\n"
+            "    float glowRadius = 0.3 + masterRMS * 0.2;\n"
+            "    float glow = exp(-dist * dist / (glowRadius * glowRadius * 0.1));\n"
+            "    float pulse = 1.0 + sin(time * 3.0) * 0.1 * masterRMS;\n"
+            "    glow *= pulse;\n"
+            "    vec3 color = glowColor * glow;\n"
+            "    gl_FragColor = vec4(color, glow * 0.5);\n"
+            "}\n";
+        
+        if (!glowShader->addVertexShader(vertexCode) ||
+            !glowShader->addFragmentShader(fragmentCode) ||
+            !glowShader->link())
+        {
+            DBG("Shader error: " + glowShader->getLastError());
+            glowShader.reset();
+            return;
+        }
+        DBG("✅ Shader compiled");
+        
+        float quadVertices[] = { -1.0f, -1.0f, 1.0f, -1.0f, 1.0f, 1.0f, -1.0f, 1.0f };
+        glGenVertexArrays(1, &vao);
+        glBindVertexArray(vao);
+        glGenBuffers(1, &vbo);
+        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
+        GLint posAttr = glGetAttribLocation(glowShader->getProgramID(), "position");
+        if (posAttr >= 0) {
+            glEnableVertexAttribArray((GLuint)posAttr);
+            glVertexAttribPointer((GLuint)posAttr, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+        }
+        glBindVertexArray(0);
+    }
+    
+    void openGLContextClosing() override
+    {
+        DBG("🟠 OpenGL Closing");
+        using namespace juce::gl;
+        if (vbo != 0) { glDeleteBuffers(1, &vbo); vbo = 0; }
+        if (vao != 0) { glDeleteVertexArrays(1, &vao); vao = 0; }
+        glowShader.reset();
+    }
+    
+    void renderOpenGL() override
+    {
+        using namespace juce::gl;
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+        
+        if (!glowShader) return;
+        
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        
+        glowShader->use();
+        float t = (float)juce::Time::getMillisecondCounterHiRes() / 1000.0f;
+        glowShader->setUniform("time", t);
+        glowShader->setUniform("masterRMS", currentMasterRMS);
+        glowShader->setUniform("glowColor", 0.0f, 0.8f, 0.8f);
+        
+        glBindVertexArray(vao);
+        glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+        glBindVertexArray(0);
+    }
 
     
     // デバッグ用直線波形表示のオン/オフ
@@ -872,8 +959,12 @@ public:
     }
 
 private:
-    // OpenGL コンテキスト（GPUアクセラレーション用）
+    // OpenGL リソース
     juce::OpenGLContext openGLContext;
+    std::unique_ptr<juce::OpenGLShaderProgram> glowShader;
+    unsigned int vbo = 0;
+    unsigned int vao = 0;
+    float currentMasterRMS = 0.0f;
    
     struct WaveformPath
     {
