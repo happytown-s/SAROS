@@ -7,38 +7,33 @@
 #include "ThemeColours.h"
 
 class CircularVisualizer : public juce::Component, 
-                           public juce::Timer,
-                           public juce::OpenGLRenderer
+                           public juce::Timer
 {
 public:
     CircularVisualizer()
         : forwardFFT(fftOrder),
           window(fftSize, juce::dsp::WindowingFunction<float>::hann)
     {
-        // OpenGL使用時は不透明(opaque)にしてフレームバッファを正しくクリア
-        setOpaque(true);
+        // 背景はMainComponentのGLレンダリングに任せるため透明にする
+        setOpaque(false);
         startTimerHz(60);
         setInterceptsMouseClicks(true, true);
         
         for (int i = 0; i < numParticles; ++i)
             resetParticle(i);
-        
-        openGLContext.setRenderer(this);
-        openGLContext.attachTo(*this);
     }
     
     ~CircularVisualizer() override
     {
-        openGLContext.detach();
     }
     
-    // OpenGLRenderer
-    void newOpenGLContextCreated() override
+    // OpenGL Resources Initialization (called from MainComponent)
+    void initGL(juce::OpenGLContext& context)
     {
-        DBG("✨ OpenGL Created");
+        DBG("✨ Visualizer GL Resources Initializing");
         using namespace juce::gl;
         
-        glowShader = std::make_unique<juce::OpenGLShaderProgram>(openGLContext);
+        glowShader = std::make_unique<juce::OpenGLShaderProgram>(context);
         
         juce::String vertexCode =
             "attribute vec2 position;\n"
@@ -88,7 +83,7 @@ public:
         glBindVertexArray(0);
         
         // 波形シェーダー
-        waveformShader = std::make_unique<juce::OpenGLShaderProgram>(openGLContext);
+        waveformShader = std::make_unique<juce::OpenGLShaderProgram>(context);
         
         juce::String waveVertexCode =
             "attribute vec2 position;\n"
@@ -118,11 +113,78 @@ public:
         // 波形VBO/VAO (動的データ用)
         glGenVertexArrays(1, &waveformVao);
         glGenBuffers(1, &waveformVbo);
+        
+        // ブラックホールシェーダー
+        blackHoleShader = std::make_unique<juce::OpenGLShaderProgram>(context);
+        
+        juce::String bhVertexCode =
+            "attribute vec2 position;\n"
+            "varying vec2 vUv;\n"
+            "void main() {\n"
+            "    vUv = position * 0.5 + 0.5;\n"
+            "    gl_Position = vec4(position, 0.0, 1.0);\n"
+            "}\n";
+        
+        juce::String bhFragmentCode =
+            "varying vec2 vUv;\n"
+            "uniform float time;\n"
+            "uniform float bassLevel;\n"
+            "uniform float midHighLevel;\n"
+            "uniform float aspectRatio;\n"
+            "void main() {\n"
+            "    vec2 center = vec2(0.5, 0.5);\n"
+            "    vec2 uv = vUv;\n"
+            "    uv.x = (uv.x - 0.5) * aspectRatio + 0.5;\n"
+            "    float dist = distance(uv, center);\n"
+            "    float coreRadius = 0.07 + bassLevel * 0.02;\n"
+            "    float innerRadius = coreRadius * 0.7;\n"
+            "    \n"
+            "    // Black hole core\n"
+            "    if (dist < innerRadius) {\n"
+            "        gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);\n"
+            "        return;\n"
+            "    }\n"
+            "    \n"
+            "    // Event horizon (fade out)\n"
+            "    if (dist < coreRadius) {\n"
+            "        float t = (dist - innerRadius) / (coreRadius - innerRadius);\n"
+            "        float alpha = 1.0 - t * t;\n"
+            "        gl_FragColor = vec4(0.0, 0.0, 0.0, alpha);\n"
+            "        return;\n"
+            "    }\n"
+            "    \n"
+            "    // Flame ring\n"
+            "    float flameRadius = coreRadius * 1.05;\n"
+            "    float flameDist = abs(dist - flameRadius);\n"
+            "    float flicker = 0.5 + 0.5 * sin(time * 3.0);\n"
+            "    float flame = exp(-flameDist * flameDist * 800.0) * (0.4 + midHighLevel * 0.6) * (0.7 + flicker * 0.3);\n"
+            "    vec3 flameColor = mix(vec3(1.0, 0.5, 0.2), vec3(1.0, 0.95, 0.9), flame);\n"
+            "    \n"
+            "    // Glow halo\n"
+            "    float glowDist = abs(dist - innerRadius);\n"
+            "    float glow = exp(-glowDist * glowDist * 200.0) * 0.5;\n"
+            "    \n"
+            "    vec3 finalColor = flameColor * flame + vec3(1.0) * glow;\n"
+            "    float finalAlpha = max(flame, glow);\n"
+            "    gl_FragColor = vec4(finalColor, finalAlpha);\n"
+            "}\n";
+        
+        if (!blackHoleShader->addVertexShader(bhVertexCode) ||
+            !blackHoleShader->addFragmentShader(bhFragmentCode) ||
+            !blackHoleShader->link())
+        {
+            DBG("BlackHole shader error: " + blackHoleShader->getLastError());
+            blackHoleShader.reset();
+        }
+        else
+        {
+            DBG("✅ BlackHole shader compiled");
+        }
     }
     
-    void openGLContextClosing() override
+    void cleanupGL()
     {
-        DBG("🟠 OpenGL Closing");
+        DBG("🟠 Visualizer GL Resources Closing");
         using namespace juce::gl;
         if (vbo != 0) { glDeleteBuffers(1, &vbo); vbo = 0; }
         if (vao != 0) { glDeleteVertexArrays(1, &vao); vao = 0; }
@@ -130,13 +192,14 @@ public:
         if (waveformVao != 0) { glDeleteVertexArrays(1, &waveformVao); waveformVao = 0; }
         glowShader.reset();
         waveformShader.reset();
+        blackHoleShader.reset();
     }
     
-    void renderOpenGL() override
+    void renderGLCombined(juce::OpenGLContext& context)
     {
         using namespace juce::gl;
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        
+        // 注意: 背景のクリア(glClear)はMainComponent側で行うため、ここでは行わない
         
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -150,6 +213,21 @@ public:
             glowShader->setUniform("glowColor", 0.0f, 0.8f, 0.8f);
             
             glBindVertexArray(vao);
+            glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+            glBindVertexArray(0);
+        }
+        
+        // ブラックホール描画
+        if (blackHoleShader) {
+            blackHoleShader->use();
+            float t = (float)juce::Time::getMillisecondCounterHiRes() / 1000.0f;
+            float aspectRatio = (float)getWidth() / (float)juce::jmax(1, getHeight());
+            blackHoleShader->setUniform("time", t);
+            blackHoleShader->setUniform("bassLevel", currentBassLevel);
+            blackHoleShader->setUniform("midHighLevel", currentMidHighLevel);
+            blackHoleShader->setUniform("aspectRatio", aspectRatio);
+            
+            glBindVertexArray(vao);  // 同じ全画面クワッドを再利用
             glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
             glBindVertexArray(0);
         }
@@ -548,10 +626,7 @@ public:
     {
         auto bounds = getLocalBounds().toFloat();
         
-        // ★ OpenGL使用時はフレームバッファをクリアする必要がある
-        // 不透明な黒で全体をクリア（パーティクルの残像防止）
-        g.fillAll(juce::Colours::black);
-        
+        // ★ OpenGL が背景をクリアするのでfillAll は不要
         // ★ 正方形領域を強制して楕円歪みを防止
         float side = juce::jmin(bounds.getWidth(), bounds.getHeight());
         auto squareArea = bounds.withSizeKeepingCentre(side, side);
@@ -560,11 +635,7 @@ public:
         if (radius <= 0) return;
 
         // --- Visualizer Elements (Overlay only) ---
-        
-        // Background circle
-        g.setColour(ThemeColours::MetalGray.withAlpha(0.1f));
-        g.fillEllipse(bounds.withSizeKeepingCentre(radius * 2.0f, radius * 2.0f));
-
+        // 背景円はGLで描画されるため削除
         // --- 1. Particle Field (White Smoke / Stars) ---
         // 画面全体に描画するため、大きな半径を渡す
         float maxParticleDist = juce::jmax(bounds.getWidth(), bounds.getHeight()) * 0.8f;
@@ -589,103 +660,26 @@ public:
         }
         if (midHighCount > 0) midHighLevel /= (float)midHighCount;
         midHighLevel = juce::jlimit(0.0f, 1.0f, midHighLevel * 4.0f);
-
-        // パーティクルを先に描画（ブラックホールに吸い込まれる演出）
-        drawParticles(g, centre, maxParticleDist, masterLevel);
-
-        // --- 2. Black Hole Core (Eclipse Style) ---
-        // scopeDataは負になる可能性があるのでクランプ
+        
+        // 低音レベル計算（ブラックホール用）
         float bassLevel = juce::jlimit(0.0f, 1.0f, 
             std::max(0.0f, scopeData[0]) * 0.5f + 
             std::max(0.0f, scopeData[1]) * 0.3f + 
             std::max(0.0f, scopeData[2]) * 0.2f);
         
-        // ブラックホールのイベントホライズン（黒い核）
-        // 低音でサイズが少し変動
-        float coreRadius = radius * (0.20f + bassLevel * 0.10f); 
-        
-        // === 炎/プラズマ風グローエフェクト（円形リング）===
+        // GLシェーダー用にメンバー変数に保存
+        currentBassLevel = bassLevel;
+        currentMidHighLevel = midHighLevel;
+
+        // パーティクルを先に描画（ブラックホールに吸い込まれる演出）
+        drawParticles(g, centre, maxParticleDist, masterLevel);
+
+        // --- 2. Black Hole Core ---
+        // ★ GLシェーダー (blackHoleShader) で描画されるため削除
+        // coreRadius は波形描画で使用するため計算は残す
+        float coreRadius = radius * (0.20f + bassLevel * 0.10f);
         float time = (float)juce::Time::getMillisecondCounterHiRes() * 0.001f;
         
-        // 炎グロー（複数層の円形リング）
-        for (int layer = 0; layer < 3; ++layer)
-        {
-            float layerOffset = (float)layer * 0.04f;
-            float flameRadius = coreRadius * (1.02f + layerOffset);
-            
-            // アニメーションするアルファ値（炎のゆらめき）
-            float flicker = 0.5f + 0.5f * std::sin(time * 3.0f + layer * 1.5f);
-            float baseAlpha = (0.2f - layer * 0.06f) * (0.4f + midHighLevel * 0.6f);
-            float layerAlpha = juce::jlimit(0.0f, 0.4f, baseAlpha * (0.7f + flicker * 0.3f));
-            
-            // 炎の色（内側ほど白、外側ほどオレンジ〜赤）
-            juce::Colour flameColor;
-            if (layer == 0)
-                flameColor = juce::Colour::fromFloatRGBA(1.0f, 0.95f, 0.9f, layerAlpha);   // 白〜クリーム
-            else if (layer == 1)
-                flameColor = juce::Colour::fromFloatRGBA(1.0f, 0.75f, 0.4f, layerAlpha);  // オレンジ
-            else
-                flameColor = juce::Colour::fromFloatRGBA(1.0f, 0.5f, 0.2f, layerAlpha);   // 赤オレンジ
-            
-            g.setColour(flameColor);
-            float strokeWidth = 2.5f - layer * 0.6f;
-            g.drawEllipse(centre.x - flameRadius, centre.y - flameRadius, 
-                         flameRadius * 2.0f, flameRadius * 2.0f, strokeWidth);
-        }
-        
-        // イベントホライズン（本体） - 外周に向かって透けるグラデーション（シアン混ぜ）
-        {
-            // 背景に馴染むようシアンを少し混ぜた暗い色
-            juce::Colour cyanBlack = juce::Colour::fromRGB(5, 15, 20);  // 暗いシアン系
-            
-            juce::ColourGradient blackHoleGradient(
-                juce::Colours::black,  // 中心色（完全不透明）
-                centre.x, centre.y,
-                cyanBlack.withAlpha(0.0f),  // 外周色（シアン混じりで透明）
-                centre.x + coreRadius * 1.2f, centre.y,
-                true  // ラジアルグラデーション
-            );
-            // 中心からのフェードを調整
-            blackHoleGradient.addColour(0.5, juce::Colours::black.withAlpha(0.98f));  // 中間点は濃い
-            blackHoleGradient.addColour(0.7, cyanBlack.withAlpha(0.85f));  // シアンが少し見え始める
-            blackHoleGradient.addColour(0.85, cyanBlack.withAlpha(0.5f));  // 外周に近づくと透け始める
-            blackHoleGradient.addColour(0.95, cyanBlack.withAlpha(0.2f));  // 外周でさらに透ける
-            
-            g.setGradientFill(blackHoleGradient);
-            g.fillEllipse(centre.x - coreRadius * 1.2f, centre.y - coreRadius * 1.2f, 
-                         coreRadius * 2.4f, coreRadius * 2.4f);
-        }
-        
-        // 追加の闘（中心をより深く見せる）
-        g.setColour(juce::Colours::black);
-        g.fillEllipse(centre.x - coreRadius*0.7f, centre.y - coreRadius*0.7f, coreRadius * 1.4f, coreRadius * 1.4f);
-
-        // さりげない光輪（ブラックホールにピッタリ）
-        {
-            float innerRadius = coreRadius * 0.7f;  // ブラックホールの内側円と同じ
-
-            // 縁取り（シャープなエッジ）- ブラックホールのエッジにピッタリ
-            float edgeAlpha = juce::jlimit(0.3f, 0.7f, 0.4f + masterLevel * 0.2f);
-            g.setColour(juce::Colours::white.withAlpha(edgeAlpha));
-            g.drawEllipse(centre.x - innerRadius, centre.y - innerRadius,
-                         innerRadius * 2.0f, innerRadius * 2.0f, 1.5f);
-
-            // ソフトなグロー（外側ほど透明）
-            const int glowLayers = 8;
-            for (int gl = 1; gl <= glowLayers; ++gl)
-            {
-                float t = (float)gl / (float)glowLayers;
-                float glowRadius = innerRadius * (1.0f + t * 0.4f);  // innerRadius ~ innerRadius*1.4
-
-                // 外側ほど透明（0.2 -> 0 へフェード）
-                float alpha = 0.2f * (1.0f - t);
-
-                g.setColour(juce::Colours::white.withAlpha(alpha));
-                g.drawEllipse(centre.x - glowRadius, centre.y - glowRadius,
-                             glowRadius * 2.0f, glowRadius * 2.0f, 2.0f);
-            }
-        }
-
         // --- Draw Concentric Waveforms with Glow ---
         // --- Draw Concentric Waveforms with Glow ---
         // 新しい（i=0）ほど内側（サイズ1.0）、古い（i>0）ほど外側（サイズ>1.0）
@@ -1095,11 +1089,16 @@ public:
 
 private:
     // OpenGL リソース - グロー効果用
-    juce::OpenGLContext openGLContext;
+    // juce::OpenGLContext openGLContext; // MainComponent 側に集約
     std::unique_ptr<juce::OpenGLShaderProgram> glowShader;
     unsigned int vbo = 0;
     unsigned int vao = 0;
     float currentMasterRMS = 0.0f;
+    
+    // OpenGL リソース - ブラックホール用
+    std::unique_ptr<juce::OpenGLShaderProgram> blackHoleShader;
+    float currentBassLevel = 0.0f;
+    float currentMidHighLevel = 0.0f;
     
     // OpenGL リソース - 波形描画用
     std::unique_ptr<juce::OpenGLShaderProgram> waveformShader;

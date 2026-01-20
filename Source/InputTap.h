@@ -42,7 +42,13 @@ class InputTap : public juce::AudioIODeviceCallback
 										  int numSamples,
 										  const juce::AudioIODeviceCallbackContext&) override
 	{
-		juce::ignoreUnused(outputChannelData, numOutputChannels);
+		// 出力バッファをクリア（未初期化データによるノイズ防止）
+		for (int ch = 0; ch < numOutputChannels; ++ch)
+		{
+			if (outputChannelData[ch] != nullptr)
+				juce::FloatVectorOperations::clear(outputChannelData[ch], numSamples);
+		}
+
 		if (numInputChannels == 0) return;
 
 		buffer.setSize(numInputChannels, numSamples, false, false, true);
@@ -60,7 +66,12 @@ class InputTap : public juce::AudioIODeviceCallback
 
 		updateInputLevel(buffer);
 
-		inputManager.analyze(buffer);
+		// システムキャプチャ有効時はデバイス入力のanalyzをスキップ
+		// MainComponent側でSCKデータをanalyzeする
+		if (!inputManager.isSystemCaptureEnabled())
+		{
+			inputManager.analyze(buffer);
+		}
 
 
 		// 🎙️ 音声レベルチェック

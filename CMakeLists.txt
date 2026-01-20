@@ -33,6 +33,15 @@ juce_add_gui_app(SAROS
     ICON_SMALL "${CMAKE_CURRENT_SOURCE_DIR}/Source/Assets/icon.png"
 )
 
+# 🆔 Bundle ID の設定 (TCC権限の安定化に必須)
+set_target_properties(SAROS PROPERTIES
+    MACOSX_BUNDLE_GUI_IDENTIFIER "com.babyleaf.saros"
+    MACOSX_BUNDLE_BUNDLE_NAME "SAROS"
+    MACOSX_BUNDLE_DISPLAY_NAME "SAROS"
+    MACOSX_BUNDLE_INFO_STRING "SAROS Looper"
+    MACOSX_BUNDLE_COPYRIGHT "Copyright (c) 2026 BabyLeaf"
+)
+
 # バイナリデータ（フォントなど）の定義
 juce_add_binary_data(Assets
     SOURCES
@@ -55,6 +64,10 @@ set(SOURCE_FILES
     Source/MidiLearnManager.cpp
     Source/MidiTabContent.cpp
     Source/OscDataSender.cpp
+    Source/SystemAudioCapturer.h
+    Source/SystemAudioCapturer.mm
+    Source/AppSelectionPanel.h
+    Source/AppSelectionPanel.cpp
 )
 
 set(HEADER_FILES
@@ -103,6 +116,8 @@ target_link_libraries(SAROS PRIVATE
     juce::juce_events
     juce::juce_osc
     juce::juce_opengl
+    "-framework ScreenCaptureKit"
+    "-framework CoreMedia"
 )
 
 # 🔏 ビルド後に自動コード署名 (macOSのみ)

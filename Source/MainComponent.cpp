@@ -436,6 +436,31 @@ MainComponent::MainComponent()
 		DBG("🎹 MIDI Learn " << (midiLearnButton.getToggleState() ? "ON" : "OFF"));
 	};
 	addAndMakeVisible(midiLearnButton);
+    
+    // System Audio Button
+    systemAudioButton.setButtonText("SYS AUDIO");
+    systemAudioButton.setClickingTogglesState(true);
+    systemAudioButton.setColour(juce::TextButton::buttonOnColourId, ThemeColours::NeonCyan); // Different color
+    systemAudioButton.onClick = [this]
+    {
+        bool enabled = systemAudioButton.getToggleState();
+        inputTap.getManager().setSystemCaptureEnabled(enabled);
+        DBG("🖥️ System Audio Capture " << (enabled ? "ON" : "OFF"));
+    };
+    addAndMakeVisible(systemAudioButton);
+
+    // System Audio Settings Button (Gear Icon)
+    systemAudioSettingsButton.setButtonText(juce::String::fromUTF8("\xE2\x9A\x99")); // ⚙
+    systemAudioSettingsButton.onClick = [this]
+    {
+        // Show App Selection Panel
+        auto& capturer = inputTap.getManager().getSystemAudioCapturer();
+        auto* panel = new AppSelectionPanel(capturer); // CallOutBox takes ownership
+        panel->setSize(300, 400); 
+        
+        juce::CallOutBox::launchAsynchronously(std::unique_ptr<juce::Component>(panel), systemAudioSettingsButton.getScreenBounds(), nullptr);
+    };
+    addAndMakeVisible(systemAudioSettingsButton);
 	
 	// TransportPanelにMIDI LearnManagerを設定
 	transportPanel.setMidiLearnManager(&midiLearnManager);
@@ -461,10 +486,16 @@ MainComponent::MainComponent()
     
     // キーボード入力を受け付けるように設定
     setWantsKeyboardFocus(true);
+    
+    // OpenGL 背景レンダリング初期化
+    openGLContext.setRenderer(this);
+    openGLContext.attachTo(*this);
 }
+
 
 MainComponent::~MainComponent()
 {
+	openGLContext.detach();
 	midiLearnManager.removeListener(this);
 	saveAudioDeviceSettings();
 	shutdownAudio();
@@ -477,6 +508,9 @@ void MainComponent::prepareToPlay(int samplesPerBlockExpected, double sampleRate
 	inputTap.prepare(sampleRate, samplesPerBlockExpected);
 	looper.prepareToPlay(samplesPerBlockExpected, sampleRate);
 	looper.setTriggerReference(inputTap.getManager().getTriggerEvent());
+
+	// 入力モニタリングをデフォルトON
+	looper.setInputMonitorEnabled(true);
 
 	DBG("InputTap trigger address = " + juce::String((juce::uint64)(uintptr_t)&inputTap.getTriggerEvent()));
 	DBG("Shared trigger address   = " + juce::String((juce::uint64)(uintptr_t)&sharedTrigger));
@@ -498,7 +532,29 @@ void MainComponent::getNextAudioBlock(const juce::AudioSourceChannelInfo& buffer
 	juce::AudioBuffer<float> input(bufferToFill.buffer->getNumChannels(),
 								   bufferToFill.numSamples);
 	input.clear();
-	inputTap.getLatestInput(input);
+	
+	// システムキャプチャ有効時は SCK からデータを取得、それ以外はデバイス入力
+	if (inputTap.getManager().isSystemCaptureEnabled())
+	{
+		// SCK モード: SCK からデータを取得
+		auto& capturer = inputTap.getManager().getSystemAudioCapturer();
+		int numCaptured = capturer.getNextAudioBlock(input, 0, bufferToFill.numSamples);
+		
+		// SCK データで analyze（トリガー検出用）
+		inputTap.getManager().analyze(input);
+		
+		// Debug: Log when audio is received (periodically)
+		static int sckLogCounter = 0;
+		if (sckLogCounter++ % 500 == 0)
+		{
+			float maxLevel = input.getMagnitude(0, bufferToFill.numSamples);
+			DBG("🎙️ SCK -> Looper: Captured=" << numCaptured << "/" << bufferToFill.numSamples << " MaxLevel=" << maxLevel);
+		}
+	}
+	else
+	{
+		inputTap.getLatestInput(input);
+	}
 
 	// === トリガーが立ったら ===
 	if (trig.triggerd)
@@ -605,7 +661,10 @@ void MainComponent::getNextAudioBlock(const juce::AudioSourceChannelInfo& buffer
     }
 
 	// 🌀 LooperAudio の処理は常に実行
-	looper.processBlock(*bufferToFill.buffer, input);
+	// SCKモード時はモニターON（excludesCurrentProcessAudioでフィードバック防止済み）
+	// 通常モードは looper.isInputMonitorEnabled() に従う
+	bool skipMonitor = false; // SCK/通常どちらもモニターON
+	looper.processBlock(*bufferToFill.buffer, input, skipMonitor);
 
 	// 📊 ビジュアライザー更新 (入力と再生のミックスを渡す)
 	visualizer.pushBuffer(*bufferToFill.buffer);
@@ -614,24 +673,121 @@ void MainComponent::getNextAudioBlock(const juce::AudioSourceChannelInfo& buffer
 
 
 //==============================================================================
+// OpenGL Background Rendering
+
+void MainComponent::newOpenGLContextCreated()
+{
+    DBG("✨ MainComponent OpenGL Created");
+    using namespace juce::gl;
+    
+    bgShader = std::make_unique<juce::OpenGLShaderProgram>(openGLContext);
+    
+    juce::String vertexCode =
+        "attribute vec2 position;\n"
+        "varying vec2 vUv;\n"
+        "void main() {\n"
+        "    vUv = position * 0.5 + 0.5;\n"
+        "    gl_Position = vec4(position, 0.0, 1.0);\n"
+        "}\n";
+    
+    juce::String fragmentCode =
+        "varying vec2 vUv;\n"
+        "uniform float time;\n"
+        "void main() {\n"
+        "    vec2 center = vec2(0.5, 0.5);\n"
+        "    float dist = distance(vUv, center);\n"
+        "    // Deep space gradient (black -> deep blue)\n"
+        "    vec3 deepSpace = mix(vec3(0.02, 0.02, 0.06), vec3(0.0), dist);\n"
+        "    // Cyan glow (center)\n"
+        "    float glow = exp(-dist * dist * 3.0) * 0.08;\n"
+        "    vec3 cyan = vec3(0.0, 0.8, 0.8);\n"
+        "    vec3 color = deepSpace + cyan * glow;\n"
+        "    gl_FragColor = vec4(color, 1.0);\n"
+        "}\n";
+    
+    if (!bgShader->addVertexShader(vertexCode) ||
+        !bgShader->addFragmentShader(fragmentCode) ||
+        !bgShader->link())
+    {
+        DBG("Background shader error: " + bgShader->getLastError());
+        bgShader.reset();
+        return;
+    }
+    DBG("✅ MainComponent background shader compiled");
+    
+    float quadVertices[] = { -1.0f, -1.0f, 1.0f, -1.0f, 1.0f, 1.0f, -1.0f, 1.0f };
+    glGenVertexArrays(1, &bgVao);
+    glBindVertexArray(bgVao);
+    glGenBuffers(1, &bgVbo);
+    glBindBuffer(GL_ARRAY_BUFFER, bgVbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
+    GLint posAttr = glGetAttribLocation(bgShader->getProgramID(), "position");
+    if (posAttr >= 0) {
+        glEnableVertexAttribArray((GLuint)posAttr);
+        glVertexAttribPointer((GLuint)posAttr, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+    }
+    glBindVertexArray(0);
+
+    // VisualizerのGLリソース初期化
+    visualizer.initGL(openGLContext);
+}
+
+void MainComponent::renderOpenGL()
+{
+    using namespace juce::gl;
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    
+    if (bgShader) {
+        bgShader->use();
+        float t = (float)juce::Time::getMillisecondCounterHiRes() / 1000.0f;
+        bgShader->setUniform("time", t);
+        
+        glBindVertexArray(bgVao);
+        glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+        glBindVertexArray(0);
+    }
+
+    // ビジュアライザのレンダリング
+    // ビューポートをビジュアライザの領域に設定
+    auto scale = openGLContext.getRenderingScale();
+    auto visBounds = visualizer.getBounds();
+    
+    // OpenGLのビューポートは左下が (0,0)
+    int vx = juce::roundToInt(visBounds.getX() * scale);
+    int vy = juce::roundToInt((getHeight() - visBounds.getBottom()) * scale);
+    int vw = juce::roundToInt(visBounds.getWidth() * scale);
+    int vh = juce::roundToInt(visBounds.getHeight() * scale);
+    
+    glViewport(vx, vy, vw, vh);
+    visualizer.renderGLCombined(openGLContext);
+    
+    // ビューポートを元に戻す
+    glViewport(0, 0, juce::roundToInt(getWidth() * scale), juce::roundToInt(getHeight() * scale));
+}
+
+void MainComponent::openGLContextClosing()
+{
+    DBG("🟠 MainComponent OpenGL Closing");
+    using namespace juce::gl;
+    
+    // Visualizerのクリーンアップ
+    visualizer.cleanupGL();
+    
+    if (bgVbo != 0) { glDeleteBuffers(1, &bgVbo); bgVbo = 0; }
+    if (bgVao != 0) { glDeleteVertexArrays(1, &bgVao); bgVao = 0; }
+    bgShader.reset();
+}
+
+//==============================================================================
 
 void MainComponent::paint(juce::Graphics& g)
 {
     auto bounds = getLocalBounds().toFloat();
     auto centre = bounds.getCentre();
 
-    // --- Space Background (Global) ---
-    // Deep space gradient
-    g.setGradientFill(juce::ColourGradient(juce::Colour(0xff050510), centre.x, centre.y,
-                                           juce::Colour(0xff000000), 0.0f, 0.0f, true));
-    g.fillAll(); // Fill entire component
-    
-    // Subtle Nebula/Glow radiating from center
-    g.setGradientFill(juce::ColourGradient(ThemeColours::NeonCyan.withAlpha(0.08f), centre.x, centre.y, 
-                                           juce::Colours::transparentBlack, centre.x + bounds.getWidth()*0.6f, centre.y + bounds.getHeight()*0.6f, true));
-    g.fillAll();
-
-    // Draw Global Stars
+    // --- Background rendered by OpenGL (renderOpenGL) ---
+    // Stars are still rendered here for simplicity
     for (const auto& star : stars)
     {
         float x = star.x * bounds.getWidth();
@@ -799,6 +955,16 @@ void MainComponent::resized()
 	// MIDI Learn ボタン（Auto-Armの左）
 	midiLearnButton.setBounds(getWidth() - buttonWidth - midiLearnButtonWidth - margin - spacing, 5, 
 	                          midiLearnButtonWidth, buttonHeight);
+                              
+    // System Audio Button (MIDI Learnの左)
+    int systemAudioButtonWidth = 100;
+     systemAudioButton.setBounds(midiLearnButton.getX() - systemAudioButtonWidth - spacing, 5,
+                                systemAudioButtonWidth, buttonHeight);
+                                
+    // System Audio Settings (Sys Audioの左)
+    int settingsButtonSize = 30;
+    systemAudioSettingsButton.setBounds(systemAudioButton.getX() - settingsButtonSize - spacing, 5,
+                                        settingsButtonSize, buttonHeight);
                               
     // Video Mode Button（左上に配置、コンパクトなアイコンボタン）
     int videoButtonSize = 30;

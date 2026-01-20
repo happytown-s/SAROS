@@ -23,25 +23,29 @@ void LooperAudio::prepareToPlay(int samplesPerBlockExpected, double sr)
 }
 
 void LooperAudio::processBlock(juce::AudioBuffer<float>& output,
-                               const juce::AudioBuffer<float>& input)
+                               const juce::AudioBuffer<float>& input,
+                               bool skipMonitorInput)
 {
     const juce::ScopedLock sl(audioLock); // 再生開始処理(startAllPlayback)との競合を防ぐ
+    const int numSamples = input.getNumSamples();
 
     // 録音・再生処理
     output.clear();
     recordIntoTracks(input);
     mixTracksToOutput(output);
 
-    // 入力音をモニター出力
-    const int numInChannels = input.getNumChannels();
-    const int numOutChannels = output.getNumChannels();
-    const int numSamples = input.getNumSamples();
-
-    if (numInChannels > 0)
+    // 入力音をモニター出力 (システムキャプチャ時またはモニター無効時はスキップ)
+    if (!skipMonitorInput && inputMonitorEnabled)
     {
-        for (int ch = 0; ch < numOutChannels; ++ch)
+        const int numInChannels = input.getNumChannels();
+        const int numOutChannels = output.getNumChannels();
+
+        if (numInChannels > 0)
         {
-            output.addFrom(ch, 0, input, ch % numInChannels, 0, numSamples);
+            for (int ch = 0; ch < numOutChannels; ++ch)
+            {
+                output.addFrom(ch, 0, input, ch % numInChannels, 0, numSamples);
+            }
         }
     }
     

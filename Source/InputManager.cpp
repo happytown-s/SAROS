@@ -21,7 +21,10 @@ void InputManager::prepare(double newSampleRate, int bufferSize)
 	// Prepare ring buffer (2 seconds)
     inputBuffer.prepare(sampleRate, 2);
 
-	DBG("InputManager::prepare sampleRate = " << sampleRate << "bufferSize = " << bufferSize);
+	// System Audio Capturer のサンプルレート設定
+	systemAudioCapturer.prepare(sampleRate, bufferSize);
+
+	DBG("InputManager::prepare sampleRate = " << sampleRate << " bufferSize = " << bufferSize);
     DBG("AudioInputBuffer initialized.");
 }
 
@@ -48,6 +51,7 @@ void InputManager::analyze(const juce::AudioBuffer<float>& input)
     // チャンネル数は固定配列のため調整不要（最大8ch）
 
     // Use channel 0 for trigger analysis and buffering (Mono support for now)
+    // Note: When systemCaptureEnabled, MainComponent passes SCK data in input buffer
     const float* readPtr = input.getReadPointer(0);
     
     // 1. Write to Ring Buffer
@@ -358,6 +362,29 @@ bool InputManager::detectTriggerSample(const juce::AudioBuffer<float>& input)
 		}
 	}
 	return false;
+}
+
+//==============================================================================
+// System Audio Capture
+//==============================================================================
+
+void InputManager::setSystemCaptureEnabled(bool enabled)
+{
+    if (systemCaptureEnabled != enabled)
+    {
+        systemCaptureEnabled = enabled;
+        if (enabled)
+            systemAudioCapturer.start();
+        else
+            systemAudioCapturer.stop();
+            
+        DBG("System Capture Changed: " << (enabled ? "Enabled" : "Disabled"));
+    }
+}
+
+bool InputManager::isSystemCaptureEnabled() const
+{
+    return systemCaptureEnabled;
 }
 
 

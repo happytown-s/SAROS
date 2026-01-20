@@ -34,7 +34,7 @@ class LooperAudio
 	~LooperAudio();
 
 	void prepareToPlay(int samplesPerBlockExpected, double sr);
-	void processBlock(juce::AudioBuffer<float>& output, const juce::AudioBuffer<float>& input);
+	void processBlock(juce::AudioBuffer<float>& output, const juce::AudioBuffer<float>& input, bool skipMonitorInput = false);
 	void releaseResources() {}
 
 	//TriggerEventの参照をセット
@@ -462,10 +462,17 @@ private:
 
     // Monitoring
     std::atomic<int> monitorTrackId { -1 };
-    
+
     static constexpr int monitorFifoSize = 4096;
     juce::AbstractFifo monitorFifo { monitorFifoSize };
     std::vector<float> monitorFifoBuffer;
 
+    // 入力モニター（ダイレクトモニタリング）ON/OFF
+    bool inputMonitorEnabled = true;
+
+public:
+    // 入力モニターの制御
+    void setInputMonitorEnabled(bool enabled) { inputMonitorEnabled = enabled; }
+    bool isInputMonitorEnabled() const { return inputMonitorEnabled; }
 };
 

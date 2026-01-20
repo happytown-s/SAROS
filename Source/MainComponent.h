@@ -2,6 +2,7 @@
 
 #include <juce_audio_utils/juce_audio_utils.h>
 #include <juce_gui_extra/juce_gui_extra.h>
+#include <juce_opengl/juce_opengl.h>
 #include "LooperTrackUi.h"
 #include "LooperAudio.h"
 #include "InputTap.h"
@@ -12,7 +13,9 @@
 #include "FXPanel.h"
 #include "MidiLearnManager.h"
 #include "OscDataSender.h"
+#include "OscDataSender.h"
 #include "KeyboardMappingManager.h"
+#include "AppSelectionPanel.h"
 
 //==============================================================================
 // ルーパーアプリ本体
@@ -22,7 +25,8 @@ public juce::AudioAppComponent,
 public LooperTrackUi::Listener,
 public LooperAudio::Listener,
 public juce::Timer,
-public MidiLearnManager::Listener
+public MidiLearnManager::Listener,
+public juce::OpenGLRenderer
 {
 	public:
 	MainComponent();
@@ -43,6 +47,11 @@ public MidiLearnManager::Listener
 	void paintOverChildren(juce::Graphics& g) override;
 	void resized() override;
 	bool keyPressed(const juce::KeyPress& key) override;
+	
+	// OpenGLRenderer
+	void newOpenGLContextCreated() override;
+	void renderOpenGL() override;
+	void openGLContextClosing() override;
 
 	// UIイベント
 	void trackClicked(LooperTrackUi* trackClicked) override;
@@ -60,6 +69,12 @@ public MidiLearnManager::Listener
 
 
 	private:
+	// ===== OpenGL 背景レンダリング =====
+	juce::OpenGLContext openGLContext;
+	std::unique_ptr<juce::OpenGLShaderProgram> bgShader;
+	unsigned int bgVbo = 0;
+	unsigned int bgVao = 0;
+	
 	// ===== オーディオ関連 =====
 	InputTap inputTap;
 	juce::TriggerEvent& sharedTrigger;
@@ -112,6 +127,10 @@ public MidiLearnManager::Listener
     
     // MIDI Learn 機能
     juce::ToggleButton midiLearnButton;
+    
+    // System Audio Capture
+    juce::ToggleButton systemAudioButton;
+    juce::TextButton systemAudioSettingsButton { "S" }; // S for Settings or use Unicode Gear
     
     // トリガーデバウンス制御
     juce::int64 lastTriggerTime = 0;

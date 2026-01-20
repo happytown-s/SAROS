@@ -12,7 +12,9 @@
 #include <juce_audio_basics/juce_audio_basics.h>
 #include "TriggerEvent.h"
 #include "AudioInputBuffer.h"
+#include "AudioInputBuffer.h"
 #include "ChannelTriggerSettings.h"
+#include "SystemAudioCapturer.h"
 
 struct SmartRecConfig
 {
@@ -84,6 +86,11 @@ class InputManager
 	void setRecordingActive(bool active) { recordingActive = active; }
 	bool isRecordingActive() const { return recordingActive; }
 
+    // System Audio Capture
+    void setSystemCaptureEnabled(bool enabled);
+    bool isSystemCaptureEnabled() const;
+    SystemAudioCapturer& getSystemAudioCapturer() { return systemAudioCapturer; }
+
 private:
 
 	float computeEnergy(const juce::AudioBuffer<float>& input);
@@ -140,5 +147,10 @@ public:
 private:
     std::atomic<float> currentLevel { 0.0f };
     std::array<std::atomic<float>, MAX_CHANNELS> channelLevels {};  // チャンネルごとのレベル
+    
+    // System Audio Capturer
+    SystemAudioCapturer systemAudioCapturer;
+    bool systemCaptureEnabled = false;
+    juce::AudioBuffer<float> tempSystemBuffer;
 };
 
