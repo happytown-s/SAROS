@@ -282,11 +282,6 @@ public:
         }
     }
 
-    // 波形データを追加（履歴として管理）
-    // trackLengthSamples: このトラックの録音長
-    // masterLengthSamples: 現在のマスターのループ長（1周期の長さ）
-    // recordStartGlobal: 録音開始時のグローバル絶対位置
-    // masterStartGlobal: マスターのループ開始時のグローバル絶対位置
     void addWaveform(int trackId, const juce::AudioBuffer<float>& buffer, 
                      int trackLengthSamples, int masterLengthSamples, 
                      int recordStartGlobal = 0, int masterStartGlobal = 0)
@@ -297,9 +292,6 @@ public:
         const int numSamples = juce::jmin(actualBufferSize, trackLengthSamples);
         if (numSamples == 0 || masterLengthSamples == 0) return;
 
-        const auto* data = buffer.getReadPointer(0);
-        const int points = 1024; 
-        
         // マスターループに対する比率
         double loopRatio = 0.0;
         if (masterLengthSamples > 0)
@@ -308,73 +300,8 @@ public:
         // マスターとほぼ同じ長さなら、誤差を許容して 1.0 に丸める
         if (loopRatio > 0.95 && loopRatio < 1.05) loopRatio = 1.0;
 
-        // 全トラック12時スタート（readPosition 0 が12時に来る）
-        double startAngleRatio = 0.0;
-
-        juce::Path newPath;
-        const float maxAmpWidth = 0.3f;
-        double sampleStep = (double)numSamples / (double)points;
-        
-        // ★ オフセット設定: 12時基準（-halfPi）
-        double manualOffset = -juce::MathConstants<double>::halfPi;
-
-        for (int i = 0; i <= points; ++i)
-        {
-            float rms = 0.0f;
-            double startSampleRaw = i * sampleStep;
-            int startSample = (int)startSampleRaw;
-            int samplesToAverage = (int)sampleStep;
-            if (samplesToAverage < 1) samplesToAverage = 1;
-            for (int j = 0; j < samplesToAverage; ++j) {
-                if (startSample + j < numSamples) rms += std::abs(data[startSample + j]);
-            }
-            rms /= (float)samplesToAverage;
-            rms = std::pow(rms, 0.6f);
-
-            double progressRaw = (double)i / (double)points;
-            double currentAngleRatio = startAngleRatio + (progressRaw * loopRatio / maxMultiplier);
-            double angleVal = juce::MathConstants<double>::twoPi * currentAngleRatio + manualOffset;
-            float angle = (float)angleVal;
-            
-            float rInner = juce::jmax(0.1f, 1.0f - (rms * maxAmpWidth));
-            float xIn = rInner * std::cos(angle);
-            float yIn = rInner * std::sin(angle);
-            
-             if (i == 0) newPath.startNewSubPath(xIn, yIn);
-             else        newPath.lineTo(xIn, yIn);
-        }
-
-        // 外側の点を逆順に追加
-        for (int i = points; i >= 0; --i)
-        {
-            float rms = 0.0f;
-            double startSampleRaw = i * sampleStep;
-            int startSample = (int)startSampleRaw;
-            int samplesToAverage = (int)sampleStep;
-            if (samplesToAverage < 1) samplesToAverage = 1;
-            for (int j = 0; j < samplesToAverage; ++j) {
-                if (startSample + j < numSamples) rms += std::abs(data[startSample + j]);
-            }
-            rms /= (float)samplesToAverage;
-            rms = std::pow(rms, 0.6f);
-
-            double progressRaw = (double)i / (double)points;
-            double currentAngleRatio = startAngleRatio + (progressRaw * loopRatio / maxMultiplier);
-            double angleVal = juce::MathConstants<double>::twoPi * currentAngleRatio + manualOffset;
-            float angle = (float)angleVal;
-            
-            float rOuter = 1.0f + (rms * maxAmpWidth);
-            float xOut = rOuter * std::cos(angle);
-            float yOut = rOuter * std::sin(angle);
-            
-            newPath.lineTo(xOut, yOut);
-        }
-        
-        newPath.closeSubPath();
-
         // 履歴に追加
         WaveformPath wp;
-        wp.path = newPath;
         wp.trackId = trackId;
         
         // 8色のネオンカラー
@@ -395,39 +322,50 @@ public:
             [trackId](const WaveformPath& w) { return w.trackId == trackId; }), waveformPaths.end());
 
         // オリジナルデータを保存（multiplier変更時の再計算用）
-        wp.originalBuffer.makeCopyOf(buffer);
-        wp.originalTrackLength = trackLengthSamples;
+        // ★ 録音されたサンプル数だけをコピー（バッファ全体のゴミデータを含まないように）
+        wp.originalBuffer.setSize(buffer.getNumChannels(), numSamples);
+        for (int ch = 0; ch < buffer.getNumChannels(); ++ch)
+        {
+            wp.originalBuffer.copyFrom(ch, 0, buffer, ch, 0, numSamples);
+        }
+        wp.originalTrackLength = numSamples; // 実際のサンプル数を使用
         wp.originalMasterLength = masterLengthSamples;
         wp.originalRecordStart = recordStartGlobal;
         wp.originalMasterStart = masterStartGlobal;
-        wp.loopMultiplier = loopRatio; // トラック長/マスター長をmultiplierとして設定
+        wp.loopMultiplier = loopRatio;
 
         waveformPaths.insert(waveformPaths.begin(), wp);
-        if (waveformPaths.size() > 8) waveformPaths.resize(8);  // 8トラック分表示
+        if (waveformPaths.size() > 8) waveformPaths.resize(8);
         
-        // 現在のmaxMultiplierに基づいてパスを再生成（正しいリピート表示のため）
+        // ★ 現在のmaxMultiplierに基づいてセグメントデータとパスを生成
+        // ★ originalBuffer（クリーンなデータ）から生成するので、ゴミデータは含まれない
         if (maxMultiplier > 0.0f && !waveformPaths.empty())
         {
             regenerateWaveformPath(waveformPaths.front(), 0, masterLengthSamples);
         }
         
-        // デバッグ用：リニア波形データを保存
+        // デバッグ用：リニア波形データを保存（originalBufferからクリーンなデータを読み取る）
         LinearWaveformData lwd;
         lwd.trackId = trackId;
-        lwd.colour = wp.colour;
-        lwd.lengthSamples = trackLengthSamples;
+        lwd.colour = waveformPaths.front().colour;
+        lwd.lengthSamples = numSamples;
         // サンプリング（表示用に間引き）
         const int linearPoints = 512;
         lwd.samples.resize(linearPoints);
-        int samplesPerLinearPoint = trackLengthSamples / linearPoints;
+        int samplesPerLinearPoint = numSamples / linearPoints;
         if (samplesPerLinearPoint < 1) samplesPerLinearPoint = 1;
+        
+        const auto& cleanBuffer = waveformPaths.front().originalBuffer;
+        const auto* cleanData = cleanBuffer.getReadPointer(0);
+        const int cleanSamples = cleanBuffer.getNumSamples();
+        
         for (int i = 0; i < linearPoints; ++i)
         {
             float rms = 0.0f;
             int startSample = i * samplesPerLinearPoint;
-            for (int j = 0; j < samplesPerLinearPoint && startSample + j < numSamples; ++j)
+            for (int j = 0; j < samplesPerLinearPoint && startSample + j < cleanSamples; ++j)
             {
-                rms += std::abs(data[startSample + j]);
+                rms += std::abs(cleanData[startSample + j]);
             }
             rms /= (float)samplesPerLinearPoint;
             lwd.samples[i] = rms;

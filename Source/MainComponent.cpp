@@ -525,6 +525,16 @@ void MainComponent::releaseResources()
 
 void MainComponent::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill)
 {
+	// デバッグ: MainComponent コールバック確認
+	static int mainCallbackCount = 0;
+	if (mainCallbackCount < 10)
+	{
+		bool sckEnabled = inputTap.getManager().isSystemCaptureEnabled();
+		DBG("🔄 MainComponent::getNextAudioBlock #" << mainCallbackCount
+			<< " SCK=" << (sckEnabled ? "ON" : "OFF"));
+		mainCallbackCount++;
+	}
+
 	auto& trig = sharedTrigger;
 	bufferToFill.clearActiveBufferRegion();
 
