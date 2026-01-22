@@ -437,6 +437,7 @@ MainComponent::MainComponent()
 	};
 	addAndMakeVisible(midiLearnButton);
     
+#if ! defined (__EMSCRIPTEN__)
     // System Audio Button
     systemAudioButton.setButtonText("SYS AUDIO");
     systemAudioButton.setClickingTogglesState(true);
@@ -461,6 +462,7 @@ MainComponent::MainComponent()
         juce::CallOutBox::launchAsynchronously(std::unique_ptr<juce::Component>(panel), systemAudioSettingsButton.getScreenBounds(), nullptr);
     };
     addAndMakeVisible(systemAudioSettingsButton);
+#endif
 	
 	// TransportPanelにMIDI LearnManagerを設定
 	transportPanel.setMidiLearnManager(&midiLearnManager);
@@ -544,6 +546,8 @@ void MainComponent::getNextAudioBlock(const juce::AudioSourceChannelInfo& buffer
 	input.clear();
 	
 	// システムキャプチャ有効時は SCK からデータを取得、それ以外はデバイス入力
+	// システムキャプチャ有効時は SCK からデータを取得、それ以外はデバイス入力
+#if ! defined (__EMSCRIPTEN__)
 	if (inputTap.getManager().isSystemCaptureEnabled())
 	{
 		// SCK モード: SCK からデータを取得
@@ -562,6 +566,7 @@ void MainComponent::getNextAudioBlock(const juce::AudioSourceChannelInfo& buffer
 		}
 	}
 	else
+#endif
 	{
 		inputTap.getLatestInput(input);
 	}

@@ -21,8 +21,10 @@ void InputManager::prepare(double newSampleRate, int bufferSize)
 	// Prepare ring buffer (2 seconds)
     inputBuffer.prepare(sampleRate, 2);
 
+#if ! defined (__EMSCRIPTEN__)
 	// System Audio Capturer のサンプルレート設定
 	systemAudioCapturer.prepare(sampleRate, bufferSize);
+#endif
 
 	DBG("InputManager::prepare sampleRate = " << sampleRate << " bufferSize = " << bufferSize);
     DBG("AudioInputBuffer initialized.");
@@ -373,10 +375,12 @@ void InputManager::setSystemCaptureEnabled(bool enabled)
     if (systemCaptureEnabled != enabled)
     {
         systemCaptureEnabled = enabled;
+#if ! defined (__EMSCRIPTEN__)
         if (enabled)
             systemAudioCapturer.start();
         else
             systemAudioCapturer.stop();
+#endif
             
         DBG("System Capture Changed: " << (enabled ? "Enabled" : "Disabled"));
     }

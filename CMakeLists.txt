@@ -116,14 +116,20 @@ target_link_libraries(SAROS PRIVATE
     juce::juce_events
     juce::juce_osc
     juce::juce_opengl
-    "-framework ScreenCaptureKit"
-    "-framework CoreMedia"
+    juce::juce_opengl
 )
+
+if(APPLE AND NOT EMSCRIPTEN)
+    target_link_libraries(SAROS PRIVATE
+        "-framework ScreenCaptureKit"
+        "-framework CoreMedia"
+    )
+endif()
 
 # 🔏 ビルド後に自動コード署名 (macOSのみ)
 # 署名IDはSHA-1ハッシュで指定（環境変数 CODESIGN_SHA1 を使用）
 # ハッシュは `security find-identity -v -p codesigning` で確認可能
-if(APPLE AND DEFINED ENV{CODESIGN_SHA1})
+if(APPLE AND NOT EMSCRIPTEN AND DEFINED ENV{CODESIGN_SHA1})
     add_custom_command(TARGET SAROS POST_BUILD
         COMMAND codesign --force --deep --sign $ENV{CODESIGN_SHA1} "$<TARGET_BUNDLE_DIR:SAROS>"
         COMMENT "🔏 Code signing SAROS.app..."

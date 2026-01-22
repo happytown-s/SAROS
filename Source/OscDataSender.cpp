@@ -10,6 +10,8 @@
 
 #include "OscDataSender.h"
 
+#if ! defined (__EMSCRIPTEN__)
+
 OscDataSender::OscDataSender(LooperAudio& looper)
     : looperAudio(looper)
 {
@@ -70,7 +72,7 @@ void OscDataSender::timerCallback()
         // 2. Track Levels (RMS)
         // Tracks 1-8
         for (int i = 1; i <= 8; ++i)
-        {
+    {
             // Lock-free access using atomic or safe getters
             float level = looperAudio.getTrackRMS(i);
             
@@ -98,3 +100,5 @@ void OscDataSender::sendTransportInfo()
 {
    // Implementation moved to timerCallback for bundling
 }
+
+#endif

@@ -14,7 +14,9 @@
 #include "AudioInputBuffer.h"
 #include "AudioInputBuffer.h"
 #include "ChannelTriggerSettings.h"
+#if ! defined (__EMSCRIPTEN__)
 #include "SystemAudioCapturer.h"
+#endif
 
 struct SmartRecConfig
 {
@@ -89,7 +91,9 @@ class InputManager
     // System Audio Capture
     void setSystemCaptureEnabled(bool enabled);
     bool isSystemCaptureEnabled() const;
+#if ! defined (__EMSCRIPTEN__)
     SystemAudioCapturer& getSystemAudioCapturer() { return systemAudioCapturer; }
+#endif
 
 private:
 
@@ -148,8 +152,10 @@ private:
     std::atomic<float> currentLevel { 0.0f };
     std::array<std::atomic<float>, MAX_CHANNELS> channelLevels {};  // チャンネルごとのレベル
     
+#if ! defined (__EMSCRIPTEN__)
     // System Audio Capturer
     SystemAudioCapturer systemAudioCapturer;
+#endif
     bool systemCaptureEnabled = false;
     juce::AudioBuffer<float> tempSystemBuffer;
 };

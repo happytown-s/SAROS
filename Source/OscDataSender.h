@@ -18,6 +18,8 @@
 /**
     Sends LooperAudio state and analysis data via OSC to external visualizers (e.g. Unreal Engine 5).
 */
+#if ! defined (__EMSCRIPTEN__)
+// 🏗 Normal Implementation
 class OscDataSender : public juce::Timer
 {
 public:
@@ -51,3 +53,15 @@ private:
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OscDataSender)
 };
+#else
+// 🌐 Dummy Implementation for Web
+class OscDataSender
+{
+public:
+    OscDataSender(LooperAudio&) {}
+    ~OscDataSender() {}
+    void connect(const juce::String&, int) {}
+    void disconnect() {}
+    void sendTriggerEvent(const juce::String&) {}
+};
+#endif
