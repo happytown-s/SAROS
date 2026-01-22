@@ -1,0 +1,64 @@
+name: Build and Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - feature/wasm-port
+
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Release
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: true  # JUCEがサブモジュールの場合に必要
+
+    - name: Install Linux Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libasound2-dev libx11-dev libxinerama-dev libxext-dev libfreetype6-dev libwebkit2gtk-4.0-dev libglu1-mesa-dev
+
+    - name: Setup Emscripten
+      uses: mymindstorm/setup-emsdk@v14
+      with:
+        version: 3.1.51 # JUCE 7/8 Compatible version
+
+    - name: Configure CMake
+      run: |
+        emcmake cmake -B build-web \
+          -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
+          -DJUCE_BUILD_EXTRAS=ON \
+          -DJUCE_COPY_PLUGIN_AFTER_BUILD=OFF
+
+    - name: Build
+      run: cmake --build build-web --config ${{ env.BUILD_TYPE }}
+
+    - name: Prepare Deployment
+      run: |
+        mkdir -p public
+        # Copy the built artifacts (HTML, JS, WASM, DATA) to public/
+        # Adjust path based on where JUCE outputs the web build. 
+        # Usually: build-web/SAROS_artefacts/Release/ or similar
+        cp -r build-web/SAROS_artefacts/${{ env.BUILD_TYPE }}/* public/
+        
+        # Rename Main.html to index.html for easier access
+        if [ -f public/SAROS.html ]; then
+            mv public/SAROS.html public/index.html
+        elif [ -f public/index.html ]; then
+            echo "index.html already exists"
+        else
+            echo "Note: Could not find SAROS.html to rename."
+            ls -R public/
+        fi
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./public
+        publish_branch: gh-pages
