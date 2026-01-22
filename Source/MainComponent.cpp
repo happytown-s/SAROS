@@ -1369,8 +1369,26 @@ void MainComponent::onRecordingStopped(int trackID)
     // 🔓 録音中フラグを解除（鎮火許可）
     inputTap.getManager().setRecordingActive(false);
     
+    // ⚠️ レースコンディション防止: UIスレッド処理前にバッファをコピー
+    // 新しい録音が開始されるとbuffer.clear()が呼ばれるため、ここでコピーを取る
+    juce::AudioBuffer<float> bufferCopy;
+    int trackLength = 0;
+    int masterLength = 0;
+    int recordStart = 0;
+    int masterStart = 0;
+    
+    if (auto* buffer = looper.getTrackBuffer(trackID))
+    {
+        bufferCopy.makeCopyOf(*buffer);
+        trackLength = looper.getTrackLength(trackID);
+        masterLength = looper.getMasterLoopLength();
+        recordStart = looper.getTrackRecordStart(trackID);
+        masterStart = looper.getMasterStartSample();
+    }
+    
     // UIスレッドで安全に一括更新
-    util::safeUi([this, trackID]()
+    util::safeUi([this, trackID, bufferCopy = std::move(bufferCopy), 
+                  trackLength, masterLength, recordStart, masterStart]() mutable
     {
         for (auto& t : trackUIs)
         {
@@ -1392,15 +1410,14 @@ void MainComponent::onRecordingStopped(int trackID)
         // その前に MaxMultiplier を最新化（テスト生成時などに重要）
         visualizer.setMaxMultiplier((double)looper.getMaxLoopMultiplier());
         
-        if (auto* buffer = looper.getTrackBuffer(trackID))
+        if (bufferCopy.getNumSamples() > 0)
         {
             // 録音開始位置とマスター開始位置から、正しい描画オフセットを計算
-            visualizer.addWaveform(trackID, *buffer, 
-                                   looper.getTrackLength(trackID), 
-                                   looper.getMasterLoopLength(),
-                                   looper.getTrackRecordStart(trackID), // 正しいrecordStart
-                                   looper.getMasterStartSample()        // 正しいmasterStart
-                                   );
+            visualizer.addWaveform(trackID, bufferCopy, 
+                                   trackLength, 
+                                   masterLength,
+                                   recordStart,
+                                   masterStart);
         }
 
         // 6. 🔗 Auto-Arm: 次の空きトラックを自動で待機状態に

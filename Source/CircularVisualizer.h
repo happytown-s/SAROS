@@ -232,40 +232,8 @@ public:
             glBindVertexArray(0);
         }
         
-        // 波形描画
-        if (waveformShader && !glWaveformData.empty()) {
-            waveformShader->use();
-            glLineWidth(2.0f);  // 線の太さ
-            
-            for (const auto& vertices : glWaveformData) {
-                if (vertices.empty()) continue;
-                
-                glBindBuffer(GL_ARRAY_BUFFER, waveformVbo);
-                glBufferData(GL_ARRAY_BUFFER, 
-                             vertices.size() * sizeof(WaveformGLVertex),
-                             vertices.data(), GL_DYNAMIC_DRAW);
-                
-                glBindVertexArray(waveformVao);
-                
-                GLint posAttr = glGetAttribLocation(waveformShader->getProgramID(), "position");
-                GLint colAttr = glGetAttribLocation(waveformShader->getProgramID(), "color");
-                
-                if (posAttr >= 0) {
-                    glEnableVertexAttribArray((GLuint)posAttr);
-                    glVertexAttribPointer((GLuint)posAttr, 2, GL_FLOAT, GL_FALSE, 
-                                          sizeof(WaveformGLVertex), (void*)0);
-                }
-                if (colAttr >= 0) {
-                    glEnableVertexAttribArray((GLuint)colAttr);
-                    glVertexAttribPointer((GLuint)colAttr, 4, GL_FLOAT, GL_FALSE,
-                                          sizeof(WaveformGLVertex), 
-                                          (void*)(2 * sizeof(float)));
-                }
-                
-                glDrawArrays(GL_LINE_STRIP, 0, (GLsizei)vertices.size());
-                glBindVertexArray(0);
-            }
-        }
+        // 波形描画はpaint()のJUCE描画（ribbonPath）で行う
+        // GL_LINE_STRIPはJUCE描画と座標系が異なりズレが生じるため無効化
     }
 
     
@@ -290,6 +258,22 @@ public:
         const int actualBufferSize = buffer.getNumSamples();
         // 描画に使用するサンプル数：バッファサイズとtrackLengthSamplesの小さい方
         const int numSamples = juce::jmin(actualBufferSize, trackLengthSamples);
+        
+        // デバッグ: バッファ内容の確認
+        if (buffer.getNumSamples() > 0)
+        {
+            const float* data = buffer.getReadPointer(0);
+            float firstSample = data[0];
+            float midSample = data[numSamples / 2];
+            float maxVal = buffer.getMagnitude(0, juce::jmin(1000, numSamples));
+            DBG("🌊 addWaveform: trackId=" << trackId 
+                << " bufferSize=" << actualBufferSize 
+                << " numSamples=" << numSamples
+                << " first=" << firstSample 
+                << " mid=" << midSample
+                << " maxMag=" << maxVal);
+        }
+        
         if (numSamples == 0 || masterLengthSamples == 0) return;
 
         // マスターループに対する比率
@@ -499,6 +483,7 @@ public:
                 regenerateWaveformPath(wp, 0, wp.originalMasterLength);
             }
         }
+        updateGLWaveformData();  // ★ GL頂点データも更新
         repaint();
     }
     // 累積位置を直接受け取る（LooperAudio::getEffectiveNormalizedPositionから）
@@ -989,6 +974,12 @@ public:
         repaint();
     }
 
+    void resized() override
+    {
+        // サイズ変更時にGL頂点データを再計算
+        updateGLWaveformData();
+    }
+
     void timerCallback() override
     {
         updateParticles();
@@ -1082,6 +1073,13 @@ private:
         const auto* data = wp.originalBuffer.getReadPointer(0);
         const int originalSamples = wp.originalBuffer.getNumSamples();
         if (originalSamples == 0 || masterLengthSamples == 0) return;
+        
+        // デバッグ: originalBufferの内容確認
+        float maxMag = wp.originalBuffer.getMagnitude(0, juce::jmin(1000, originalSamples));
+        DBG("🔄 regenerateWaveformPath: trackId=" << wp.trackId 
+            << " originalSamples=" << originalSamples
+            << " maxMag=" << maxMag
+            << " loopMultiplier=" << wp.loopMultiplier);
         
         const int points = 1024;
         const float maxAmpWidth = 0.3f;
