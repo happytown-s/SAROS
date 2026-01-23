@@ -23,6 +23,10 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y libasound2-dev libx11-dev libxinerama-dev libxext-dev libfreetype6-dev libwebkit2gtk-4.0-dev libglu1-mesa-dev
 
+    - name: Install JUCE
+      run: |
+        git clone --depth 1 --branch master https://github.com/juce-framework/JUCE.git JUCE
+
     - name: Setup Emscripten
       uses: mymindstorm/setup-emsdk@v14
       with:
@@ -32,6 +36,7 @@ jobs:
       run: |
         emcmake cmake -B build-web \
           -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
+          -DCI_BUILD=ON \
           -DJUCE_BUILD_EXTRAS=ON \
           -DJUCE_COPY_PLUGIN_AFTER_BUILD=OFF
 
